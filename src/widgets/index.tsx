@@ -5,25 +5,65 @@ import '../index.css';
 const POW_CODE = 'contextForCloze';
 const POW_CODE_NOHIDE = 'contextHideAllTestOne';
 
-async function onActivate(plugin: ReactRNPlugin) {
-  // 兼容沙箱：禁用/拦截 registerCSS（防止 setCustomCSS 事件）
-  try {
-    const anyApp: any = (plugin as any).app;
-    if (anyApp && typeof anyApp.registerCSS === 'function') {
-      anyApp.registerCSS = async (_id: string, _css: string) => {
-        console.warn('[CFC][CSS] registerCSS call blocked (sandbox-safe).');
-        return;
-      };
-      console.log('[CFC][CSS] registerCSS has been patched to no-op');
-    }
-  } catch (e) {
-    console.warn('[CFC][CSS] registerCSS patch failed', e);
+// 全局变量保存 plugin 实例,用于 postMessage 监听器
+let globalPlugin: ReactRNPlugin | null = null;
+let currentOverrideState = false; // 防止重复更新
+
+// 动态更新 Override CSS
+async function updateOverrideCSS(enabled: boolean) {
+  if (!globalPlugin) {
+    console.error('[CFC] globalPlugin not initialized');
+    return;
   }
+
+  // 防止重复更新
+  if (currentOverrideState === enabled) {
+    console.log(`[CFC] Override CSS already ${enabled ? 'enabled' : 'disabled'}, skipping update`);
+    return;
+  }
+
+  const css = enabled
+    ? `
+      /* 隐藏原生 flashcard 主内容区域 */
+      .spaced-repetition__prompt {
+        display: none !important;
+      }
+    `
+    : `
+      /* Override disabled - 不隐藏任何内容 */
+    `;
+
+  await globalPlugin.app.registerCSS('cfc-override-native', css);
+  currentOverrideState = enabled;
+  console.log(`[CFC] Override CSS ${enabled ? 'enabled' : 'disabled'}`);
+}
+
+// postMessage 监听器
+function handleMessage(event: MessageEvent) {
+  try {
+    // 只处理我们的消息类型
+    if (event.data?.type === 'CFC_UPDATE_OVERRIDE_CSS') {
+      const enabled = !!event.data.enabled;
+      console.log(`[CFC] Received override CSS update: enabled=${enabled}`);
+      updateOverrideCSS(enabled).catch(err => {
+        console.error('[CFC] Failed to update CSS:', err);
+      });
+    }
+  } catch (err) {
+    console.error('[CFC] Error in message handler:', err);
+  }
+}
+
+async function onActivate(plugin: ReactRNPlugin) {
+  // 保存 plugin 实例到全局变量
+  globalPlugin = plugin;
 
   // 设置项
   await plugin.settings.registerNumberSetting({ id: 'maxDepth', title: 'Max Depth', description: '最大递归深度', defaultValue: 3 });
   await plugin.settings.registerNumberSetting({ id: 'maxNodes', title: 'Max Nodes', description: '节点数量上限', defaultValue: 100 });
   await plugin.settings.registerBooleanSetting({ id: 'debug', title: 'Debug Mode', description: '启用调试（控制台日志与占位提示）', defaultValue: false });
+  // 提供可选项：将上下文渲染到主内容区域（若在主区域未注册挂载点，则保持为 false）
+  await plugin.settings.registerBooleanSetting({ id: 'overrideNativeContent', title: 'Override Native Flashcard Content', description: '在主内容区域渲染上下文（需相应挂载点）', defaultValue: false });
   await plugin.app.toast('Context for Cloze activated');
   console.log('[CFC] Plugin activated');
 
@@ -122,9 +162,20 @@ async function onActivate(plugin: ReactRNPlugin) {
   } catch (e) {
     console.error('[CFC][CSS] local inject failed', e);
   }
+
+  // 初始化 Override CSS (默认 disabled)
+  await updateOverrideCSS(false);
+
+  // 添加 postMessage 监听器 (只监听当前窗口)
+  window.addEventListener('message', handleMessage);
+  console.log('[CFC] postMessage listener added');
 }
 
-async function onDeactivate(_: ReactRNPlugin) {}
+async function onDeactivate(_: ReactRNPlugin) {
+  // 移除 postMessage 监听器
+  window.removeEventListener('message', handleMessage);
+  globalPlugin = null;
+  console.log('[CFC] postMessage listener removed');
+}
 
 declareIndexPlugin(onActivate, onDeactivate);
-

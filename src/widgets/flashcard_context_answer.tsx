@@ -96,15 +96,18 @@ async function richToHTMLWithClozeMask(plugin: any, rich: any[], mode: 'ellipsis
 async function getNearestAnchor(plugin: any, remId: string) {
   const power = await plugin.powerup.getPowerupByCode(POW_CODE);
   if (!power) return null;
+
   const anchors = await power.taggedRem();
   const set = new Set((anchors||[]).map((r: any) => r._id));
   let cur = await plugin.rem.findOne(remId);
+
   while (cur?.parent) {
     const p = await plugin.rem.findOne(cur.parent);
     if (!p) break;
     if (set.has(p._id)) return p;
     cur = p;
   }
+
   return null;
 }
 async function shouldSkipChildAsMeta(plugin: any, rem: any): Promise<boolean> {
@@ -175,29 +178,97 @@ async function getCurrentCardRemId(plugin: any, ctx: Ctx | undefined) {
         // @ts-ignore
         if ((card as any).remId) return (card as any).remId;
       }
-    } catch {}
+    } catch (e) {
+      console.error('[CFC][A] getCurrentCardRemId 异常:', e);
+    }
   }
   return ctx?.remId;
 }
 
 function Widget() {
   const plugin = usePlugin();
-  const [tick, setTick] = React.useState(0);
-  React.useEffect(() => { const id = setInterval(() => setTick(t => t + 1), 300); return () => clearInterval(id); }, []);
-  const ctx = useRunAsync(async () => await plugin.widget.getWidgetContext(), [tick]) as Ctx | undefined;
+  const [errorCount, setErrorCount] = React.useState(0);
+  const MAX_ERRORS = 10; // 最大连续错误次数
+
+  // 移除轮询机制 - RemNote SDK 会在需要时自动触发重新渲染
+  const ctx = useRunAsync(async () => {
+    try {
+      const context = await plugin.widget.getWidgetContext();
+      return context;
+    } catch (e) {
+      console.error('[CFC][A] getWidgetContext 失败:', e);
+      setErrorCount(prev => prev + 1);
+      return null;
+    }
+  }, []) as Ctx | undefined;
+
   const debug = useRunAsync(async () => !!(await plugin.settings.getSetting('debug')), []);
+
+  // 获取 overrideNativeContent 设置并通过 postMessage 通知 index.tsx 更新 CSS
+  const overrideNative = useRunAsync(async () => {
+    try {
+      const override = await plugin.settings.getSetting('overrideNativeContent');
+
+      // 通过 postMessage 通知 index.tsx 更新 CSS
+      // 发送到多个目标以确保消息被接收
+      const message = {
+        type: 'CFC_UPDATE_OVERRIDE_CSS',
+        enabled: !!override
+      };
+
+      // 发送到当前窗口
+      window.postMessage(message, '*');
+
+      // 发送到父窗口
+      if (window.parent !== window) {
+        window.parent.postMessage(message, '*');
+      }
+
+      // 发送到顶层窗口
+      if (window.top && window.top !== window) {
+        window.top.postMessage(message, '*');
+      }
+
+      console.log(`[CFC][A] Sent postMessage to window/parent/top: enabled=${!!override}`);
+
+      return !!override;
+    } catch (e) {
+      console.error('[CFC][A] Failed to get/apply overrideNativeContent:', e);
+      return false;
+    }
+  }, [ctx?.remId]); // 依赖 ctx.remId,每次切换卡片时重新检查
 
 
 
   const { items, shouldMask, enabled } = useRunAsync(async () => {
     try {
-      console.log('[CFC][A] ctx', ctx);
-      if (!ctx?.remId) return { items: [] as { id: string; depth: number; html: string; isCurrent?: boolean }[], enabled: false };
-      if (!ctx?.revealed) return { items: [], enabled: false };
+      // 获取 debug 设置
+      const isDebug = await plugin.settings.getSetting('debug');
+      if (isDebug) console.log('[CFC][A] useRunAsync 开始执行');
+
+      if (!ctx?.remId) {
+        if (isDebug) console.warn('[CFC][A] ctx.remId 为空');
+        setErrorCount(prev => prev + 1);
+        return { items: [] as { id: string; depth: number; html: string; isCurrent?: boolean }[], enabled: false };
+      }
+
+      if (!ctx?.revealed) {
+        if (isDebug) console.log('[CFC][A] revealed=false (题目阶段)');
+        return { items: [], enabled: false };
+      }
+
       const maskId = await getCurrentCardRemId(plugin, ctx);
       const anchor = await getNearestAnchor(plugin, maskId || ctx.remId);
-      console.log('[CFC][A] anchor', anchor?._id || 'none');
-      if (!anchor) return { items: [], enabled: false };
+
+      if (!anchor) {
+        if (isDebug) console.warn('[CFC][A] 未找到 anchor');
+        setErrorCount(prev => prev + 1);
+        return { items: [], enabled: false };
+      }
+
+      if (isDebug) console.log('[CFC][A] 找到 anchor:', anchor._id);
+      // 重置错误计数（成功找到 anchor）
+      setErrorCount(0);
       // 从设置接入 Max Depth / Max Nodes（提供健壮的数值兜底）
       const rawDepth = await plugin.settings.getSetting('maxDepth');
       const rawNodes = await plugin.settings.getSetting('maxNodes');
@@ -256,17 +327,38 @@ function Widget() {
       })();
       const shouldMask = noHide;
       let items = await collectFullTree(plugin, anchor, maskId || ctx.remId, maxDepth, maxNodes, shouldMask, { hideSet, removeSet, applyHideInQueue: false });
-      console.log('[CFC][A] items', items.length, 'mask target', maskId || ctx.remId, 'shouldMask', shouldMask);
+
+      if (isDebug) {
+        console.log('[CFC][A] 成功生成', items.length, '个 items');
+        console.log('[CFC][A] items 详情:', items.map(x => ({ id: x.id, depth: x.depth, isCurrent: x.isCurrent })));
+      }
+
       return { items, shouldMask, enabled: true };
     } catch (e) {
-      console.error('[CFC][A] error', e);
+      console.error('[CFC][A] useRunAsync 异常:', e);
+      setErrorCount(prev => prev + 1);
       return { items: [], enabled: false };
     }
   }, [ctx?.remId, ctx?.revealed]) || { items: [], shouldMask: true, enabled: false } as any;
 
   // Only show on answer (back) phase
-  if (!ctx?.revealed) return null;
-  if (!enabled) return null; // 未标记我们 Power-Up（祖先链无 anchor）=> 完全透明
+  if (errorCount >= MAX_ERRORS) {
+    console.error('[CFC][A] 达到最大错误次数，停止渲染');
+    return (
+      <div className="cfc-container" style={{ padding: '10px', color: 'red', border: '1px solid red' }}>
+        <div>插件遇到错误，已停止运行。请检查控制台日志。</div>
+      </div>
+    );
+  }
+
+  if (!ctx?.revealed) {
+    return null;
+  }
+
+  if (!enabled) {
+    return null; // 未标记我们 Power-Up（祖先链无 anchor）=> 完全透明
+  }
+
   const renderItem = (it: { id: string; depth: number; html: string; isCurrent?: boolean; hasCloze?: boolean }) => {
     if (it.isCurrent) {
       return (
@@ -283,9 +375,16 @@ function Widget() {
   };
 
 
-  if (!items.length) return debug ? (
-    <div className="cfc-container"><div className="cfc-empty">No extra context</div></div>
-  ) : null;
+  if (!items.length) {
+    return debug ? (
+      <div className="cfc-container"><div className="cfc-empty">No extra context</div></div>
+    ) : null;
+  }
+
+  // 渲染阶段日志（同步，使用 debug state）
+  if (debug) {
+    console.log('[CFC][A] 准备渲染', items.length, '个 items');
+  }
   return (
     <div className="cfc-container" style={{ width: '100%', borderTop: '1px solid var(--rn-clr-border, #e4e8ef)', paddingTop: 6, overflow: 'visible' }}>
       <ul className="cfc-list" style={{ listStyle: 'disc', listStylePosition: 'outside', margin: 0, paddingLeft: 20, paddingBottom: 8, fontSize: '1.08rem' }}>
