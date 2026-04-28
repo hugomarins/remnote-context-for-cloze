@@ -1,1 +1,29 @@
 node_modules
+dist/
+*.log
+PluginZip.zip
+
+# 环境与密钥
+.env
+.env.*
+*.env
+*.key
+*.pem
+*credentials*
+*secret*
+*token*
+
+# 系统文件
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# AI agent 配置
+.mcp.json
+.claude/
+.codex/
+
+# Terraform
+*.tfstate
