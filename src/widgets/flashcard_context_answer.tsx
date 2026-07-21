@@ -31,22 +31,6 @@ function Widget() {
 
   const debug = useRunAsync(async () => !!(await plugin.settings.getSetting('debug')), []);
 
-  // Notify index.tsx (via postMessage) whether to override native flashcard content.
-  // 通过 postMessage 通知 index.tsx 是否覆盖原生 flashcard 内容。
-  useRunAsync(async () => {
-    try {
-      const override = await plugin.settings.getSetting('overrideNativeContent');
-      const message = { type: 'CFC_UPDATE_OVERRIDE_CSS', enabled: !!override };
-      window.postMessage(message, '*');
-      if (window.parent !== window) window.parent.postMessage(message, '*');
-      if (window.top && window.top !== window) window.top.postMessage(message, '*');
-      return !!override;
-    } catch (e) {
-      console.error(`${LOG} Failed to get/apply overrideNativeContent:`, e);
-      return false;
-    }
-  }, [ctx?.remId]);
-
   const { items, enabled } = (useRunAsync(async () => {
     try {
       const isDebug = await plugin.settings.getSetting('debug');
