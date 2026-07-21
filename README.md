@@ -15,7 +15,7 @@ Make your reviews clearer by showing where the current card sits in your knowled
 - How to add power‑ups to Rems
   - Commands:
     - Add Context for Cloze (quick code `cfc`)
-    - Add Context Hide All Test One (quick code `cfcnohide`)
+    - Add Context Hide All Test One (quick code `cfchideall`)
   - Works on multi‑selection.
 
 ## Compatibility with RemNote’s official “Hide in Queue” plugin
@@ -53,7 +53,7 @@ The current card’s own line is always masked as `?` regardless of this power�
 - Apply it to **the cloze card Rem that would receive the unwanted spoiler from its siblings** — i.e. the leaf whose own review you want to keep clean. It is not a group marker: it protects the specific card it sits on.
 - Do **not** apply it to the anchor/parent that carries `Context for Cloze`. The effect is keyed to the Rem of the card currently under review, and there is no inheritance down the tree, so a tag on the parent does nothing.
 - The protection is per‑card and one‑directional: tagging card A only cleans up **A’s own** review; it has no effect on what B or C show when their turn comes. So when several siblings would each be spoiled by the others, tag **each** card you want protected — any sibling you leave untagged will still reveal all the answers during its own review.
-- Tip: select the cloze cards you want to protect and run **Add Context Hide All Test One** (`cfcnohide`) — the command applies to a multi‑selection, so you can tag them in one step.
+- Tip: select the cloze cards you want to protect and run **Add Context Hide All Test One** (`cfchideall`) — the command applies to a multi‑selection, so you can tag them in one step.
 
 **When to use it.** Use it when a parent groups several sibling clozes that would spoil each other if shown together — e.g. an enumerated list where each item is its own cloze card, or a set of parallel facts you want to recall independently. Keep the default (don’t tag) when the neighboring answers are legitimate context you *want* to see while recalling the current one.
 

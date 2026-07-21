@@ -13,7 +13,7 @@
 - 为 Rem 添加 Power‑Up 的方式
   - 命令：
     - Add Context for Cloze（快速码 `cfc`）
-    - Add Context Hide All Test One（快速码 `cfcnohide`）
+    - Add Context Hide All Test One（快速码 `cfchideall`）
   - 支持对多选 Rem 一次性添加。
 
 ## 与 RemNote 官方“Hide in Queue”兼容性
@@ -51,7 +51,7 @@
 - 应把它加在**会被兄弟节点剧透的那张 cloze 卡片 Rem（叶子节点）**上，也就是你希望保持“干净复习”的那张卡片。它不是分组标记：它只保护自己所在的这张卡片。
 - **不要**把它加在承载 `Context for Cloze` 的锚点/父级上。该效果以“当前正在复习的卡片 Rem”为准，且不会沿树向下继承，因此加在父级上不会有任何作用。
 - 保护是按卡片、单向生效的：给卡片 A 添加，只会让 **A 自己的**复习变干净，对 B、C 轮到时的显示毫无影响。所以当多张兄弟节点会互相剧透时，需要给**每一张**你想保护的卡片都添加——任何未添加的兄弟节点，在它自己复习时仍会揭示全部答案。
-- 小技巧：选中所有你想保护的 cloze 卡片，再运行 **Add Context Hide All Test One**（`cfcnohide`）——该命令支持多选，可一次性添加。
+- 小技巧：选中所有你想保护的 cloze 卡片，再运行 **Add Context Hide All Test One**（`cfchideall`）——该命令支持多选，可一次性添加。
 
 **何时使用。** 当某个父级下有多张兄弟 cloze 会在同时显示时互相剧透时使用——例如每一项都是独立 cloze 卡片的编号列表，或一组你想独立回忆的并列事实。如果周围的答案是你*希望*在回忆当前项时看到的合理上下文，则保持默认（不添加）。
 
