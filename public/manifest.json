@@ -1,9 +1,9 @@
 {
   "manifestVersion": 1,
-  "id": "context_for_cloze",
-  "name": "Context for Cloze",
-  "author": "baobao700508",
-  "repoUrl": "https://github.com/baobao700508/remnote-context-for-cloze",
+  "id": "context_for_cloze_enhanced",
+  "name": "Context for Cloze - Enhanced",
+  "author": "hugomarins (fork), baobao700508 (original)",
+  "repoUrl": "https://github.com/hugomarins/remnote-context-for-cloze",
   "version": {
     "major": 0,
     "minor": 1,
