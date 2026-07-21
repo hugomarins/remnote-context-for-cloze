@@ -8,8 +8,74 @@ import { richToHTMLWithClozeMask, richHasCloze, addClozeRevealHighlight } from '
 export interface Ctx { remId?: string; cardId?: string; revealed?: boolean }
 export interface QueueAdaptOpts { hideSet: Set<string>; removeSet: Set<string>; applyHideInQueue: boolean }
 export interface TreeItem { id: string; depth: number; html: string; isCurrent?: boolean; hasCloze?: boolean }
+export interface QueueDisplaySets { hideSet: Set<string>; removeSet: Set<string>; noHierarchySet: Set<string> }
 
 const HIDDEN_IN_QUEUE_HTML = '<span style="opacity:.6;color:var(--rn-clr-text-secondary,#57606a);font-style:italic">Hidden in queue</span>';
+
+// Official / incremental-everything queue-display power-up codes. We don't register these
+// (other plugins do) — we only read their tags so the context tree mirrors native behavior.
+// 官方 / incremental-everything 的队列显示 Power-Up 代码。我们不注册它们（由其他插件注册），
+// 只读取其标记，让上下文树与原生行为保持一致。
+const QUEUE_CODES = {
+  hideInQueue: 'hideInQueue',
+  removeFromQueue: 'removeFromQueue',
+  noHierarchy: 'noHierarchy',
+  hideParent: 'hideParent',
+  hideGrandparent: 'hideGrandparent',
+  removeParent: 'removeParent',
+  removeGrandparent: 'removeGrandparent',
+};
+
+// Collect the id sets that drive queue-display adaptation. Direct power-ups (Hide/Remove in
+// Queue, No Hierarchy) mark the tagged Rem itself; the Parent/Grandparent variants are tagged
+// on the CARD but target its parent/grandparent, so we resolve those to the affected Rem id.
+//  - Hide* → hideSet   (placeholder on the question side only, via applyHideInQueue)
+//  - Remove* → removeSet (dropped on both sides)
+// Missing power-ups (not registered in this KB) simply contribute nothing.
+// 收集驱动队列显示适配的 id 集合：直接类作用于被标记 Rem 本身；父级/祖父级类作用于卡片，
+// 但目标是其父/祖父，因此需解析为受影响的 Rem id。未注册的 Power-Up 不贡献任何内容。
+export async function collectQueueDisplaySets(plugin: any): Promise<QueueDisplaySets> {
+  const taggedRems = async (code: string): Promise<any[]> => {
+    try {
+      const p = await plugin.powerup.getPowerupByCode(code);
+      return p ? (await p.taggedRem()) || [] : [];
+    } catch {
+      return [];
+    }
+  };
+  const [hideDirect, removeDirect, noH, hideParentR, hideGpR, removeParentR, removeGpR] = await Promise.all([
+    taggedRems(QUEUE_CODES.hideInQueue),
+    taggedRems(QUEUE_CODES.removeFromQueue),
+    taggedRems(QUEUE_CODES.noHierarchy),
+    taggedRems(QUEUE_CODES.hideParent),
+    taggedRems(QUEUE_CODES.hideGrandparent),
+    taggedRems(QUEUE_CODES.removeParent),
+    taggedRems(QUEUE_CODES.removeGrandparent),
+  ]);
+
+  const hideSet = new Set<string>(hideDirect.map((r: any) => r._id));
+  const removeSet = new Set<string>(removeDirect.map((r: any) => r._id));
+  const noHierarchySet = new Set<string>(noH.map((r: any) => r._id));
+
+  // Parent variants: the tagged Rem's own `.parent` is already the affected id (no extra lookup).
+  // 父级变体：被标记 Rem 的 `.parent` 就是受影响 id（无需额外查询）。
+  for (const r of hideParentR) { if (r?.parent) hideSet.add(r.parent); }
+  for (const r of removeParentR) { if (r?.parent) removeSet.add(r.parent); }
+
+  // Grandparent variants: one lookup to climb from parent to grandparent.
+  // 祖父级变体：需一次查询，从父级爬到祖父级。
+  const grandparentId = async (r: any): Promise<string | undefined> => {
+    if (!r?.parent) return undefined;
+    const p = await plugin.rem.findOne(r.parent);
+    return p?.parent || undefined;
+  };
+  await Promise.all([
+    ...hideGpR.map(async (r: any) => { const t = await grandparentId(r); if (t) hideSet.add(t); }),
+    ...removeGpR.map(async (r: any) => { const t = await grandparentId(r); if (t) removeSet.add(t); }),
+  ]);
+
+  return { hideSet, removeSet, noHierarchySet };
+}
 
 // Walk up from `remId` to the nearest ancestor tagged with the context power-up (the anchor/root).
 // 从 `remId` 向上查找最近的、被上下文 Power-Up 标记的祖先（锚点/根）。

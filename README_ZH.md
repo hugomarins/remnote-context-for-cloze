@@ -16,14 +16,24 @@
     - Add Context Hide All Test One（快速码 `cfchideall`）
   - 支持对多选 Rem 一次性添加。
 
-## 与 RemNote 官方“Hide in Queue”兼容性
-插件与 RemNote 官方“Hide in Queue”插件的三种 power‑up 完整适配：
+## 与队列显示 power‑up 的兼容性
+上下文树会与 RemNote 官方“Hide in Queue”插件**以及** Incremental Everything 插件的队列显示 power‑up 保持一致。本插件不注册其中任何一个——只在它们存在时读取其标记，因此某个 power‑up 未安装也不会有任何影响。
+
+标记在条目自身：
 - Hide in Queue（`hideInQueue`）
-  - 在上下文树中显示占位文字“Hidden in queue”，以指示该条目在复习中被隐藏。
+  - 在上下文树中显示占位文字“Hidden in queue”（仅题面阶段；答案阶段照常显示该条目）。
 - Remove from Queue（`removeFromQueue`）
   - 在上下文树中完全移除此条目（题面/答案均不显示）。
 - No Hierarchy（`noHierarchy`）
   - 当前题目带此标记时，上下文区域仅显示“当前题目这一行”，不显示祖先/兄弟/子孙，以保持与原生一致。
+
+标记在卡片上、但作用于祖先（Incremental Everything）：
+- Hide Parent（`hideParent`）/ Hide Grandparent（`hideGrandparent`）
+  - 为卡片的父级 / 祖父级那一行显示“Hidden in queue”占位（仅题面阶段）。
+- Remove Parent（`removeParent`）/ Remove Grandparent（`removeGrandparent`）
+  - 在上下文树中完全移除卡片的父级 / 祖父级那一行（题面/答案均不显示）；其剩余子级保留并取消缩进。
+
+无论带有上述哪种标记，当前卡片自己那一行始终显示。
 
 ## 配置项说明（Settings → Plugins → 本插件）
 - Max Depth（默认 3）

@@ -1,13 +1,10 @@
-import { renderWidget, usePlugin, useRunAsync } from '@remnote/plugin-sdk';
+import { renderWidget, usePlugin, useRunAsync, useTrackerPlugin } from '@remnote/plugin-sdk';
 import * as React from 'react';
 import { addClozeRevealHighlight, richHasCloze, richToHTMLWithClozeMask } from '../lib/clozeMask';
 import { useRevealDelegation } from '../lib/revealInteraction';
-import { collectFullTree, getCurrentCardRemId, getNearestAnchor, TreeItem } from '../lib/contextTree';
+import { collectFullTree, collectQueueDisplaySets, getCurrentCardRemId, getNearestAnchor, TreeItem } from '../lib/contextTree';
 
 const POW_CODE = 'contextForCloze';
-const HIDE_IN_QUEUE = 'hideInQueue';
-const REMOVE_FROM_QUEUE = 'removeFromQueue';
-const NO_HIERARCHY = 'noHierarchy';
 const HIDE_ALL_TEST_ONE = 'contextHideAllTestOne';
 const LOG = '[CFC][A]';
 
@@ -26,6 +23,15 @@ function Widget() {
       return null;
     }
   }, []) as any;
+
+  // `revealed` must be read REACTIVELY: getWidgetContext() is a one-time snapshot that never
+  // updates when the answer is shown, so ctx.revealed stays false. hasRevealedAnswer() under
+  // useTrackerPlugin re-runs when the reveal state flips, letting the two stages hand off.
+  // `revealed` 必须响应式读取：getWidgetContext() 是一次性快照，点击“显示答案”后不会更新，
+  // 因此 ctx.revealed 会一直为 false。用 useTrackerPlugin 读取 hasRevealedAnswer() 可在揭示时重新运行。
+  const revealed = useTrackerPlugin(async (rp) => {
+    try { return await rp.queue.hasRevealedAnswer(); } catch { return false; }
+  }, []) as boolean | undefined;
 
   const debug = useRunAsync(async () => !!(await plugin.settings.getSetting('debug')), []);
 
@@ -53,7 +59,7 @@ function Widget() {
         setErrorCount((prev) => prev + 1);
         return { items: [] as TreeItem[], enabled: false };
       }
-      if (!ctx?.revealed) {
+      if (!revealed) {
         return { items: [], enabled: false };
       }
 
@@ -93,17 +99,13 @@ function Widget() {
         return { items: [], enabled: false } as any;
       }
 
-      // Tag sets for the three official queue power-ups.
-      // 三种官方队列 Power-up 的标记集合。
-      const [hideSet, removeSet, noHSet] = await Promise.all([
-        (async () => { const p = await plugin.powerup.getPowerupByCode(HIDE_IN_QUEUE); const t = p ? await p.taggedRem() : []; return new Set((t || []).map((r: any) => r._id)); })(),
-        (async () => { const p = await plugin.powerup.getPowerupByCode(REMOVE_FROM_QUEUE); const t = p ? await p.taggedRem() : []; return new Set((t || []).map((r: any) => r._id)); })(),
-        (async () => { const p = await plugin.powerup.getPowerupByCode(NO_HIERARCHY); const t = p ? await p.taggedRem() : []; return new Set((t || []).map((r: any) => r._id)); })(),
-      ]);
+      // Queue-display tag sets (Hide/Remove in Queue, No Hierarchy, and the parent/grandparent variants).
+      // 队列显示标记集合（Hide/Remove in Queue、No Hierarchy，以及父级/祖父级变体）。
+      const { hideSet, removeSet, noHierarchySet } = await collectQueueDisplaySets(plugin);
 
       // No Hierarchy on the current card: show only the current line (matches native).
       // 当前题目带 noHierarchy：仅显示“当前题目这一行”，对齐原生。
-      if (noHSet.has(maskId || ctx.remId)) {
+      if (noHierarchySet.has(maskId || ctx.remId)) {
         const cur = await plugin.rem.findOne(maskId || ctx.remId);
         const rich = cur?.text || [];
         const hasCloze = richHasCloze(rich);
@@ -134,7 +136,7 @@ function Widget() {
       setErrorCount((prev) => prev + 1);
       return { items: [], enabled: false };
     }
-  }, [ctx?.remId, ctx?.revealed]) || { items: [], shouldMask: true, enabled: false }) as any;
+  }, [ctx?.remId, revealed]) || { items: [], shouldMask: true, enabled: false }) as any;
 
   // Wire up click-to-reveal for masked sibling clozes.
   // 为被遮挡的兄弟 cloze 接入“点击揭示”。
@@ -152,7 +154,7 @@ function Widget() {
       </div>
     );
   }
-  if (!ctx?.revealed) return null;
+  if (!revealed) return null;
   if (!enabled) return null; // no anchor in ancestry => render nothing
   if (!items.length) {
     return debug ? (

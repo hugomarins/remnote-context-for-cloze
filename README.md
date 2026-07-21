@@ -18,14 +18,24 @@ Make your reviews clearer by showing where the current card sits in your knowled
     - Add Context Hide All Test One (quick code `cfchideall`)
   - Works on multi‑selection.
 
-## Compatibility with RemNote’s official “Hide in Queue” plugin
-Fully adapted to the three official power‑ups:
+## Compatibility with queue‑display power‑ups
+The context tree mirrors the queue‑display power‑ups from RemNote’s official “Hide in Queue” plugin **and** from the Incremental Everything plugin. This plugin does not register any of them — it only reads their tags when they exist, so nothing is affected if a power‑up isn’t installed.
+
+Tagged on the item itself:
 - Hide in Queue (`hideInQueue`)
-  - Shows the placeholder text “Hidden in queue” for that item in the context tree.
+  - Shows the placeholder text “Hidden in queue” for that item in the context tree (question stage only; the item shows normally on the answer stage).
 - Remove from Queue (`removeFromQueue`)
-  - Completely removes the item from the context tree (both in question and answer stages).
+  - Completely removes the item from the context tree (both question and answer stages).
 - No Hierarchy (`noHierarchy`)
   - When present on the current card, the context area only shows “this line” (no ancestors/siblings/descendants), matching RemNote’s native behavior.
+
+Tagged on the card, but targeting an ancestor (Incremental Everything):
+- Hide Parent (`hideParent`) / Hide Grandparent (`hideGrandparent`)
+  - Shows the “Hidden in queue” placeholder for the card’s parent / grandparent line (question stage only).
+- Remove Parent (`removeParent`) / Remove Grandparent (`removeGrandparent`)
+  - Completely removes the card’s parent / grandparent line from the context tree (both stages); its remaining children stay, un‑indented.
+
+The current card’s own line is always shown, regardless of any of these tags.
 
 ## Settings (Settings → Plugins → This Plugin)
 - Max Depth (default: 3)
