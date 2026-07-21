@@ -1,7 +1,8 @@
-import { renderWidget, usePlugin, useRunAsync, useTrackerPlugin } from '@remnote/plugin-sdk';
+import { renderWidget, usePlugin, useRunAsync } from '@remnote/plugin-sdk';
 import * as React from 'react';
 import { addClozeRevealHighlight, richHasCloze, richToHTMLWithClozeMask } from '../lib/clozeMask';
 import { useRevealDelegation } from '../lib/revealInteraction';
+import { useRevealedAnswer } from '../lib/useRevealedAnswer';
 import { collectFullTree, collectQueueDisplaySets, getCurrentCardRemId, getNearestAnchor, TreeItem } from '../lib/contextTree';
 
 const POW_CODE = 'contextForCloze';
@@ -24,14 +25,9 @@ function Widget() {
     }
   }, []) as any;
 
-  // `revealed` must be read REACTIVELY: getWidgetContext() is a one-time snapshot that never
-  // updates when the answer is shown, so ctx.revealed stays false. hasRevealedAnswer() under
-  // useTrackerPlugin re-runs when the reveal state flips, letting the two stages hand off.
-  // `revealed` 必须响应式读取：getWidgetContext() 是一次性快照，点击“显示答案”后不会更新，
-  // 因此 ctx.revealed 会一直为 false。用 useTrackerPlugin 读取 hasRevealedAnswer() 可在揭示时重新运行。
-  const revealed = useTrackerPlugin(async (rp) => {
-    try { return await rp.queue.hasRevealedAnswer(); } catch { return false; }
-  }, []) as boolean | undefined;
+  // Reliable reveal state (event-driven + polled fallback; see useRevealedAnswer for why).
+  // 可靠的揭示状态（事件驱动 + 轮询兜底；原因见 useRevealedAnswer）。
+  const revealed = useRevealedAnswer(plugin);
 
   const debug = useRunAsync(async () => !!(await plugin.settings.getSetting('debug')), []);
 
