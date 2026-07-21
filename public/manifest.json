@@ -11,7 +11,7 @@
   },
   "theme": [],
   "enableOnMobile": true,
-  "description": "显示 Cloze 题面上下文（基于最近 Power-Up 祖先的子树，纯显示层）",
+  "description": "Show a context tree under cloze cards in the queue (rooted at the nearest Power-Up ancestor; display-only). 显示 Cloze 题面上下文（基于最近 Power-Up 祖先的子树，纯显示层）",
   "requestNative": false,
   "requiredScopes": [
     {
