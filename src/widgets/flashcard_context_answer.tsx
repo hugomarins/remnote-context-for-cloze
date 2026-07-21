@@ -1,4 +1,4 @@
-import { renderWidget, usePlugin, useRunAsync } from '@remnote/plugin-sdk';
+import { renderWidget, usePlugin, useRunAsync, BuiltInPowerupCodes } from '@remnote/plugin-sdk';
 import * as React from 'react';
 
 
@@ -20,6 +20,14 @@ type Ctx = { remId?: string; cardId?: string; revealed?: boolean };
 const ELLIPSIS_TOKEN = '[[[CFC_EL]]]';
 const ELLIPSIS_HTML = '<span class="cfc-omission" style="display:inline-block;padding:0 10px;border-radius:6px;line-height:1.2;background:var(--rn-clr-warning-muted, rgba(255,212,0,0.15));color:var(--rn-clr-warning, #b58900);border:0">…</span>';
 const QUESTION_HTML = '<span class="cfc-question" style="display:inline-block;padding:0 12px;border-radius:6px;line-height:1.2;background:var(--rn-clr-accent-muted, rgba(56,139,253,0.15));color:var(--rn-clr-accent, #0969da);border:0">?</span>';
+// Rem reference "pins" are rich-text elements with i:'q' and pin:true. They must
+// render as a single pin icon, NOT the full text of the referenced rem — expanding
+// them clutters the context tree and can leak the cloze answer.
+// Rem 引用“图钉”(pin) 是 i:'q' 且 pin:true 的富文本元素。应仅渲染为一个图钉图标，
+// 而非展开被引用 Rem 的全文——展开会污染上下文树，甚至泄露 cloze 答案。
+const PIN_TOKEN = '[[[CFC_PIN]]]';
+const PIN_HTML = '<span class="cfc-pin" style="display:inline-block;opacity:.7;vertical-align:baseline" title="Pinned reference (hidden in context)">📌</span>';
+const isPinRef = (el: any) => el != null && typeof el === 'object' && el.i === 'q' && !!el.pin;
 function richHasCloze(rich: any[]): boolean {
   if (!Array.isArray(rich)) return false;
   const hasAnyCloze = (obj: any) => !!(obj?.cId || obj?.hiddenCloze || obj?.revealedCloze || obj?.latexClozes?.length || Object.keys(obj||{}).some(k => /cloze/i.test(k)));
@@ -48,10 +56,13 @@ function addClozeRevealHighlight(html: string): string {
 
 async function richToHTMLWithClozeMask(plugin: any, rich: any[], mode: 'ellipsis' | 'question' | 'none'): Promise<string> {
   if (!Array.isArray(rich)) return '';
+  // Collapse pin references to a token before rendering (applies in every mode).
+  // 渲染前先把图钉引用替换为占位符（所有 mode 均适用）。
+  const withPins = rich.map((el: any) => (isPinRef(el) ? { i: 'm', text: PIN_TOKEN } : el));
   if (mode === 'none') {
     try {
-      const html = await plugin.richText.toHTML(rich);
-      const finalHtml = revealClozeInHTML(html);
+      const html = await plugin.richText.toHTML(withPins);
+      const finalHtml = revealClozeInHTML(html).replaceAll(PIN_TOKEN, PIN_HTML);
       try { const dbg = await plugin.settings.getSetting('debug'); if (dbg) console.log('[CFC][A] toHTML noMask', { rich, html, finalHtml }); } catch {}
       return finalHtml;
     } catch {
@@ -66,6 +77,7 @@ async function richToHTMLWithClozeMask(plugin: any, rich: any[], mode: 'ellipsis
   const masked: any[] = [];
   for (const el of rich) {
     if (typeof el === 'string') { masked.push(el); continue; }
+    if (isPinRef(el)) { masked.push({ i: 'm', text: PIN_TOKEN }); continue; }
     const i = (el as any)?.i;
     const hasAnyCloze = (obj: any) => !!(obj?.cId || obj?.hiddenCloze || obj?.revealedCloze || obj?.latexClozes?.length || Object.keys(obj||{}).some(k => /cloze/i.test(k)));
     if (i === 'm') {
@@ -81,7 +93,7 @@ async function richToHTMLWithClozeMask(plugin: any, rich: any[], mode: 'ellipsis
   try {
     const html = await plugin.richText.toHTML(masked);
     const replacement = mode === 'question' ? QUESTION_HTML : ELLIPSIS_HTML;
-    const finalHtml = html.replaceAll(ELLIPSIS_TOKEN, replacement);
+    const finalHtml = html.replaceAll(ELLIPSIS_TOKEN, replacement).replaceAll(PIN_TOKEN, PIN_HTML);
     try { const dbg = await plugin.settings.getSetting('debug'); if (dbg) console.log('[CFC][A] rich->html', { rich, masked, html, finalHtml, mode }); } catch {}
     return finalHtml;
   } catch {
@@ -111,6 +123,12 @@ async function getNearestAnchor(plugin: any, remId: string) {
   return null;
 }
 async function shouldSkipChildAsMeta(plugin: any, rem: any): Promise<boolean> {
+  // Skip Search Portal ("query:") rems: their body is a transclusion of query
+  // results, which pollutes the context tree and may leak the cloze answer.
+  // \u8df3\u8fc7 Search Portal\uff08\u201cquery:\u201d\uff09Rem\uff1a\u5176\u5185\u5bb9\u662f\u67e5\u8be2\u7ed3\u679c\u7684\u8f6c\u5199\uff0c\u4f1a\u6c61\u67d3\u4e0a\u4e0b\u6587\u6811\u5e76\u53ef\u80fd\u6cc4\u9732\u7b54\u6848\u3002
+  try {
+    if (rem && typeof rem.hasPowerup === 'function' && await rem.hasPowerup(BuiltInPowerupCodes.SearchPortal)) return true;
+  } catch {}
   try {
     const s = (await plugin.richText.toString(rem?.text || []) || '').trim();
     const lower = s.toLowerCase();
