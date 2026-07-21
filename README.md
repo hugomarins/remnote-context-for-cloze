@@ -18,7 +18,7 @@ Make your reviews clearer by showing where the current card sits in your knowled
     - Add Context Hide All Test One (quick code `cfchideall`)
   - Works on multi‑selection.
 
-## Compatibility with queue‑display power‑ups
+## Compatibility with queue‑display power‑ups (“Hide in Queue” official plugin and "Incremental Everything" plugin)
 The context tree mirrors the queue‑display power‑ups from RemNote’s official “Hide in Queue” plugin **and** from the Incremental Everything plugin. This plugin does not register any of them — it only reads their tags when they exist, so nothing is affected if a power‑up isn’t installed.
 
 Tagged on the item itself:
