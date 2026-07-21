@@ -130,9 +130,14 @@ async function onActivate(plugin: ReactRNPlugin) {
     .rn-queue__content .cfc-title { display: none; color: var(--rn-clr-text-secondary, #57606a); font-weight: 600; margin-bottom: 4px; }
     .rn-queue__content .rn-dialog .cfc-container { display: none !important; }
 
+    /* Keep the context block inside the widget iframe so no horizontal scrollbar appears. */
+    /* 将上下文块约束在挂件 iframe 内，避免出现水平滚动条。 */
+    .rn-queue__content .cfc-container { box-sizing: border-box; max-width: 100%; overflow-x: hidden; }
+    .rn-queue__content .cfc-container * { min-width: 0; }
+
     /* 列表与条目样式，避免默认圆点与过大缩进 */
     .rn-queue__content .cfc-list { list-style: none; margin: 0; padding-left: 0; }
-    .rn-queue__content .cfc-item { margin: 5px 0; white-space: pre-wrap; }
+    .rn-queue__content .cfc-item { margin: 5px 0; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
 
     /* 黄底省略号徽标（与蓝色问号一致的尺寸/圆角/边框） */
     .rn-queue__content .cfc-omission {

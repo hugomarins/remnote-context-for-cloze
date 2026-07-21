@@ -9,9 +9,9 @@ Make your reviews clearer by showing where the current card sits in your knowled
   - Add the power‑up “Context for Cloze” (code: `contextForCloze`) to a Rem. All its descendants, when reviewed as cards, will show a context tree rooted at that Rem under the card.
   - Question stage: the context is shown while avoiding any leak of cloze answers.
   - Answer stage: the context remains; revealed cloze is indicated by a blue underline with a light‑blue highlight for easy comparison.
-- Context Hide All Test One (Display policy helper)
-  - Add the power‑up “Context Hide All Test One” (code: `contextHideAllTestOne`) to switch how other lines’ clozes appear inside the context tree (show original vs. mask with ellipses).
-  - Useful when you want stricter clue‑hiding or need to review full source text.
+- Context Hide All Test One (`contextHideAllTestOne`) — “Hide All others, Test this One.”
+  - By default, the context tree hides only the blank you are actually being tested on; every *other* cloze line is shown with its answer revealed. Tag a cloze card with this power‑up when you don’t want **that card’s** review to be spoiled by its siblings — while it is under review, all other cloze answers are hidden (shown as `…`) instead.
+  - Apply it to the cloze card Rem that would receive the spoiler (the leaf), **not** to the anchor/parent. See [Context Hide All Test One](#context-hide-all-test-one--protecting-a-cloze-from-its-siblings) below.
 - How to add power‑ups to Rems
   - Commands:
     - Add Context for Cloze (quick code `cfc`)
@@ -38,8 +38,24 @@ Fully adapted to the three official power‑ups:
 ## How to Use
 1. Pick a Rem as the “context anchor” and add the power‑up “Context for Cloze” (`contextForCloze`).
 2. Start reviewing: whenever any descendant becomes a card, a context tree rooted at the anchor appears under the card.
-3. Optional: add “Context Hide All Test One” (`contextHideAllTestOne`) where needed to switch the masking behavior of other lines.
+3. Optional: if a cloze card would be spoiled by its siblings’ revealed answers, add “Context Hide All Test One” (`contextHideAllTestOne`) to **that card**. See the dedicated section below.
 4. Tune Max Depth / Max Nodes in Settings to balance information density and readability.
+
+## Context Hide All Test One — protecting a cloze from its siblings
+
+**What it does.** By default this plugin hides only the blank you are actually being tested on. Every *other* cloze in the context tree — siblings, and any other cloze line — is shown with its answer **revealed** (blue underline), so the surrounding answers act as visible context.
+
+`Context Hide All Test One` reverses that for the card it is applied to: while that card is under review, the answers on **all other** cloze lines in the tree are **masked** (shown as `…`) instead of revealed. Mnemonic: *Hide All [other answers], Test [this] One.*
+
+The current card’s own line is always masked as `?` regardless of this power‑up, and plain (non‑cloze) context text is always shown. This power‑up only changes how *other* clozes appear.
+
+**Where to apply it.**
+- Apply it to **the cloze card Rem that would receive the unwanted spoiler from its siblings** — i.e. the leaf whose own review you want to keep clean. It is not a group marker: it protects the specific card it sits on.
+- Do **not** apply it to the anchor/parent that carries `Context for Cloze`. The effect is keyed to the Rem of the card currently under review, and there is no inheritance down the tree, so a tag on the parent does nothing.
+- The protection is per‑card and one‑directional: tagging card A only cleans up **A’s own** review; it has no effect on what B or C show when their turn comes. So when several siblings would each be spoiled by the others, tag **each** card you want protected — any sibling you leave untagged will still reveal all the answers during its own review.
+- Tip: select the cloze cards you want to protect and run **Add Context Hide All Test One** (`cfcnohide`) — the command applies to a multi‑selection, so you can tag them in one step.
+
+**When to use it.** Use it when a parent groups several sibling clozes that would spoil each other if shown together — e.g. an enumerated list where each item is its own cloze card, or a set of parallel facts you want to recall independently. Keep the default (don’t tag) when the neighboring answers are legitimate context you *want* to see while recalling the current one.
 
 ## Tips
 - The plugin only renders in the review queue; the editor view is not affected.
