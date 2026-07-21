@@ -5,70 +5,16 @@ import '../index.css';
 const POW_CODE = 'contextForCloze';
 const POW_CODE_HIDE_ALL_TEST_ONE = 'contextHideAllTestOne';
 
-// 全局变量保存 plugin 实例,用于 postMessage 监听器
-let globalPlugin: ReactRNPlugin | null = null;
-let currentOverrideState = false; // 防止重复更新
-
-// 动态更新 Override CSS
-async function updateOverrideCSS(enabled: boolean) {
-  if (!globalPlugin) {
-    console.error('[CFC] globalPlugin not initialized');
-    return;
-  }
-
-  // 防止重复更新
-  if (currentOverrideState === enabled) {
-    console.log(`[CFC] Override CSS already ${enabled ? 'enabled' : 'disabled'}, skipping update`);
-    return;
-  }
-
-  const css = enabled
-    ? `
-      /* 隐藏原生 flashcard 主内容区域 */
-      .spaced-repetition__prompt {
-        display: none !important;
-      }
-    `
-    : `
-      /* Override disabled - 不隐藏任何内容 */
-    `;
-
-  await globalPlugin.app.registerCSS('cfc-override-native', css);
-  currentOverrideState = enabled;
-  console.log(`[CFC] Override CSS ${enabled ? 'enabled' : 'disabled'}`);
-}
-
-// postMessage 监听器
-function handleMessage(event: MessageEvent) {
-  try {
-    // 只处理我们的消息类型
-    if (event.data?.type === 'CFC_UPDATE_OVERRIDE_CSS') {
-      const enabled = !!event.data.enabled;
-      console.log(`[CFC] Received override CSS update: enabled=${enabled}`);
-      updateOverrideCSS(enabled).catch(err => {
-        console.error('[CFC] Failed to update CSS:', err);
-      });
-    }
-  } catch (err) {
-    console.error('[CFC] Error in message handler:', err);
-  }
-}
-
 async function onActivate(plugin: ReactRNPlugin) {
-  // 保存 plugin 实例到全局变量
-  globalPlugin = plugin;
-
-  // 设置项
-  await plugin.settings.registerNumberSetting({ id: 'maxDepth', title: 'Max Depth', description: '最大递归深度', defaultValue: 3 });
-  await plugin.settings.registerNumberSetting({ id: 'maxNodes', title: 'Max Nodes', description: '节点数量上限', defaultValue: 100 });
-  await plugin.settings.registerBooleanSetting({ id: 'debug', title: 'Debug Mode', description: '启用调试（控制台日志与占位提示）', defaultValue: false });
-  // 提供可选项：将上下文渲染到主内容区域（若在主区域未注册挂载点，则保持为 false）
-  await plugin.settings.registerBooleanSetting({ id: 'overrideNativeContent', title: 'Override Native Flashcard Content', description: '在主内容区域渲染上下文（需相应挂载点）', defaultValue: false });
+  // Settings / 设置项
+  await plugin.settings.registerNumberSetting({ id: 'maxDepth', title: 'Max Depth', description: 'Maximum depth of the context tree. 最大递归深度', defaultValue: 3 });
+  await plugin.settings.registerNumberSetting({ id: 'maxNodes', title: 'Max Nodes', description: 'Maximum number of nodes shown. 节点数量上限', defaultValue: 100 });
+  await plugin.settings.registerBooleanSetting({ id: 'debug', title: 'Debug Mode', description: 'Enable debugging (console logs and placeholder hints). 启用调试（控制台日志与占位提示）', defaultValue: false });
   await plugin.app.toast('Context for Cloze activated');
   console.log('[CFC] Plugin activated');
 
   // Power-Up
-  await plugin.app.registerPowerup({ name: 'Context for Cloze', code: POW_CODE, description: '为 Cloze 复习提供邻近上下文（显示层）', options: { slots: [] } });
+  await plugin.app.registerPowerup({ name: 'Context for Cloze', code: POW_CODE, description: 'Provide nearby context for Cloze review (display layer). 为 Cloze 复习提供邻近上下文（显示层）', options: { slots: [] } });
   await plugin.app.registerPowerup({ name: 'Context Hide All Test One', code: POW_CODE_HIDE_ALL_TEST_ONE, description: 'When tagged on a cloze card: while it is under review, hide all OTHER clozes in the context tree (masked as clickable "…") instead of revealing them. 当此卡片被标记后：复习它时，隐藏上下文树中所有其他 cloze（遮挡为可点击的“…”），而非揭示。', options: { slots: [] } });
 
   // 命令：为选中 Rem 添加 Power-Up（支持多选）
@@ -177,20 +123,10 @@ async function onActivate(plugin: ReactRNPlugin) {
   } catch (e) {
     console.error('[CFC][CSS] local inject failed', e);
   }
-
-  // 初始化 Override CSS (默认 disabled)
-  await updateOverrideCSS(false);
-
-  // 添加 postMessage 监听器 (只监听当前窗口)
-  window.addEventListener('message', handleMessage);
-  console.log('[CFC] postMessage listener added');
 }
 
 async function onDeactivate(_: ReactRNPlugin) {
-  // 移除 postMessage 监听器
-  window.removeEventListener('message', handleMessage);
-  globalPlugin = null;
-  console.log('[CFC] postMessage listener removed');
+  // No teardown needed. / 无需清理。
 }
 
 declareIndexPlugin(onActivate, onDeactivate);
