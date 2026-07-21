@@ -7,9 +7,9 @@
   - 在某个 Rem 上添加 Power‑Up“Context for Cloze”后（code：`contextForCloze`），该 Rem 的所有子代在复习成为题卡时，卡片下方会显示以该 Rem 为根的“上下文树”。
   - 题面阶段：上下文照常显示，但会避免泄露 cloze（填空）答案线索。
   - 答案阶段：继续显示上下文；被“揭示”的 cloze 以蓝色下划线和浅蓝背景作提示，便于对照与回顾。
-- Context Hide All Test One（显示策略辅助）
-  - 通过给 Rem 添加 Power‑Up“Context Hide All Test One”（code：`contextHideAllTestOne`），可调整“上下文树中其他行的 cloze 显示逻辑”（显示原文或以省略号遮挡）。
-  - 适合在希望更严格防止提示泄露或需要完整回看原文的场景间切换。
+- Context Hide All Test One（`contextHideAllTestOne`）——“隐藏其他、只测这一个”。
+  - 默认情况下，上下文树只隐藏你当前正在被测的那个填空；其他每一行的 cloze 都会显示揭示后的答案。当你不希望**某张卡片自己的复习**被其兄弟节点剧透时，给这张 cloze 卡片添加此 Power‑Up——在它被复习时，其他所有 cloze 答案将改为被遮挡（显示为 `…`）。
+  - 应把它加在**会被剧透的那张 cloze 卡片 Rem（叶子节点）**上，而**不是**加在锚点/父级上。详见下文 [Context Hide All Test One](#context-hide-all-test-one保护会被兄弟节点剧透的-cloze-卡片)。
 - 为 Rem 添加 Power‑Up 的方式
   - 命令：
     - Add Context for Cloze（快速码 `cfc`）
@@ -36,8 +36,24 @@
 ## 使用方法
 1. 选择一个 Rem 作为“上下文锚点”，为其添加 Power‑Up“Context for Cloze”（`contextForCloze`）。
 2. 开始复习：当该锚点的任意子代成为题卡时，卡片下方会显示以锚点为根的“上下文树”。
-3. 可选：按需为相关 Rem 添加“Context Hide All Test One”（`contextHideAllTestOne`），切换其他行 cloze 的显示/遮挡策略。
+3. 可选：如果某张 cloze 卡片会被其兄弟节点揭示的答案剧透，就给**这张卡片**添加“Context Hide All Test One”（`contextHideAllTestOne`）。详见下文专门章节。
 4. 如有需要，在插件设置中调整 Max Depth / Max Nodes，以获得合适的信息密度。
+
+## Context Hide All Test One——保护会被兄弟节点剧透的 cloze 卡片
+
+**功能说明。** 默认情况下，本插件只隐藏你当前正在被测的那个填空。上下文树中其他每一个 cloze——包括兄弟节点以及任何其他 cloze 行——都会显示揭示后的答案（蓝色下划线），让周围的答案充当可见的上下文。
+
+`Context Hide All Test One` 会为它所应用的那张卡片反转这一行为：当该卡片被复习时，树中**其他所有** cloze 行的答案改为被**遮挡**（显示为 `…`），而不再揭示。助记：*隐藏其他[所有答案]、只测这一个。*
+
+无论是否添加此 Power‑Up，当前卡片自己那一行始终以 `?` 遮挡，而纯文本（非 cloze）上下文始终照常显示。此 Power‑Up 只改变*其他* cloze 的显示方式。
+
+**加在哪里。**
+- 应把它加在**会被兄弟节点剧透的那张 cloze 卡片 Rem（叶子节点）**上，也就是你希望保持“干净复习”的那张卡片。它不是分组标记：它只保护自己所在的这张卡片。
+- **不要**把它加在承载 `Context for Cloze` 的锚点/父级上。该效果以“当前正在复习的卡片 Rem”为准，且不会沿树向下继承，因此加在父级上不会有任何作用。
+- 保护是按卡片、单向生效的：给卡片 A 添加，只会让 **A 自己的**复习变干净，对 B、C 轮到时的显示毫无影响。所以当多张兄弟节点会互相剧透时，需要给**每一张**你想保护的卡片都添加——任何未添加的兄弟节点，在它自己复习时仍会揭示全部答案。
+- 小技巧：选中所有你想保护的 cloze 卡片，再运行 **Add Context Hide All Test One**（`cfcnohide`）——该命令支持多选，可一次性添加。
+
+**何时使用。** 当某个父级下有多张兄弟 cloze 会在同时显示时互相剧透时使用——例如每一项都是独立 cloze 卡片的编号列表，或一组你想独立回忆的并列事实。如果周围的答案是你*希望*在回忆当前项时看到的合理上下文，则保持默认（不添加）。
 
 ## 提示
 - 本插件仅在“复习队列”中显示；编辑器视图不受影响。
