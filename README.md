@@ -57,6 +57,8 @@ The current card’s own line is always masked as `?` regardless of this power�
 
 **When to use it.** Use it when a parent groups several sibling clozes that would spoil each other if shown together — e.g. an enumerated list where each item is its own cloze card, or a set of parallel facts you want to recall independently. Keep the default (don’t tag) when the neighboring answers are legitimate context you *want* to see while recalling the current one.
 
+**Reveal hidden clozes one at a time (click to reveal).** When a card is protected this way, each masked `…` is a button. Click it (or focus it and press Enter/Space) to reveal just that cloze’s answer in place; click again to hide it back to `…`. This lets you self‑evaluate the surrounding hidden clozes gradually — one by one — even though they are not the card being tested. Each `…` toggles independently, the tested blank itself stays hidden (it never becomes clickable), and every reveal resets automatically when you move to the next card.
+
 ## Tips
 - The plugin only renders in the review queue; the editor view is not affected.
 - If the current card is not under any “Context for Cloze” anchor, no context tree is shown.

@@ -154,6 +154,16 @@ async function onActivate(plugin: ReactRNPlugin) {
       text-decoration-thickness: 2px;
       text-underline-offset: 2px;
     }
+
+    /* Click-to-reveal masked clozes (Hide All Test One): the "…" is a button; */
+    /* once revealed it drops the chip background so it reads as inline text. */
+    /* 点击揭示被遮挡的 cloze（Hide All Test One）：“…”是一个按钮； */
+    /* 揭示后去掉徽标背景，读起来就是普通行内文本。 */
+    .rn-queue__content .cfc-reveal { cursor: pointer; user-select: none; }
+    .rn-queue__content .cfc-reveal:hover { outline: 1px dashed var(--rn-clr-warning, #b58900); outline-offset: 1px; }
+    .rn-queue__content .cfc-omission.cfc-revealed {
+      background: transparent; color: inherit; padding: 0; cursor: pointer; user-select: text;
+    }
   `;
   try {
     const upsertStyle = (id: string, css: string) => {
