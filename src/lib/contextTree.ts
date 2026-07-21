@@ -2,7 +2,7 @@
 // skip metadata/search-portal rems, and collect the masked tree rooted at the anchor.
 // 问题/答案挂件共享的上下文树遍历：查找锚点、跳过元数据/搜索门户 Rem、
 // 并收集以锚点为根的（已掩码）上下文树。
-import { BuiltInPowerupCodes } from '@remnote/plugin-sdk';
+import { BuiltInPowerupCodes, PORTAL_TYPE } from '@remnote/plugin-sdk';
 import { richToHTMLWithClozeMask, richHasCloze, addClozeRevealHighlight } from './clozeMask';
 
 export interface Ctx { remId?: string; cardId?: string; revealed?: boolean }
@@ -96,11 +96,21 @@ export async function getNearestAnchor(plugin: any, remId: string, powCode: stri
 
 // Skip rems that shouldn't appear in the context tree:
 //  - Search Portal ("query:") rems — their body is a transclusion of query results, which
-//    pollutes the tree and may leak the cloze answer.
+//    pollutes the tree and may leak the cloze answer. Detected via getPortalType() === SEARCH_PORTAL
+//    (the SearchPortal power-up is NOT reliably present on these rems — confirmed by logging).
+//    Normal portals (portalType PORTAL / undefined) are deliberately kept: they can be real context.
 //  - Title-style metadata rems (Size / 大小).
-// 跳过不应出现在上下文树中的 Rem：搜索门户（“query:”）Rem，以及标题样式元数据（Size/大小）。
+// 跳过不应出现在上下文树中的 Rem：搜索门户（“query:”）Rem——其内容是查询结果的转写，会污染上下文树
+// 并可能泄露答案。通过 getPortalType() === SEARCH_PORTAL 识别（这些 Rem 上并不可靠地带有 SearchPortal
+// Power-Up——已由日志证实）。普通门户（portalType 为 PORTAL/undefined）故意保留，它们可能是真实上下文。
+// 以及标题样式元数据（Size/大小）。
 export async function shouldSkipChildAsMeta(plugin: any, rem: any): Promise<boolean> {
   try {
+    if (rem && typeof rem.getPortalType === 'function' && (await rem.getPortalType()) === PORTAL_TYPE.SEARCH_PORTAL) return true;
+  } catch {}
+  try {
+    // Fallback for setups where the SearchPortal power-up IS applied.
+    // 兜底：某些环境中 SearchPortal Power-Up 确实存在。
     if (rem && typeof rem.hasPowerup === 'function' && (await rem.hasPowerup(BuiltInPowerupCodes.SearchPortal))) return true;
   } catch {}
   try {
