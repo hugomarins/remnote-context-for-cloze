@@ -5,12 +5,17 @@ import { richToHTMLWithClozeMask, richHasCloze, addClozeRevealHighlight } from '
 
 export interface Ctx { remId?: string; cardId?: string; revealed?: boolean }
 export interface QueueAdaptOpts { hideSet: Set<string>; removeSet: Set<string>; applyHideInQueue: boolean }
+// `html` is the revealed rendering of the line; `maskedHtml` is the same line with its OTHER
+// clozes masked as clickable "…", and is present only where the two actually differ (a line with
+// no cloze of its own renders identically either way). Both are produced in one pass so the
+// widget's reveal/hide toggle is a pure re-render — no second walk of the knowledge base.
+//
 // `parentId` / `hasChildren` drive the collapsible rendering in the widgets: `parentId` is the
 // EFFECTIVE parent inside the collected tree (a "Remove from Queue" node is dropped and its
 // children are re-attached to its own parent), and `hasChildren` is true only when at least one
 // child actually made it into the list (so a chevron never promises content that maxDepth /
 // maxNodes / metadata-skipping already cut).
-export interface TreeItem { id: string; depth: number; html: string; isCurrent?: boolean; hasCloze?: boolean; parentId?: string; hasChildren?: boolean }
+export interface TreeItem { id: string; depth: number; html: string; maskedHtml?: string; isCurrent?: boolean; hasCloze?: boolean; parentId?: string; hasChildren?: boolean }
 export interface QueueDisplaySets { hideSet: Set<string>; removeSet: Set<string>; noHierarchySet: Set<string> }
 
 const HIDDEN_IN_QUEUE_HTML = '<span style="opacity:.6;color:var(--rn-clr-text-secondary,#57606a);font-style:italic">Hidden in queue</span>';
@@ -132,8 +137,10 @@ export async function getCurrentCardRemId(plugin: any, ctx: Ctx | undefined) {
 }
 
 // Depth-first collect the tree rooted at `root`, masking cloze content per policy.
-//  - The current card's line: masked as "?" on the question stage, or revealed (highlighted) on the answer stage.
-//  - Other lines: masked as clickable "…" when `shouldMask`, otherwise revealed.
+//  - The current card's line: masked as "?" on the question stage, or revealed (highlighted) on the
+//    answer stage. It is never affected by the reveal/hide toggle — it is the line being tested.
+//  - Other lines: rendered BOTH ways (`html` revealed, `maskedHtml` as clickable "…"), so the widget
+//    can switch between the two modes without re-collecting.
 // `currentIsQuestionStage` selects the current-line rendering; official Hide/Remove marks are honoured via `opts`.
 export async function collectFullTree(
   plugin: any,
@@ -141,7 +148,6 @@ export async function collectFullTree(
   currentRemId: string,
   maxDepth: number,
   maxNodes: number,
-  shouldMask: boolean,
   currentIsQuestionStage: boolean,
   opts?: QueueAdaptOpts,
   tag = '[CFC]'
@@ -152,6 +158,7 @@ export async function collectFullTree(
     if (depth > maxDepth || count >= maxNodes) return;
     const id = rem._id;
     let html = '';
+    let maskedHtml: string | undefined;
     let isCurrent = false;
     let hasCloze = false;
     let removed = false;
@@ -173,11 +180,14 @@ export async function collectFullTree(
         if (opts?.applyHideInQueue && opts?.hideSet?.has(id)) {
           html = HIDDEN_IN_QUEUE_HTML;
         } else {
-          html = await richToHTMLWithClozeMask(plugin, rich, shouldMask ? 'ellipsis' : 'none', tag);
+          html = await richToHTMLWithClozeMask(plugin, rich, 'none', tag);
+          // Only a line that owns a cloze can look different when masked, so skip the second
+          // render everywhere else — that is most of the tree.
+          if (hasCloze) maskedHtml = await richToHTMLWithClozeMask(plugin, rich, 'ellipsis', tag);
         }
       }
     }
-    if (!removed) items.push({ id, depth, html, isCurrent, hasCloze, parentId, hasChildren: false });
+    if (!removed) items.push({ id, depth, html, maskedHtml, isCurrent, hasCloze, parentId, hasChildren: false });
     count++;
     if (count >= maxNodes) return;
     const children = (await rem.getChildrenRem()) || [];

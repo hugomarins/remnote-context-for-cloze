@@ -38,7 +38,7 @@ function Widget() {
     []
   );
 
-  const { items, enabled } = (useRunAsync(async () => {
+  const { items, enabled, defaultMasked } = (useRunAsync(async () => {
     try {
       const isDebug = await plugin.settings.getSetting('debug');
 
@@ -96,11 +96,13 @@ function Widget() {
         let html = await richToHTMLWithClozeMask(plugin, rich, 'none', LOG);
         html = addClozeRevealHighlight(html);
         const only: TreeItem[] = [{ id: cur?._id || (maskId || ctx.remId), depth: 0, html, isCurrent: true, hasCloze }];
-        return { items: only, shouldMask: false, enabled: true } as any;
+        return { items: only, defaultMasked: false, enabled: true } as any;
       }
 
-      // Hide All Test One on the current card → mask other lines' clozes as clickable "…".
-      const shouldMask = await (async () => {
+      // Hide All Test One on the current card → START with the other lines' clozes masked as
+      // clickable "…". From here on it is only a default: the eye button in the widget flips the
+      // mode for this card without touching the tag.
+      const defaultMasked = await (async () => {
         try {
           const power = await plugin.powerup.getPowerupByCode(HIDE_ALL_TEST_ONE);
           const tagged = power ? await power.taggedRem() : [];
@@ -111,15 +113,27 @@ function Widget() {
         }
       })();
 
-      const items = await collectFullTree(plugin, anchor, maskId || ctx.remId, maxDepth, maxNodes, shouldMask, false, { hideSet, removeSet, applyHideInQueue: false }, LOG);
+      const items = await collectFullTree(plugin, anchor, maskId || ctx.remId, maxDepth, maxNodes, false, { hideSet, removeSet, applyHideInQueue: false }, LOG);
       if (isDebug) console.log(`${LOG} generated`, items.length, 'items');
-      return { items, shouldMask, enabled: true };
+      return { items, defaultMasked, enabled: true };
     } catch (e) {
       console.error(`${LOG} useRunAsync error:`, e);
       setErrorCount((prev) => prev + 1);
       return { items: [], enabled: false };
     }
-  }, [ctx?.remId, revealed]) || { items: [], shouldMask: true, enabled: false }) as any;
+  }, [ctx?.remId, revealed]) || { items: [], defaultMasked: false, enabled: false }) as any;
+
+  // Cloze mode for the card in front of us. `null` = follow the card's own default; the eye
+  // button pins it either way until the tree changes (next card, or the question→answer flip).
+  const [maskOverride, setMaskOverride] = React.useState<boolean | null>(null);
+  React.useEffect(() => { setMaskOverride(null); }, [items]);
+  const masked = maskOverride ?? !!defaultMasked;
+
+  // Nothing to switch between unless some OTHER line carries a cloze of its own.
+  const canToggleMask = React.useMemo(
+    () => (items as TreeItem[]).some((it) => !!it.maskedHtml),
+    [items]
+  );
 
   // Wire up click-to-reveal for masked sibling clozes.
   useRevealDelegation(rootRef, items);
@@ -143,7 +157,12 @@ function Widget() {
 
   return (
     <div ref={rootRef} className="cfc-container" style={{ width: '100%', boxSizing: 'border-box', minWidth: 0, maxWidth: '100%', borderTop: '1px solid var(--rn-clr-border, #e4e8ef)', paddingTop: 6, overflowX: 'hidden', overflowY: 'visible' }}>
-      <ContextTreeView items={items} startCollapsed={startCollapsedSetting !== false} />
+      <ContextTreeView
+        items={items}
+        startCollapsed={startCollapsedSetting !== false}
+        masked={masked}
+        onToggleMasked={canToggleMask ? () => setMaskOverride(!masked) : undefined}
+      />
     </div>
   );
 }

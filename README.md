@@ -45,6 +45,17 @@ The context tree starts **collapsed**. Only the branch that leads down to the ca
 - Expansion is per card: it resets when you move to the next card.
 - Prefer the old always‑expanded tree? Turn off **Start Collapsed** in Settings.
 
+## The eye button — switch cloze modes mid‑review
+The tree renders the other lines' clozes in one of two modes: **revealed** (blue underline, the default) or **masked** (`…`, the default for a card tagged `Context Hide All Test One`). An **👁 eye button in the top‑right corner of the context area** switches between them for the card in front of you.
+
+- Eye **open** = the other answers are revealed. Click it to hide them.
+- Eye **struck through** = the other answers are masked as `…`. Click it to reveal them.
+- Use it *before* reading the tree when the revealed answers turn out to leak a hint you would rather earn — no need to tag the Rem first.
+- Use it *after* “Show Answer” when a masked tree is too cryptic to make sense of.
+- It changes nothing in your knowledge base: the tag still decides where you start, and the mode resets on the next card.
+- The button only appears when some other line actually carries a cloze — otherwise there is nothing to switch.
+- In masked mode each `…` is still individually clickable, so you can also uncover one answer at a time.
+
 ## Settings (Settings → Plugins → This Plugin)
 - Start Collapsed (default: On)
   - Renders the tree collapsed, with only the path to the current card open; other branches sit behind a clickable ▸ arrow. Because deep content is hidden until you ask for it, you can safely raise Max Depth with this on.
@@ -60,13 +71,16 @@ The context tree starts **collapsed**. Only the branch that leads down to the ca
 2. Start reviewing: whenever any descendant becomes a card, a context tree rooted at the anchor appears under the card.
 3. Optional: if a cloze card would be spoiled by its siblings’ revealed answers, add “Context Hide All Test One” (`contextHideAllTestOne`) to **that card**. See the dedicated section below.
 4. Click the ▸ arrows during review to open any branch you want to see; the rest stays out of the way.
-5. Tune Max Depth / Max Nodes in Settings to balance information density and readability.
+5. Use the 👁 button in the top‑right of the context area to reveal or hide the other lines' cloze answers whenever the current mode does not suit the card.
+6. Tune Max Depth / Max Nodes in Settings to balance information density and readability.
 
 ## Context Hide All Test One — protecting a cloze from its siblings
 
 **What it does.** By default this plugin hides only the blank you are actually being tested on. Every *other* cloze in the context tree — siblings, and any other cloze line — is shown with its answer **revealed** (blue underline), so the surrounding answers act as visible context.
 
 `Context Hide All Test One` reverses that for the card it is applied to: while that card is under review, the answers on **all other** cloze lines in the tree are **masked** (shown as `…`) instead of revealed. Mnemonic: *Hide All [other answers], Test [this] One.*
+
+The tag sets the **starting** mode only — the 👁 button described above flips it either way for the card in front of you, without changing the tag.
 
 The current card’s own line is always masked as `?` regardless of this power‑up, and plain (non‑cloze) context text is always shown. This power‑up only changes how *other* clozes appear.
 

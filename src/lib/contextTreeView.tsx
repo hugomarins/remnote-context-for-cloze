@@ -7,6 +7,12 @@
 // carries an arrow you can click to open it (same affordance as incremental-everything's
 // Rem History rows).
 //
+// The tree also renders in one of two cloze modes — every OTHER cloze in the tree revealed, or all
+// of them masked as "…". Which one you start in is decided by the card (the "Context Hide All Test
+// One" power-up); the eye button in the top-right switches between them for the card in front of
+// you, so you can hide answers that turn out to leak a hint, or reveal them when the masked tree
+// stops making sense.
+//
 import * as React from 'react';
 import { TreeItem } from './contextTree';
 
@@ -81,6 +87,20 @@ function Chevron({ open }: { open: boolean }) {
   );
 }
 
+// Eye / eye-with-a-slash, drawn in the same monochrome line style as the chevron so the two
+// controls read as one family (an emoji 👁️/🙈 pair would import a second visual language and
+// renders differently on every platform).
+function EyeIcon({ off }: { off: boolean }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1.6 12S5.3 5.5 12 5.5 22.4 12 22.4 12 18.7 18.5 12 18.5 1.6 12 1.6 12Z" />
+      <circle cx="12" cy="12" r="3.2" />
+      {off && <line x1="3" y1="21" x2="21" y2="3" />}
+    </svg>
+  );
+}
+
 interface MarkerProps { hasChildren: boolean; open: boolean; onToggle: () => void }
 
 function Marker({ hasChildren, open, onToggle }: MarkerProps) {
@@ -116,9 +136,13 @@ export interface ContextTreeViewProps {
   items: TreeItem[];
   /** Start with every branch closed except the path down to the card under review. */
   startCollapsed: boolean;
+  /** Are the other lines' clozes currently masked as "…"? */
+  masked: boolean;
+  /** Flip that mode. Omit to hide the button — e.g. when no other line carries a cloze. */
+  onToggleMasked?: () => void;
 }
 
-export function ContextTreeView({ items, startCollapsed }: ContextTreeViewProps) {
+export function ContextTreeView({ items, startCollapsed, masked, onToggleMasked }: ContextTreeViewProps) {
   const [expanded, setExpanded] = React.useState<Set<string>>(() => defaultExpandedIds(items, startCollapsed));
 
   // Re-seed whenever the tree changes (new card, or the question→answer flip): expansion is
@@ -143,10 +167,42 @@ export function ContextTreeView({ items, startCollapsed }: ContextTreeViewProps)
       {/* Hover affordance for the arrows. It lives here rather than in the plugin-level CSS
           because that stylesheet is injected into the host document, not into this widget iframe. */}
       <style>{`
-        .cfc-toggle { border-radius: 4px; }
-        .cfc-toggle:hover { background: var(--rn-clr-background--hovered, rgba(148,163,184,0.22)); color: var(--rn-clr-content-primary, inherit); }
-        .cfc-toggle:focus-visible { outline: 2px solid var(--rn-clr-accent, #0969da); outline-offset: 1px; }
+        .cfc-toggle, .cfc-mask-toggle { border-radius: 4px; }
+        .cfc-toggle:hover, .cfc-mask-toggle:hover { background: var(--rn-clr-background--hovered, rgba(148,163,184,0.22)); color: var(--rn-clr-content-primary, inherit); }
+        .cfc-toggle:focus-visible, .cfc-mask-toggle:focus-visible { outline: 2px solid var(--rn-clr-accent, #0969da); outline-offset: 1px; }
+        .cfc-mask-toggle { opacity: 0.55; transition: opacity 150ms ease; }
+        .cfc-mask-toggle:hover, .cfc-mask-toggle:focus-visible { opacity: 1; }
       `}</style>
+      {onToggleMasked && (
+        // Top-right, on its own row: out of the reading flow of the tree, in the corner where a
+        // widget affordance is expected, and it can never overlap a wrapped line the way an
+        // absolutely positioned button would.
+        <div style={{ display: 'flex', justifyContent: 'flex-end', lineHeight: 1 }}>
+          <span
+            className="cfc-mask-toggle"
+            role="button"
+            tabIndex={0}
+            aria-pressed={masked}
+            aria-label={masked ? 'Reveal the other cloze answers' : 'Hide the other cloze answers'}
+            title={masked ? 'Reveal the other cloze answers' : 'Hide the other cloze answers'}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleMasked(); }}
+            onMouseDown={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              if (e.key !== 'Enter' && e.key !== ' ') return;
+              e.preventDefault();
+              e.stopPropagation();
+              onToggleMasked();
+            }}
+            style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              width: 20, height: 20, cursor: 'pointer', userSelect: 'none',
+              color: 'var(--rn-clr-content-secondary, rgba(100,116,139,0.9))',
+            }}
+          >
+            <EyeIcon off={masked} />
+          </span>
+        </div>
+      )}
       <ul
         className="cfc-list"
         style={{ listStyle: 'none', margin: 0, padding: 0, paddingBottom: 8, width: '100%', fontSize: '1.08rem' }}
@@ -182,7 +238,7 @@ export function ContextTreeView({ items, startCollapsed }: ContextTreeViewProps)
               />
               <span
                 style={{ fontSize: '1rem', lineHeight: 1.5, minWidth: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
-                dangerouslySetInnerHTML={{ __html: it.html }}
+                dangerouslySetInnerHTML={{ __html: masked && it.maskedHtml ? it.maskedHtml : it.html }}
               />
             </li>
           );
