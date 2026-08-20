@@ -1,10 +1,8 @@
 // Shared cloze masking / rendering helpers for the context-tree widgets.
-// 上下文树挂件共享的 cloze 掩码 / 渲染工具。
 
 export type MaskMode = 'ellipsis' | 'question' | 'none';
 
 // Placeholder tokens survive plugin.richText.toHTML() and are swapped for HTML afterwards.
-// 占位符标记会原样穿过 plugin.richText.toHTML()，随后再替换为 HTML。
 const ELLIPSIS_TOKEN = '[[[CFC_EL]]]';
 const PIN_TOKEN = '[[[CFC_PIN]]]';
 
@@ -14,16 +12,12 @@ export const QUESTION_HTML = '<span class="cfc-question" style="display:inline-b
 // Rem reference "pins" are rich-text elements with i:'q' and pin:true. They must render
 // as a single pin icon, NOT the referenced rem's full text — expanding them clutters the
 // context tree and can leak the cloze answer.
-// Rem 引用“图钉”(pin) 是 i:'q' 且 pin:true 的富文本元素。应仅渲染为一个图钉图标，
-// 而非展开被引用 Rem 的全文——展开会污染上下文树，甚至泄露 cloze 答案。
 export const PIN_HTML = '<span class="cfc-pin" style="display:inline-block;opacity:.7;vertical-align:baseline" title="Pinned reference (hidden in context)">📌</span>';
 export const isPinRef = (el: any) => el != null && typeof el === 'object' && el.i === 'q' && !!el.pin;
 
 // Click-to-reveal support for masked sibling clozes (used with Hide All Test One):
 // each masked "…" carries its own revealed text (base64 in data-cfc-reveal) so it can be
 // toggled open/closed independently, letting you self-evaluate hidden clozes one at a time.
-// 被遮挡的兄弟 cloze 的“点击揭示”支持（配合 Hide All Test One 使用）：
-// 每个“…”都携带自己的原文（base64 存于 data-cfc-reveal），可独立开合，便于逐个自评。
 const REVEAL_UNDERLINE_OPEN = '<span class="cfc-revealed-cloze" style="text-decoration:underline;text-decoration-color:var(--rn-clr-accent, #0969da);text-decoration-thickness:2px;text-underline-offset:2px">';
 const escapeHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 export const encodeReveal = (html: string) => { try { return btoa(unescape(encodeURIComponent(html))); } catch { return ''; } };
@@ -43,7 +37,6 @@ export function richHasCloze(rich: any[]): boolean {
 }
 
 // Replace {{c1::text}} / {{<id>::text}} (optional ::hint) with a span that underlines only the cloze content.
-// 将 {{c1::文本}} 或 {{<id>::文本}}（可带 ::hint）替换为“仅对 cloze 内容加下划线”的 HTML 片段。
 export function revealClozeInHTML(html: string): string {
   try {
     const underline = REVEAL_UNDERLINE_OPEN + '$1</span>';
@@ -56,7 +49,6 @@ export function revealClozeInHTML(html: string): string {
 }
 
 // Add a light-blue highlight to cloze content we revealed (answer stage), without touching other spans.
-// 为“已揭示”的 cloze 内容加浅蓝背景（答案阶段），不影响其他富文本样式。
 export function addClozeRevealHighlight(html: string): string {
   try {
     return html.replace(/<span class="cfc-revealed-cloze" style="([^"]*)">/g,
@@ -70,11 +62,9 @@ export function addClozeRevealHighlight(html: string): string {
 //  - 'none'     : reveal cloze content (underlined); nothing masked.
 //  - 'question' : mask every cloze in the rem as a blue "?" (the tested line).
 //  - 'ellipsis' : mask every cloze as a clickable "…" that can be toggled to reveal its own text.
-// Rem 引用图钉在任何模式下都折叠为图钉图标。
 export async function richToHTMLWithClozeMask(plugin: any, rich: any[], mode: MaskMode, tag = '[CFC]'): Promise<string> {
   if (!Array.isArray(rich)) return '';
   // Collapse pin references to a token before rendering (applies in every mode).
-  // 渲染前先把图钉引用替换为占位符（所有 mode 均适用）。
   const withPins = rich.map((el: any) => (isPinRef(el) ? { i: 'm', text: PIN_TOKEN } : el));
   if (mode === 'none') {
     try {
@@ -101,7 +91,6 @@ export async function richToHTMLWithClozeMask(plugin: any, rich: any[], mode: Ma
     if ((i === 'm' || i === 'x') && hasAnyCloze(el)) {
       if (mode === 'ellipsis') {
         // Remember this cloze's own text so a click can reveal it in place.
-        // 记住该 cloze 的原文，点击时就地揭示。
         let revealText = '';
         try { revealText = (await plugin.richText.toString([el])) || ''; } catch {}
         if (!revealText) revealText = (el as any)?.text || '';
@@ -121,7 +110,6 @@ export async function richToHTMLWithClozeMask(plugin: any, rich: any[], mode: Ma
       finalHtml = finalHtml.replaceAll(ELLIPSIS_TOKEN, QUESTION_HTML);
     } else {
       // ellipsis mode: each masked cloze becomes an independently clickable "…"
-      // 省略号模式：每个被遮挡的 cloze 都是可独立点击揭示的“…”
       for (let n = reveals.length - 1; n >= 0; n--) {
         finalHtml = finalHtml.replaceAll(`[[[CFC_EL_${n}]]]`, clickableOmissionHTML(reveals[n]));
       }

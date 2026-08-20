@@ -7,9 +7,6 @@
 // carries an arrow you can click to open it (same affordance as incremental-everything's
 // Rem History rows).
 //
-// 为什么要折叠：此前上下文树会一直展开到 Max Depth，被测行的深层子级可能在回忆前就泄露（或强烈暗示）
-// 答案。现在除“通往当前卡片的路径”外，所有分支默认闭合——当前卡片始终可见，而它自己的子级默认隐藏——
-// 且每个隐藏了内容的分支都带一个可点击展开的箭头（与 incremental-everything 的 Rem History 行一致）。
 import * as React from 'react';
 import { TreeItem } from './contextTree';
 
@@ -17,7 +14,6 @@ const INDENT_PX = 24;
 
 // Ancestors of the current card, so the tested line is never hidden behind a closed arrow.
 // Falls back to "expand everything" when the tree should not start collapsed.
-// 当前卡片的所有祖先——保证被测行不会藏在闭合的箭头后面。若不要求初始折叠，则全部展开。
 export function defaultExpandedIds(items: TreeItem[], startCollapsed: boolean): Set<string> {
   if (!startCollapsed) return new Set(items.map((it) => it.id));
   const byId = new Map(items.map((it) => [it.id, it] as const));
@@ -26,7 +22,6 @@ export function defaultExpandedIds(items: TreeItem[], startCollapsed: boolean): 
     if (!it.isCurrent) continue;
     let cur: TreeItem | undefined = it;
     // Guard against a malformed chain; the depth of a real context tree is tiny.
-    // 防御性上限；真实上下文树的深度很小。
     for (let i = 0; cur?.parentId && i < 256; i++) {
       expanded.add(cur.parentId);
       cur = byId.get(cur.parentId);
@@ -36,7 +31,6 @@ export function defaultExpandedIds(items: TreeItem[], startCollapsed: boolean): 
 }
 
 // A node shows only when every ancestor between it and the root is open.
-// 仅当从根到该节点的每个祖先都处于展开状态时，节点才可见。
 function visibleItems(items: TreeItem[], expanded: Set<string>): TreeItem[] {
   const byId = new Map(items.map((it) => [it.id, it] as const));
   return items.filter((it) => {
@@ -51,7 +45,6 @@ function visibleItems(items: TreeItem[], expanded: Set<string>): TreeItem[] {
 
 // Centred on the first text line of the item (the li is a flex row aligned to its top), so the
 // arrow/bullet lines up with the text next to it however long that text wraps.
-// 与条目首行文本垂直居中对齐（li 为顶部对齐的 flex 行），无论文本换行多少，箭头/圆点都对齐。
 const MARKER_WIDTH = 14;
 const MARKER_STYLE: React.CSSProperties = {
   display: 'inline-flex',
@@ -96,7 +89,6 @@ function Marker({ hasChildren, open, onToggle }: MarkerProps) {
   }
   // Clicks and Enter/Space are swallowed here: inside the queue they would otherwise bubble up
   // and reveal the answer / rate the card.
-  // 此处吞掉点击与 Enter/Space：否则事件会冒泡到队列，触发“显示答案”或评分。
   const toggle = (e: React.SyntheticEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -131,7 +123,6 @@ export function ContextTreeView({ items, startCollapsed }: ContextTreeViewProps)
 
   // Re-seed whenever the tree changes (new card, or the question→answer flip): expansion is
   // per-card UI state and must not leak from one card to the next.
-  // 树变化时（换卡，或题面→答案切换）重新初始化：展开状态属于当前卡片，不应带到下一张。
   React.useEffect(() => {
     setExpanded(defaultExpandedIds(items, startCollapsed));
   }, [items, startCollapsed]);
@@ -150,8 +141,7 @@ export function ContextTreeView({ items, startCollapsed }: ContextTreeViewProps)
   return (
     <>
       {/* Hover affordance for the arrows. It lives here rather than in the plugin-level CSS
-          because that stylesheet is injected into the host document, not into this widget iframe.
-          悬停反馈样式放在此处：插件级 CSS 注入的是宿主文档，而非本挂件 iframe。 */}
+          because that stylesheet is injected into the host document, not into this widget iframe. */}
       <style>{`
         .cfc-toggle { border-radius: 4px; }
         .cfc-toggle:hover { background: var(--rn-clr-background--hovered, rgba(148,163,184,0.22)); color: var(--rn-clr-content-primary, inherit); }

@@ -27,14 +27,12 @@ function Widget() {
   }, []) as any;
 
   // Reliable reveal state (event-driven + polled fallback; see useRevealedAnswer for why).
-  // 可靠的揭示状态（事件驱动 + 轮询兜底；原因见 useRevealedAnswer）。
   const revealed = useRevealedAnswer(plugin);
 
   const debug = useRunAsync(async () => !!(await plugin.settings.getSetting('debug')), []);
 
   // Start-collapsed preference. `undefined` while the setting is still loading — the tree is only
   // rendered once it resolves, so a branch never flashes open before collapsing.
-  // “初始折叠”偏好。设置加载完成前为 undefined——树在其解析后才渲染，避免分支先展开再折叠的闪烁。
   const startCollapsedSetting = useRunAsync(
     async () => (await plugin.settings.getSetting('startCollapsed')) !== false,
     []
@@ -68,7 +66,6 @@ function Widget() {
       const maxNodes = mn;
 
       // Guard: if the path from anchor to current exceeds maxDepth, show no context.
-      // 若当前卡片相对锚点的深度超过 maxDepth，则不显示上下文。
       const depthToCurrent = await (async () => {
         try {
           let d = 0;
@@ -89,11 +86,9 @@ function Widget() {
       }
 
       // Queue-display tag sets (Hide/Remove in Queue, No Hierarchy, and the parent/grandparent variants).
-      // 队列显示标记集合（Hide/Remove in Queue、No Hierarchy，以及父级/祖父级变体）。
       const { hideSet, removeSet, noHierarchySet } = await collectQueueDisplaySets(plugin);
 
       // No Hierarchy on the current card: show only the current line (matches native).
-      // 当前题目带 noHierarchy：仅显示“当前题目这一行”，对齐原生。
       if (noHierarchySet.has(maskId || ctx.remId)) {
         const cur = await plugin.rem.findOne(maskId || ctx.remId);
         const rich = cur?.text || [];
@@ -105,7 +100,6 @@ function Widget() {
       }
 
       // Hide All Test One on the current card → mask other lines' clozes as clickable "…".
-      // 当前题目带 Hide All Test One → 将其他行的 cloze 掩码为可点击的“…”。
       const shouldMask = await (async () => {
         try {
           const power = await plugin.powerup.getPowerupByCode(HIDE_ALL_TEST_ONE);
@@ -128,7 +122,6 @@ function Widget() {
   }, [ctx?.remId, revealed]) || { items: [], shouldMask: true, enabled: false }) as any;
 
   // Wire up click-to-reveal for masked sibling clozes.
-  // 为被遮挡的兄弟 cloze 接入“点击揭示”。
   useRevealDelegation(rootRef, items);
 
   if (errorCount >= MAX_ERRORS) {

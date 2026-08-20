@@ -48,9 +48,9 @@ The context tree starts **collapsed**. Only the branch that leads down to the ca
 ## Settings (Settings → Plugins → This Plugin)
 - Start Collapsed (default: On)
   - Renders the tree collapsed, with only the path to the current card open; other branches sit behind a clickable ▸ arrow. Because deep content is hidden until you ask for it, you can safely raise Max Depth with this on.
-- Max Depth (default: 3)
+- Max Depth (default: 8)
   - Limits the maximum depth of the context tree. Reduce for deep hierarchies to improve readability.
-- Max Nodes (default: 100)
+- Max Nodes (default: 200)
   - Limits the maximum number of nodes shown. Reduce for highly branched trees to avoid overload.
 - Debug Mode (default: Off)
   - Adds extra hints in UI/console for troubleshooting (most users can keep it off).

@@ -6,20 +6,20 @@ const POW_CODE = 'contextForCloze';
 const POW_CODE_HIDE_ALL_TEST_ONE = 'contextHideAllTestOne';
 
 async function onActivate(plugin: ReactRNPlugin) {
-  // Settings / 设置项
-  await plugin.settings.registerNumberSetting({ id: 'maxDepth', title: 'Max Depth', description: 'Maximum depth of the context tree. 最大递归深度', defaultValue: 3 });
-  await plugin.settings.registerNumberSetting({ id: 'maxNodes', title: 'Max Nodes', description: 'Maximum number of nodes shown. 节点数量上限', defaultValue: 100 });
-  await plugin.settings.registerBooleanSetting({ id: 'startCollapsed', title: 'Start Collapsed', description: 'Show the context tree collapsed: only the branches leading to the card under review are open, deeper branches are hidden behind a ▸ arrow you can click to expand (avoids spoiling the answer). Turn off to always show the whole tree. 折叠显示上下文树：仅展开通往当前卡片的分支，更深的分支收在可点击的 ▸ 箭头后（避免泄露答案）。关闭则始终显示整棵树。', defaultValue: true });
-  await plugin.settings.registerBooleanSetting({ id: 'debug', title: 'Debug Mode', description: 'Enable debugging (console logs and placeholder hints). 启用调试（控制台日志与占位提示）', defaultValue: false });
+  // Settings
+  await plugin.settings.registerNumberSetting({ id: 'maxDepth', title: 'Max Depth', description: 'Maximum depth of the context tree.', defaultValue: 8 });
+  await plugin.settings.registerNumberSetting({ id: 'maxNodes', title: 'Max Nodes', description: 'Maximum number of nodes shown.', defaultValue: 200 });
+  await plugin.settings.registerBooleanSetting({ id: 'startCollapsed', title: 'Start Collapsed', description: 'Show the context tree collapsed: only the branches leading to the card under review are open, deeper branches are hidden behind a ▸ arrow you can click to expand (avoids spoiling the answer). Turn off to always show the whole tree.', defaultValue: true });
+  await plugin.settings.registerBooleanSetting({ id: 'debug', title: 'Debug Mode', description: 'Enable debugging (console logs and placeholder hints).', defaultValue: false });
   await plugin.app.toast('Context for Cloze activated');
   console.log('[CFC] Plugin activated');
 
   // Power-Up
-  await plugin.app.registerPowerup({ name: 'Context for Cloze', code: POW_CODE, description: 'Provide nearby context for Cloze review (display layer). 为 Cloze 复习提供邻近上下文（显示层）', options: { slots: [] } });
-  await plugin.app.registerPowerup({ name: 'Context Hide All Test One', code: POW_CODE_HIDE_ALL_TEST_ONE, description: 'When tagged on a cloze card: while it is under review, hide all OTHER clozes in the context tree (masked as clickable "…") instead of revealing them. 当此卡片被标记后：复习它时，隐藏上下文树中所有其他 cloze（遮挡为可点击的“…”），而非揭示。', options: { slots: [] } });
+  await plugin.app.registerPowerup({ name: 'Context for Cloze', code: POW_CODE, description: 'Provide nearby context for Cloze review (display layer).', options: { slots: [] } });
+  await plugin.app.registerPowerup({ name: 'Context Hide All Test One', code: POW_CODE_HIDE_ALL_TEST_ONE, description: 'When tagged on a cloze card: while it is under review, hide all OTHER clozes in the context tree (masked as clickable "…") instead of revealing them.', options: { slots: [] } });
 
-  // 命令：为选中 Rem 添加 Power-Up（支持多选）
-  const runAddPowerupCommand = async (powerup: string) => {
+  // Commands: add the power-up to the selected Rem(s) — works on a multi-selection.
+  const runAddPowerupCommand = async (powerup: string, label: string) => {
     const sel = await plugin.editor.getSelection();
     if (!sel?.type) return;
     if (sel.type === SelectionType.Rem) {
@@ -29,11 +29,11 @@ async function onActivate(plugin: ReactRNPlugin) {
       const rem = await plugin.rem.findOne(sel.remId);
       await rem?.addPowerup(powerup);
     }
-    await plugin.app.toast('已添加 Context for Cloze 标记');
+    await plugin.app.toast(`Added "${label}"`);
   };
 
-  await plugin.app.registerCommand({ id: 'add-context-for-cloze', name: 'Add Context for Cloze', quickCode: 'cfc', action: async () => runAddPowerupCommand(POW_CODE) });
-  await plugin.app.registerCommand({ id: 'add-context-hide-all-test-one', name: 'Add Context Hide All Test One', quickCode: 'cfchideall', action: async () => runAddPowerupCommand(POW_CODE_HIDE_ALL_TEST_ONE) });
+  await plugin.app.registerCommand({ id: 'add-context-for-cloze', name: 'Add Context for Cloze', quickCode: 'cfc', action: async () => runAddPowerupCommand(POW_CODE, 'Context for Cloze') });
+  await plugin.app.registerCommand({ id: 'add-context-hide-all-test-one', name: 'Add Context Hide All Test One', quickCode: 'cfchideall', action: async () => runAddPowerupCommand(POW_CODE_HIDE_ALL_TEST_ONE, 'Context Hide All Test One') });
 
   await plugin.app.registerCommand({ id: 'cfc-debug', name: 'CFC: Debug Probe', quickCode: 'cfcdbg', action: async () => {
     try {
@@ -65,28 +65,27 @@ async function onActivate(plugin: ReactRNPlugin) {
     }
   }});
 
-  // Widget（题面与答案）
-  // 统一挂载到 FlashcardUnder（不覆盖原生主区域；题面/答案阶段由组件 gating 控制显示）
+  // Question / answer widgets. Both mount at FlashcardUnder so the native card area is left
+  // untouched; each component gates itself on the current stage.
   await plugin.app.registerWidget('flashcard_context_question', WidgetLocation.FlashcardUnder, { dimensions: { height: 'auto', width: '100%' } });
   await plugin.app.registerWidget('flashcard_context_answer',   WidgetLocation.FlashcardUnder, { dimensions: { height: 'auto', width: '100%' } });
 
-  // CSS：仅队列内显示，编辑态隐藏，贴近原生
+  // CSS: queue-only styling that stays close to the native look and hides in the editor.
   const CFC_CSS = `
-    /* 仅在复习队列内显示 */
+    /* Show only inside the review queue. */
     .rn-queue__content .cfc-container { margin: 6px 0 0; padding: 0; font-size: 0.92rem; line-height: 1.45; color: var(--rn-clr-text, #1f2328); }
     .rn-queue__content .cfc-title { display: none; color: var(--rn-clr-text-secondary, #57606a); font-weight: 600; margin-bottom: 4px; }
     .rn-queue__content .rn-dialog .cfc-container { display: none !important; }
 
     /* Keep the context block inside the widget iframe so no horizontal scrollbar appears. */
-    /* 将上下文块约束在挂件 iframe 内，避免出现水平滚动条。 */
     .rn-queue__content .cfc-container { box-sizing: border-box; max-width: 100%; overflow-x: hidden; }
     .rn-queue__content .cfc-container * { min-width: 0; }
 
-    /* 列表与条目样式，避免默认圆点与过大缩进 */
+    /* List and item styling: no default bullets, no oversized indent. */
     .rn-queue__content .cfc-list { list-style: none; margin: 0; padding-left: 0; }
     .rn-queue__content .cfc-item { margin: 5px 0; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
 
-    /* 黄底省略号徽标（与蓝色问号一致的尺寸/圆角/边框） */
+    /* Yellow ellipsis chip (same size / radius / border as the blue question chip). */
     .rn-queue__content .cfc-omission {
       display: inline-block; padding: 0 10px; border-radius: 8px; line-height: 1.45;
       background: var(--rn-clr-warning-muted, rgba(255,212,0,0.15));
@@ -94,7 +93,7 @@ async function onActivate(plugin: ReactRNPlugin) {
       border: 1px solid rgba(255,212,0,0.3);
     }
 
-    /* 被“显示出来的 cloze”条目下划线提示（仅视觉标识） */
+    /* Underline hint on revealed cloze content (purely visual). */
     .rn-queue__content .cfc-revealed-cloze {
       text-decoration: underline;
       text-decoration-color: var(--rn-clr-accent, #0969da);
@@ -104,8 +103,6 @@ async function onActivate(plugin: ReactRNPlugin) {
 
     /* Click-to-reveal masked clozes (Hide All Test One): the "…" is a button; */
     /* once revealed it drops the chip background so it reads as inline text. */
-    /* 点击揭示被遮挡的 cloze（Hide All Test One）：“…”是一个按钮； */
-    /* 揭示后去掉徽标背景，读起来就是普通行内文本。 */
     .rn-queue__content .cfc-reveal { cursor: pointer; user-select: none; }
     .rn-queue__content .cfc-reveal:hover { outline: 1px dashed var(--rn-clr-warning, #b58900); outline-offset: 1px; }
     .rn-queue__content .cfc-omission.cfc-revealed {
@@ -127,7 +124,7 @@ async function onActivate(plugin: ReactRNPlugin) {
 }
 
 async function onDeactivate(_: ReactRNPlugin) {
-  // No teardown needed. / 无需清理。
+  // No teardown needed.
 }
 
 declareIndexPlugin(onActivate, onDeactivate);

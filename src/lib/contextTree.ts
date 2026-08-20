@@ -1,7 +1,5 @@
 // Shared context-tree traversal for the question/answer widgets: find the anchor,
 // skip metadata/search-portal rems, and collect the masked tree rooted at the anchor.
-// 问题/答案挂件共享的上下文树遍历：查找锚点、跳过元数据/搜索门户 Rem、
-// 并收集以锚点为根的（已掩码）上下文树。
 import { BuiltInPowerupCodes, PORTAL_TYPE } from '@remnote/plugin-sdk';
 import { richToHTMLWithClozeMask, richHasCloze, addClozeRevealHighlight } from './clozeMask';
 
@@ -12,9 +10,6 @@ export interface QueueAdaptOpts { hideSet: Set<string>; removeSet: Set<string>; 
 // children are re-attached to its own parent), and `hasChildren` is true only when at least one
 // child actually made it into the list (so a chevron never promises content that maxDepth /
 // maxNodes / metadata-skipping already cut).
-// `parentId` / `hasChildren` 驱动挂件中的折叠渲染：`parentId` 是所收集树中的“有效父级”
-// （被 Remove from Queue 移除的节点会被丢弃，其子级挂到它的父级上）；`hasChildren` 仅在
-// 确有子级进入列表时为 true，避免箭头指向被 maxDepth / maxNodes / 元数据过滤掉的空内容。
 export interface TreeItem { id: string; depth: number; html: string; isCurrent?: boolean; hasCloze?: boolean; parentId?: string; hasChildren?: boolean }
 export interface QueueDisplaySets { hideSet: Set<string>; removeSet: Set<string>; noHierarchySet: Set<string> }
 
@@ -22,8 +17,6 @@ const HIDDEN_IN_QUEUE_HTML = '<span style="opacity:.6;color:var(--rn-clr-text-se
 
 // Official / incremental-everything queue-display power-up codes. We don't register these
 // (other plugins do) — we only read their tags so the context tree mirrors native behavior.
-// 官方 / incremental-everything 的队列显示 Power-Up 代码。我们不注册它们（由其他插件注册），
-// 只读取其标记，让上下文树与原生行为保持一致。
 const QUEUE_CODES = {
   hideInQueue: 'hideInQueue',
   removeFromQueue: 'removeFromQueue',
@@ -40,8 +33,6 @@ const QUEUE_CODES = {
 //  - Hide* → hideSet   (placeholder on the question side only, via applyHideInQueue)
 //  - Remove* → removeSet (dropped on both sides)
 // Missing power-ups (not registered in this KB) simply contribute nothing.
-// 收集驱动队列显示适配的 id 集合：直接类作用于被标记 Rem 本身；父级/祖父级类作用于卡片，
-// 但目标是其父/祖父，因此需解析为受影响的 Rem id。未注册的 Power-Up 不贡献任何内容。
 export async function collectQueueDisplaySets(plugin: any): Promise<QueueDisplaySets> {
   const taggedRems = async (code: string): Promise<any[]> => {
     try {
@@ -66,12 +57,10 @@ export async function collectQueueDisplaySets(plugin: any): Promise<QueueDisplay
   const noHierarchySet = new Set<string>(noH.map((r: any) => r._id));
 
   // Parent variants: the tagged Rem's own `.parent` is already the affected id (no extra lookup).
-  // 父级变体：被标记 Rem 的 `.parent` 就是受影响 id（无需额外查询）。
   for (const r of hideParentR) { if (r?.parent) hideSet.add(r.parent); }
   for (const r of removeParentR) { if (r?.parent) removeSet.add(r.parent); }
 
   // Grandparent variants: one lookup to climb from parent to grandparent.
-  // 祖父级变体：需一次查询，从父级爬到祖父级。
   const grandparentId = async (r: any): Promise<string | undefined> => {
     if (!r?.parent) return undefined;
     const p = await plugin.rem.findOne(r.parent);
@@ -86,7 +75,6 @@ export async function collectQueueDisplaySets(plugin: any): Promise<QueueDisplay
 }
 
 // Walk up from `remId` to the nearest ancestor tagged with the context power-up (the anchor/root).
-// 从 `remId` 向上查找最近的、被上下文 Power-Up 标记的祖先（锚点/根）。
 export async function getNearestAnchor(plugin: any, remId: string, powCode: string) {
   const power = await plugin.powerup.getPowerupByCode(powCode);
   if (!power) return null;
@@ -107,18 +95,14 @@ export async function getNearestAnchor(plugin: any, remId: string, powCode: stri
 //    pollutes the tree and may leak the cloze answer. Detected via getPortalType() === SEARCH_PORTAL
 //    (the SearchPortal power-up is NOT reliably present on these rems — confirmed by logging).
 //    Normal portals (portalType PORTAL / undefined) are deliberately kept: they can be real context.
-//  - Title-style metadata rems (Size / 大小).
-// 跳过不应出现在上下文树中的 Rem：搜索门户（“query:”）Rem——其内容是查询结果的转写，会污染上下文树
-// 并可能泄露答案。通过 getPortalType() === SEARCH_PORTAL 识别（这些 Rem 上并不可靠地带有 SearchPortal
-// Power-Up——已由日志证实）。普通门户（portalType 为 PORTAL/undefined）故意保留，它们可能是真实上下文。
-// 以及标题样式元数据（Size/大小）。
+//  - Title-style metadata rems: RemNote's "Size" label, matched in English and in the Chinese
+//    localization it carries in a zh knowledge base.
 export async function shouldSkipChildAsMeta(plugin: any, rem: any): Promise<boolean> {
   try {
     if (rem && typeof rem.getPortalType === 'function' && (await rem.getPortalType()) === PORTAL_TYPE.SEARCH_PORTAL) return true;
   } catch {}
   try {
     // Fallback for setups where the SearchPortal power-up IS applied.
-    // 兜底：某些环境中 SearchPortal Power-Up 确实存在。
     if (rem && typeof rem.hasPowerup === 'function' && (await rem.hasPowerup(BuiltInPowerupCodes.SearchPortal))) return true;
   } catch {}
   try {
@@ -130,7 +114,6 @@ export async function shouldSkipChildAsMeta(plugin: any, rem: any): Promise<bool
 }
 
 // Resolve the rem that owns the card currently under review (falls back to ctx.remId).
-// 解析当前正在复习的卡片所属的 Rem（回退到 ctx.remId）。
 export async function getCurrentCardRemId(plugin: any, ctx: Ctx | undefined) {
   if (ctx?.cardId) {
     try {
@@ -152,7 +135,6 @@ export async function getCurrentCardRemId(plugin: any, ctx: Ctx | undefined) {
 //  - The current card's line: masked as "?" on the question stage, or revealed (highlighted) on the answer stage.
 //  - Other lines: masked as clickable "…" when `shouldMask`, otherwise revealed.
 // `currentIsQuestionStage` selects the current-line rendering; official Hide/Remove marks are honoured via `opts`.
-// 深度优先收集以 `root` 为根的树，并按策略对 cloze 掩码。
 export async function collectFullTree(
   plugin: any,
   root: any,
@@ -208,7 +190,6 @@ export async function collectFullTree(
   await dfs(root, 0, undefined);
   // Flag the nodes that actually ended up with a visible child, so the widgets know where to
   // draw a collapse/expand arrow instead of a bullet.
-  // 标记确实拥有可见子级的节点，供挂件决定何处绘制折叠箭头而非圆点。
   const parents = new Set(items.map((it) => it.parentId).filter(Boolean) as string[]);
   for (const it of items) it.hasChildren = parents.has(it.id);
   return items;
