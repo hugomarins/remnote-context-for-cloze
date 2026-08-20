@@ -37,7 +37,17 @@ Tagged on the card, but targeting an ancestor (Incremental Everything):
 
 The current card’s own line is always shown, regardless of any of these tags.
 
+## Collapsed by default — expand what you need
+The context tree starts **collapsed**. Only the branch that leads down to the card under review is open, so the tested line is always visible while deeper descendants — which often spoil or heavily hint at the answer — stay hidden.
+
+- A line with hidden children shows a **▸ arrow** instead of a bullet; click it (or focus it and press Enter/Space) to expand that branch. The arrow points down once the branch is open.
+- A line with no hidden children keeps its bullet.
+- Expansion is per card: it resets when you move to the next card.
+- Prefer the old always‑expanded tree? Turn off **Start Collapsed** in Settings.
+
 ## Settings (Settings → Plugins → This Plugin)
+- Start Collapsed (default: On)
+  - Renders the tree collapsed, with only the path to the current card open; other branches sit behind a clickable ▸ arrow. Because deep content is hidden until you ask for it, you can safely raise Max Depth with this on.
 - Max Depth (default: 3)
   - Limits the maximum depth of the context tree. Reduce for deep hierarchies to improve readability.
 - Max Nodes (default: 100)
@@ -49,7 +59,8 @@ The current card’s own line is always shown, regardless of any of these tags.
 1. Pick a Rem as the “context anchor” and add the power‑up “Context for Cloze” (`contextForCloze`).
 2. Start reviewing: whenever any descendant becomes a card, a context tree rooted at the anchor appears under the card.
 3. Optional: if a cloze card would be spoiled by its siblings’ revealed answers, add “Context Hide All Test One” (`contextHideAllTestOne`) to **that card**. See the dedicated section below.
-4. Tune Max Depth / Max Nodes in Settings to balance information density and readability.
+4. Click the ▸ arrows during review to open any branch you want to see; the rest stays out of the way.
+5. Tune Max Depth / Max Nodes in Settings to balance information density and readability.
 
 ## Context Hide All Test One — protecting a cloze from its siblings
 

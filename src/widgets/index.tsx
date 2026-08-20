@@ -9,6 +9,7 @@ async function onActivate(plugin: ReactRNPlugin) {
   // Settings / 设置项
   await plugin.settings.registerNumberSetting({ id: 'maxDepth', title: 'Max Depth', description: 'Maximum depth of the context tree. 最大递归深度', defaultValue: 3 });
   await plugin.settings.registerNumberSetting({ id: 'maxNodes', title: 'Max Nodes', description: 'Maximum number of nodes shown. 节点数量上限', defaultValue: 100 });
+  await plugin.settings.registerBooleanSetting({ id: 'startCollapsed', title: 'Start Collapsed', description: 'Show the context tree collapsed: only the branches leading to the card under review are open, deeper branches are hidden behind a ▸ arrow you can click to expand (avoids spoiling the answer). Turn off to always show the whole tree. 折叠显示上下文树：仅展开通往当前卡片的分支，更深的分支收在可点击的 ▸ 箭头后（避免泄露答案）。关闭则始终显示整棵树。', defaultValue: true });
   await plugin.settings.registerBooleanSetting({ id: 'debug', title: 'Debug Mode', description: 'Enable debugging (console logs and placeholder hints). 启用调试（控制台日志与占位提示）', defaultValue: false });
   await plugin.app.toast('Context for Cloze activated');
   console.log('[CFC] Plugin activated');

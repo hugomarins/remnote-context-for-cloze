@@ -7,7 +7,15 @@ import { richToHTMLWithClozeMask, richHasCloze, addClozeRevealHighlight } from '
 
 export interface Ctx { remId?: string; cardId?: string; revealed?: boolean }
 export interface QueueAdaptOpts { hideSet: Set<string>; removeSet: Set<string>; applyHideInQueue: boolean }
-export interface TreeItem { id: string; depth: number; html: string; isCurrent?: boolean; hasCloze?: boolean }
+// `parentId` / `hasChildren` drive the collapsible rendering in the widgets: `parentId` is the
+// EFFECTIVE parent inside the collected tree (a "Remove from Queue" node is dropped and its
+// children are re-attached to its own parent), and `hasChildren` is true only when at least one
+// child actually made it into the list (so a chevron never promises content that maxDepth /
+// maxNodes / metadata-skipping already cut).
+// `parentId` / `hasChildren` 驱动挂件中的折叠渲染：`parentId` 是所收集树中的“有效父级”
+// （被 Remove from Queue 移除的节点会被丢弃，其子级挂到它的父级上）；`hasChildren` 仅在
+// 确有子级进入列表时为 true，避免箭头指向被 maxDepth / maxNodes / 元数据过滤掉的空内容。
+export interface TreeItem { id: string; depth: number; html: string; isCurrent?: boolean; hasCloze?: boolean; parentId?: string; hasChildren?: boolean }
 export interface QueueDisplaySets { hideSet: Set<string>; removeSet: Set<string>; noHierarchySet: Set<string> }
 
 const HIDDEN_IN_QUEUE_HTML = '<span style="opacity:.6;color:var(--rn-clr-text-secondary,#57606a);font-style:italic">Hidden in queue</span>';
@@ -158,7 +166,7 @@ export async function collectFullTree(
 ): Promise<TreeItem[]> {
   const items: TreeItem[] = [];
   let count = 0;
-  async function dfs(rem: any, depth: number) {
+  async function dfs(rem: any, depth: number, parentId?: string) {
     if (depth > maxDepth || count >= maxNodes) return;
     const id = rem._id;
     let html = '';
@@ -187,16 +195,21 @@ export async function collectFullTree(
         }
       }
     }
-    if (!removed) items.push({ id, depth, html, isCurrent, hasCloze });
+    if (!removed) items.push({ id, depth, html, isCurrent, hasCloze, parentId, hasChildren: false });
     count++;
     if (count >= maxNodes) return;
     const children = (await rem.getChildrenRem()) || [];
     for (const ch of children) {
       if (count >= maxNodes) break;
       if (await shouldSkipChildAsMeta(plugin, ch)) continue;
-      await dfs(ch, removed ? depth : depth + 1);
+      await dfs(ch, removed ? depth : depth + 1, removed ? parentId : id);
     }
   }
-  await dfs(root, 0);
+  await dfs(root, 0, undefined);
+  // Flag the nodes that actually ended up with a visible child, so the widgets know where to
+  // draw a collapse/expand arrow instead of a bullet.
+  // 标记确实拥有可见子级的节点，供挂件决定何处绘制折叠箭头而非圆点。
+  const parents = new Set(items.map((it) => it.parentId).filter(Boolean) as string[]);
+  for (const it of items) it.hasChildren = parents.has(it.id);
   return items;
 }

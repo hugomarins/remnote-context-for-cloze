@@ -4,6 +4,7 @@ import { addClozeRevealHighlight, richHasCloze, richToHTMLWithClozeMask } from '
 import { useRevealDelegation } from '../lib/revealInteraction';
 import { useRevealedAnswer } from '../lib/useRevealedAnswer';
 import { collectFullTree, collectQueueDisplaySets, getCurrentCardRemId, getNearestAnchor, TreeItem } from '../lib/contextTree';
+import { ContextTreeView } from '../lib/contextTreeView';
 
 const POW_CODE = 'contextForCloze';
 const HIDE_ALL_TEST_ONE = 'contextHideAllTestOne';
@@ -30,6 +31,14 @@ function Widget() {
   const revealed = useRevealedAnswer(plugin);
 
   const debug = useRunAsync(async () => !!(await plugin.settings.getSetting('debug')), []);
+
+  // Start-collapsed preference. `undefined` while the setting is still loading — the tree is only
+  // rendered once it resolves, so a branch never flashes open before collapsing.
+  // “初始折叠”偏好。设置加载完成前为 undefined——树在其解析后才渲染，避免分支先展开再折叠的闪烁。
+  const startCollapsedSetting = useRunAsync(
+    async () => (await plugin.settings.getSetting('startCollapsed')) !== false,
+    []
+  );
 
   const { items, enabled } = (useRunAsync(async () => {
     try {
@@ -122,10 +131,6 @@ function Widget() {
   // 为被遮挡的兄弟 cloze 接入“点击揭示”。
   useRevealDelegation(rootRef, items);
 
-  const renderItem = (it: TreeItem) => (
-    <span style={{ fontSize: '1rem' }} dangerouslySetInnerHTML={{ __html: it.html }} />
-  );
-
   if (errorCount >= MAX_ERRORS) {
     console.error(`${LOG} reached max errors, stopping render`);
     return (
@@ -141,22 +146,11 @@ function Widget() {
       <div className="cfc-container"><div className="cfc-empty">No extra context</div></div>
     ) : null;
   }
+  if (startCollapsedSetting === undefined) return null; // setting still loading
 
   return (
     <div ref={rootRef} className="cfc-container" style={{ width: '100%', boxSizing: 'border-box', minWidth: 0, maxWidth: '100%', borderTop: '1px solid var(--rn-clr-border, #e4e8ef)', paddingTop: 6, overflowX: 'hidden', overflowY: 'visible' }}>
-      <ul className="cfc-list" style={{ listStyle: 'disc', listStylePosition: 'outside', margin: 0, paddingLeft: 20, paddingBottom: 8, fontSize: '1.08rem' }}>
-        {items.map((it: TreeItem) => (
-          <li key={it.id} className="cfc-item" style={{ position: 'relative', marginLeft: `${Math.max(0, it.depth) * 24}px`, padding: '2px 0', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-            {Array.from({ length: Math.max(0, it.depth) }).map((_, i) => (
-              <span key={`g-${it.id}-${i}`}
-                    style={{ position: 'absolute', top: 2, bottom: 2, width: 0,
-                             left: `${-((Math.max(0, it.depth) - i) * 24 - 12)}px`,
-                             borderLeft: '2px solid rgba(148,163,184,0.35)', pointerEvents: 'none' }} />
-            ))}
-            {renderItem(it)}
-          </li>
-        ))}
-      </ul>
+      <ContextTreeView items={items} startCollapsed={startCollapsedSetting !== false} />
     </div>
   );
 }
