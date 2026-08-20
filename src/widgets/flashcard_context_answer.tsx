@@ -125,7 +125,7 @@ function Widget() {
   // Cloze mode for the card in front of us. `null` = follow the card's own default; the eye
   // button pins it either way until the tree changes (next card, or the question→answer flip).
   const [maskOverride, setMaskOverride] = React.useState<boolean | null>(null);
-  // Local view of the card's "Context Hide Other Answers" tag. Tagging is written straight to the
+  // Local view of the card's "Context Hide Others" tag. Tagging is written straight to the
   // Rem, but the collected tree is not re-read for it, so we track the new value here to keep the
   // toolbar honest for the rest of this card.
   const [taggedOverride, setTaggedOverride] = React.useState<boolean | null>(null);

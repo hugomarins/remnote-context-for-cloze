@@ -6,6 +6,7 @@ import {
   ACTION_HIDE_OTHER_ANSWERS,
   LABEL_CONTEXT_FOR_CLOZE,
   LABEL_HIDE_OTHER_ANSWERS,
+  PREVIOUS_LABELS_HIDE_OTHER_ANSWERS,
   POW_CONTEXT_FOR_CLOZE as POW_CODE,
   POW_HIDE_OTHER_ANSWERS as POW_CODE_HIDE_OTHER_ANSWERS,
 } from '../lib/powerups';
@@ -22,6 +23,30 @@ async function onActivate(plugin: ReactRNPlugin) {
   // Power-Up
   await plugin.app.registerPowerup({ name: LABEL_CONTEXT_FOR_CLOZE, code: POW_CODE, description: 'Tag the ROOT of a subtree: every descendant of it shows a context tree rooted here while being reviewed.', options: { slots: [] } });
   await plugin.app.registerPowerup({ name: LABEL_HIDE_OTHER_ANSWERS, code: POW_CODE_HIDE_OTHER_ANSWERS, description: `Tag an individual cloze Rem — not the context anchor. While that Rem is under review, the other cloze answers in its context tree start hidden as "…" instead of revealed. Affects only the Rem you tag; the eye button in the review widget can flip it for a single review.`, options: { slots: [] } });
+
+  // registerPowerup() creates the power-up Rem the first time and then leaves its text alone, so a
+  // knowledge base that already has the tag keeps showing whatever name it was created with — which
+  // is why renaming the label in code did nothing for existing KBs. Rewrite the Rem's text here,
+  // but only while it still carries a label WE shipped: if the user renamed the tag themselves,
+  // that name is theirs to keep.
+  const PREVIOUS_LABELS: Record<string, string[]> = {
+    [POW_CODE_HIDE_OTHER_ANSWERS]: PREVIOUS_LABELS_HIDE_OTHER_ANSWERS,
+  };
+  const syncPowerupLabel = async (code: string, label: string) => {
+    try {
+      const rem = await plugin.powerup.getPowerupByCode(code);
+      if (!rem) return;
+      const current = ((await plugin.richText.toString(rem.text || [])) || '').trim();
+      if (current === label) return;
+      if (current && !(PREVIOUS_LABELS[code] || []).includes(current)) return;
+      await rem.setText([label]);
+      console.log(`[CFC] renamed power-up ${code}: "${current}" → "${label}"`);
+    } catch (e) {
+      console.error(`[CFC] could not rename power-up ${code}:`, e);
+    }
+  };
+  await syncPowerupLabel(POW_CODE, LABEL_CONTEXT_FOR_CLOZE);
+  await syncPowerupLabel(POW_CODE_HIDE_OTHER_ANSWERS, LABEL_HIDE_OTHER_ANSWERS);
 
   // Commands operate on the current selection, single Rem or multi-selection alike.
   const selectedRemIds = async (): Promise<string[]> => {

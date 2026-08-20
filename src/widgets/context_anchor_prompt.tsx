@@ -38,6 +38,8 @@ const BTN_BASE: React.CSSProperties = {
 function Widget() {
   const plugin = usePlugin();
   const [busy, setBusy] = React.useState(false);
+  const buttonRefs = React.useRef<(HTMLButtonElement | null)[]>([]);
+  const [focusIdx, setFocusIdx] = React.useState(0);
 
   const data = useRunAsync(async () => {
     const ctx = await plugin.widget.getWidgetContext<any>();
@@ -77,12 +79,69 @@ function Widget() {
     [plugin, busy, parentIds, orphans]
   );
 
+  // Left-to-right, matching the rendered order; the primary action is the one focus starts on.
+  const actions = React.useMemo(() => {
+    const list: { key: string; label: string; primary?: boolean; run: () => void }[] = [
+      { key: 'cancel', label: 'Cancel', run: () => { void plugin.widget.closePopup(); } },
+      {
+        key: 'only',
+        label: `Tag only ${orphans.length === 1 ? 'this Rem' : 'these Rems'}`,
+        primary: !canTagParents,
+        run: () => { void finish(false); },
+      },
+    ];
+    if (canTagParents) {
+      list.push({
+        key: 'both',
+        label: `Tag ${orphans.length === 1 ? 'the parent' : 'the parents'} too`,
+        primary: true,
+        run: () => { void finish(true); },
+      });
+    }
+    return list;
+  }, [plugin, orphans.length, canTagParents, finish]);
+
+  const primaryIdx = Math.max(0, actions.findIndex((a) => a.primary));
+
+  // Focus the confirming button as soon as the dialog has its data, so Enter works without a
+  // click first — and so the arrow keys have somewhere to start from.
+  React.useEffect(() => {
+    if (!data) return;
+    setFocusIdx(primaryIdx);
+    buttonRefs.current[primaryIdx]?.focus();
+    // The popup iframe may only take focus a beat after it opens, in which case the call above
+    // lands on nothing. One retry costs nothing and makes the keys work on the first press.
+    const retry = setTimeout(() => buttonRefs.current[primaryIdx]?.focus(), 60);
+    return () => clearTimeout(retry);
+  }, [data, primaryIdx]);
+
+  const onKeyDown = React.useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!busy) void plugin.widget.closePopup();
+      return;
+    }
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    e.preventDefault();
+    e.stopPropagation();
+    const step = e.key === 'ArrowRight' ? 1 : -1;
+    setFocusIdx((prev) => {
+      const next = (prev + step + actions.length) % actions.length;
+      buttonRefs.current[next]?.focus();
+      return next;
+    });
+    // Enter and Space need no handling of their own: the focused element is a real <button>.
+  }, [plugin, busy, actions.length]);
+
   if (!data) return null;
 
   const one = orphans.length === 1;
 
   return (
     <div
+      tabIndex={-1}
+      onKeyDown={onKeyDown}
       style={{
         padding: 16,
         fontSize: '0.92rem',
@@ -156,27 +215,41 @@ function Widget() {
         </p>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, flexWrap: 'wrap' }}>
-        <button style={BTN_BASE} disabled={busy} onClick={() => plugin.widget.closePopup()}>
-          Cancel
-        </button>
-        <button style={BTN_BASE} disabled={busy} onClick={() => finish(false)}>
-          Tag only {one ? 'this Rem' : 'these Rems'}
-        </button>
-        {canTagParents && (
+      <div
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8, flexWrap: 'wrap' }}
+      >
+        <span
+          style={{
+            marginRight: 'auto', fontSize: '0.78rem',
+            color: 'var(--rn-clr-content-tertiary, rgba(100,116,139,0.75))',
+          }}
+        >
+          ← → choose · ↵ confirm · Esc cancel
+        </span>
+        {actions.map((action, i) => (
           <button
+            key={action.key}
+            ref={(el) => { buttonRefs.current[i] = el; }}
+            disabled={busy}
+            onClick={action.run}
+            onFocus={() => setFocusIdx(i)}
             style={{
               ...BTN_BASE,
-              border: '1px solid var(--rn-clr-accent, #0969da)',
-              background: 'var(--rn-clr-accent, #0969da)',
-              color: '#fff',
+              ...(action.primary
+                ? {
+                    border: '1px solid var(--rn-clr-accent, #0969da)',
+                    background: 'var(--rn-clr-accent, #0969da)',
+                    color: '#fff',
+                  }
+                : null),
+              // Drawn from state rather than left to :focus-visible, which does not always paint
+              // for focus moved programmatically — the selected button must always be obvious.
+              boxShadow: focusIdx === i ? '0 0 0 2px var(--rn-clr-accent, #0969da)' : undefined,
             }}
-            disabled={busy}
-            onClick={() => finish(true)}
           >
-            Tag {one ? 'the parent' : 'the parents'} too
+            {action.label}
           </button>
-        )}
+        ))}
       </div>
     </div>
   );

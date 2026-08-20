@@ -1,4 +1,4 @@
-// "Context Hide Other Answers" only does something inside a context tree, and a context tree only
+// "Context Hide Others" only does something inside a context tree, and a context tree only
 // exists below a Rem tagged "Context for Cloze". Tagging a Rem with no such ancestor is therefore a
 // silent no-op — the command checks for that case and offers to place the missing anchor.
 import { POW_CONTEXT_FOR_CLOZE } from './powerups';
