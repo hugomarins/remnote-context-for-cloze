@@ -18,6 +18,8 @@ Make your reviews clearer by showing where the current card sits in your knowled
     - Context: Hide Other Answers for This Rem (quick code `cfchide`)
   - Works on multi‑selection.
 
+![Switching cloze modes with the eye button, then making it permanent with the tag button](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/context-for-cloze-mode-switch.gif)
+
 ## Compatibility with queue‑display power‑ups (“Hide in Queue” official plugin and "Incremental Everything" plugin)
 The context tree mirrors the queue‑display power‑ups from RemNote’s official “Hide in Queue” plugin **and** from the Incremental Everything plugin. This plugin does not register any of them — it only reads their tags when they exist, so nothing is affected if a power‑up isn’t installed.
 
@@ -47,6 +49,8 @@ The context tree starts **collapsed**. Only the branch that leads down to the ca
 
 ## The eye and tag buttons — switch cloze modes mid‑review
 The tree renders the other lines' clozes in one of two modes: **revealed** (blue underline, the default) or **masked** (`…`, the default for a card tagged `Context Hide Others`). An **👁 eye button in the top‑right corner of the context area** switches between them for the card in front of you.
+
+![Switching cloze modes with the eye button, then making it permanent with the tag button](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/context-for-cloze-mode-switch.gif)
 
 - Eye **open** = the other answers are revealed. Click it to hide them.
 - Eye **struck through** = the other answers are masked as `…`. Click it to reveal them.

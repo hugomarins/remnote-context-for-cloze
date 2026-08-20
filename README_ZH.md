@@ -46,6 +46,8 @@
 ## 眼睛与标记按钮——复习过程中切换 cloze 模式
 上下文树中“其他行”的 cloze 有两种显示模式：**揭示**（蓝色下划线，默认）或**遮挡**（`…`，带 `Context Hide Others` 标记的卡片默认如此）。上下文区域**右上角的 👁 眼睛按钮**可为当前这张卡片在两种模式间切换。
 
+![用眼睛按钮切换 cloze 模式，再用标记按钮让选择永久生效](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/context-for-cloze-mode-switch.gif)
+
 - 眼睛**睁开** = 其他答案处于揭示状态，点击即可隐藏。
 - 眼睛**带斜线** = 其他答案被遮挡为 `…`，点击即可揭示。
 - 当揭示的答案泄露了你希望自己回忆出的线索时，可在阅读上下文树**之前**点击隐藏——无需先给 Rem 加标记。
