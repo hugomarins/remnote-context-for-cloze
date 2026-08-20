@@ -1,6 +1,6 @@
 # Context for Cloze — User Guide (English)
 
-[Read this guide in Chinese »](./README_ZH.md)
+🇨🇳 [中文](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README_ZH.md) | 🇪🇸 [Español](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README_ES.md) | 🇧🇷 [Português Brasileiro](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README_PT-BR.md)
 
 Make your reviews clearer by showing where the current card sits in your knowledge tree. This plugin renders a compact “Context Tree” under the card in the review queue, so you can orient, associate, and recall — without changing the card content or scheduling.
 

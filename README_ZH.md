@@ -1,5 +1,7 @@
 # Context for Cloze — 用户指南
 
+🇬🇧 [English](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README.md) | 🇪🇸 [Español](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README_ES.md) | 🇧🇷 [Português Brasileiro](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README_PT-BR.md)
+
 让你在复习时，快速看清“当前卡片在知识结构中的位置”。本插件在复习队列中，于卡片下方显示一棵简洁的“上下文树”，帮助定位、联想与回顾；不更改卡片内容与复习调度。
 
 ## 功能介绍
@@ -15,6 +17,8 @@
     - Add Context for Cloze（快速码 `cfc`）
     - Context: Hide Other Answers for This Rem（快速码 `cfchide`）
   - 支持对多选 Rem 一次性添加。
+
+![用眼睛按钮切换 cloze 模式，再用标记按钮让选择永久生效](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/context-for-cloze-mode-switch.gif)
 
 ## 与队列显示 power‑up 的兼容性
 上下文树会与 RemNote 官方“Hide in Queue”插件**以及** Incremental Everything 插件的队列显示 power‑up 保持一致。本插件不注册其中任何一个——只在它们存在时读取其标记，因此某个 power‑up 未安装也不会有任何影响。
@@ -45,8 +49,6 @@
 
 ## 眼睛与标记按钮——复习过程中切换 cloze 模式
 上下文树中“其他行”的 cloze 有两种显示模式：**揭示**（蓝色下划线，默认）或**遮挡**（`…`，带 `Context Hide Others` 标记的卡片默认如此）。上下文区域**右上角的 👁 眼睛按钮**可为当前这张卡片在两种模式间切换。
-
-![用眼睛按钮切换 cloze 模式，再用标记按钮让选择永久生效](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/context-for-cloze-mode-switch.gif)
 
 - 眼睛**睁开** = 其他答案处于揭示状态，点击即可隐藏。
 - 眼睛**带斜线** = 其他答案被遮挡为 `…`，点击即可揭示。
