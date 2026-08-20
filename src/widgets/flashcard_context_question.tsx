@@ -125,14 +125,45 @@ function Widget() {
   // Cloze mode for the card in front of us. `null` = follow the card's own default; the eye
   // button pins it either way until the tree changes (next card, or the question→answer flip).
   const [maskOverride, setMaskOverride] = React.useState<boolean | null>(null);
-  React.useEffect(() => { setMaskOverride(null); }, [items]);
-  const masked = maskOverride ?? !!defaultMasked;
+  // Local view of the card's "Context Hide All Test One" tag. Tagging is written straight to the
+  // Rem, but the collected tree is not re-read for it, so we track the new value here to keep the
+  // toolbar honest for the rest of this card.
+  const [taggedOverride, setTaggedOverride] = React.useState<boolean | null>(null);
+  React.useEffect(() => { setMaskOverride(null); setTaggedOverride(null); }, [items]);
+  const tagged = taggedOverride ?? !!defaultMasked;
+  const masked = maskOverride ?? tagged;
 
   // Nothing to switch between unless some OTHER line carries a cloze of its own.
   const canToggleMask = React.useMemo(
     () => (items as TreeItem[]).some((it) => !!it.maskedHtml),
     [items]
   );
+  const currentRemId = React.useMemo(
+    () => (items as TreeItem[]).find((it) => it.isCurrent)?.id,
+    [items]
+  );
+
+  // Make the current mode stick: tag the Rem to keep the other answers hidden, or untag it to keep
+  // them revealed. This is the one place the plugin writes to the knowledge base.
+  const persistMask = React.useCallback(async () => {
+    if (!currentRemId) return;
+    try {
+      const rem = await plugin.rem.findOne(currentRemId);
+      if (!rem) return;
+      if (masked) await rem.addPowerup(HIDE_ALL_TEST_ONE);
+      else await rem.removePowerup(HIDE_ALL_TEST_ONE);
+      setTaggedOverride(masked);
+      setMaskOverride(null);
+      await plugin.app.toast(
+        masked
+          ? 'Tagged: the other answers stay hidden for this Rem'
+          : 'Untagged: the other answers stay revealed for this Rem'
+      );
+    } catch (e) {
+      console.error(`${LOG} could not update the Hide All Test One tag:`, e);
+      await plugin.app.toast('Could not update the "Context Hide All Test One" tag');
+    }
+  }, [plugin, currentRemId, masked]);
 
   // Wire up click-to-reveal for masked sibling clozes.
   useRevealDelegation(rootRef, items);
@@ -162,6 +193,7 @@ function Widget() {
         startCollapsed={startCollapsedSetting !== false}
         masked={masked}
         onToggleMasked={canToggleMask ? () => setMaskOverride(!masked) : undefined}
+        onPersistMask={canToggleMask && currentRemId && masked !== tagged ? persistMask : undefined}
       />
     </div>
   );

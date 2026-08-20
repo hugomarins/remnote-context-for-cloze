@@ -101,6 +101,70 @@ function EyeIcon({ off }: { off: boolean }) {
   );
 }
 
+// Which toolbar button the pointer (or focus) is currently on.
+type HintKey = 'eye' | 'persist';
+
+// A label/tag outline — the action it stands for is literally "put a tag on this Rem" (or, with
+// the slash, take it off). Drawn in the same stroke language as the eye and the chevron.
+function TagIcon({ off }: { off: boolean }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0l-7.2-7.2A2 2 0 0 1 2.8 12V4.8A2 2 0 0 1 4.8 2.8H12a2 2 0 0 1 1.4.6l7.2 7.2a2 2 0 0 1 0 2.8Z" />
+      <circle cx="7.6" cy="7.6" r="1.3" />
+      {off && <line x1="3" y1="21" x2="21" y2="3" />}
+    </svg>
+  );
+}
+
+interface IconButtonProps {
+  className: string;
+  label: string;
+  /** Identifies this button to the toolbar's hover explanation. */
+  hintKey: HintKey;
+  pressed?: boolean;
+  disabled?: boolean;
+  onActivate: () => void;
+  onHint: (hint: HintKey | null) => void;
+  children: React.ReactNode;
+}
+
+// Every control in the toolbar swallows its click and its Enter/Space: inside the queue those
+// would otherwise bubble up and reveal the answer / rate the card.
+function IconButton({ className, label, hintKey, pressed, disabled, onActivate, onHint, children }: IconButtonProps) {
+  const fire = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!disabled) onActivate();
+  };
+  return (
+    <span
+      className={className}
+      role="button"
+      tabIndex={0}
+      aria-pressed={pressed}
+      aria-label={label}
+      aria-disabled={disabled}
+      onClick={fire}
+      onMouseDown={(e) => e.stopPropagation()}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') fire(e); }}
+      onMouseEnter={() => onHint(hintKey)}
+      onMouseLeave={() => onHint(null)}
+      onFocus={() => onHint(hintKey)}
+      onBlur={() => onHint(null)}
+      style={{
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        width: 20, height: 20, userSelect: 'none',
+        cursor: disabled ? 'default' : 'pointer',
+        opacity: disabled ? 0.4 : undefined,
+        color: 'var(--rn-clr-content-secondary, rgba(100,116,139,0.9))',
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
 interface MarkerProps { hasChildren: boolean; open: boolean; onToggle: () => void }
 
 function Marker({ hasChildren, open, onToggle }: MarkerProps) {
@@ -140,9 +204,15 @@ export interface ContextTreeViewProps {
   masked: boolean;
   /** Flip that mode. Omit to hide the button — e.g. when no other line carries a cloze. */
   onToggleMasked?: () => void;
+  /**
+   * Write the current mode into the card itself, by adding or removing the "Context Hide All Test
+   * One" tag. Provided only while the mode on screen differs from what the tag says, so the button
+   * appears exactly when there is a divergence worth keeping.
+   */
+  onPersistMask?: () => void | Promise<void>;
 }
 
-export function ContextTreeView({ items, startCollapsed, masked, onToggleMasked }: ContextTreeViewProps) {
+export function ContextTreeView({ items, startCollapsed, masked, onToggleMasked, onPersistMask }: ContextTreeViewProps) {
   const [expanded, setExpanded] = React.useState<Set<string>>(() => defaultExpandedIds(items, startCollapsed));
 
   // Re-seed whenever the tree changes (new card, or the question→answer flip): expansion is
@@ -162,45 +232,74 @@ export function ContextTreeView({ items, startCollapsed, masked, onToggleMasked 
 
   const visible = React.useMemo(() => visibleItems(items, expanded), [items, expanded]);
 
+  // Inline hover/focus explanation for the toolbar buttons, and a guard against a double write
+  // while the tag is being applied.
+  const [hint, setHint] = React.useState<HintKey | null>(null);
+  const [persisting, setPersisting] = React.useState(false);
+  React.useEffect(() => { setHint(null); setPersisting(false); }, [items]);
+
+  const eyeLabel = masked ? 'Reveal the other cloze answers' : 'Hide the other cloze answers';
+  const persistLabel = masked
+    ? 'Keep the other answers hidden for this Rem (adds the "Context Hide All Test One" tag)'
+    : 'Stop hiding the other answers for this Rem (removes the "Context Hide All Test One" tag)';
+  const hintText = hint === 'eye' ? eyeLabel : hint === 'persist' ? persistLabel : null;
+
   return (
     <>
       {/* Hover affordance for the arrows. It lives here rather than in the plugin-level CSS
           because that stylesheet is injected into the host document, not into this widget iframe. */}
       <style>{`
-        .cfc-toggle, .cfc-mask-toggle { border-radius: 4px; }
-        .cfc-toggle:hover, .cfc-mask-toggle:hover { background: var(--rn-clr-background--hovered, rgba(148,163,184,0.22)); color: var(--rn-clr-content-primary, inherit); }
-        .cfc-toggle:focus-visible, .cfc-mask-toggle:focus-visible { outline: 2px solid var(--rn-clr-accent, #0969da); outline-offset: 1px; }
-        .cfc-mask-toggle { opacity: 0.55; transition: opacity 150ms ease; }
-        .cfc-mask-toggle:hover, .cfc-mask-toggle:focus-visible { opacity: 1; }
+        .cfc-toggle, .cfc-mask-toggle, .cfc-mask-persist { border-radius: 4px; }
+        .cfc-toggle:hover, .cfc-mask-toggle:hover, .cfc-mask-persist:hover { background: var(--rn-clr-background--hovered, rgba(148,163,184,0.22)); color: var(--rn-clr-content-primary, inherit); }
+        .cfc-toggle:focus-visible, .cfc-mask-toggle:focus-visible, .cfc-mask-persist:focus-visible { outline: 2px solid var(--rn-clr-accent, #0969da); outline-offset: 1px; }
+        .cfc-mask-toggle, .cfc-mask-persist { opacity: 0.55; transition: opacity 150ms ease; }
+        .cfc-mask-toggle:hover, .cfc-mask-toggle:focus-visible, .cfc-mask-persist:hover, .cfc-mask-persist:focus-visible { opacity: 1; }
       `}</style>
       {onToggleMasked && (
         // Top-right, on its own row: out of the reading flow of the tree, in the corner where a
         // widget affordance is expected, and it can never overlap a wrapped line the way an
-        // absolutely positioned button would.
-        <div style={{ display: 'flex', justifyContent: 'flex-end', lineHeight: 1 }}>
-          <span
+        // absolutely positioned button would. The hover explanation is laid out in this same row
+        // rather than floated over the page — a floating tooltip would be clipped by the widget
+        // iframe, which is only as tall as its content.
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, minHeight: 20 }}>
+          {hintText && (
+            <span
+              style={{
+                fontSize: '0.78rem', lineHeight: 1.25, textAlign: 'right', minWidth: 0,
+                color: 'var(--rn-clr-content-secondary, rgba(100,116,139,0.9))',
+              }}
+            >
+              {hintText}
+            </span>
+          )}
+          {onPersistMask && (
+            <IconButton
+              className="cfc-mask-persist"
+              label={persistLabel}
+              hintKey="persist"
+              disabled={persisting}
+              onActivate={() => {
+                if (persisting) return;
+                setPersisting(true);
+                // The button disappears once the tag matches the screen, so no mouseleave will
+                // ever arrive to clear the explanation — drop it here.
+                Promise.resolve(onPersistMask()).finally(() => { setPersisting(false); setHint(null); });
+              }}
+              onHint={setHint}
+            >
+              <TagIcon off={!masked} />
+            </IconButton>
+          )}
+          <IconButton
             className="cfc-mask-toggle"
-            role="button"
-            tabIndex={0}
-            aria-pressed={masked}
-            aria-label={masked ? 'Reveal the other cloze answers' : 'Hide the other cloze answers'}
-            title={masked ? 'Reveal the other cloze answers' : 'Hide the other cloze answers'}
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleMasked(); }}
-            onMouseDown={(e) => e.stopPropagation()}
-            onKeyDown={(e) => {
-              if (e.key !== 'Enter' && e.key !== ' ') return;
-              e.preventDefault();
-              e.stopPropagation();
-              onToggleMasked();
-            }}
-            style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              width: 20, height: 20, cursor: 'pointer', userSelect: 'none',
-              color: 'var(--rn-clr-content-secondary, rgba(100,116,139,0.9))',
-            }}
+            label={eyeLabel}
+            hintKey="eye"
+            pressed={masked}
+            onActivate={onToggleMasked}
+            onHint={setHint}
           >
             <EyeIcon off={masked} />
-          </span>
+          </IconButton>
         </div>
       )}
       <ul
