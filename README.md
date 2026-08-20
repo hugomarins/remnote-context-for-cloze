@@ -9,13 +9,13 @@ Make your reviews clearer by showing where the current card sits in your knowled
   - Add the power‑up “Context for Cloze” (code: `contextForCloze`) to a Rem. All its descendants, when reviewed as cards, will show a context tree rooted at that Rem under the card.
   - Question stage: the context is shown while avoiding any leak of cloze answers.
   - Answer stage: the context remains; revealed cloze is indicated by a blue underline with a light‑blue highlight for easy comparison.
-- Context Hide All Test One (`contextHideAllTestOne`) — “Hide All others, Test this One.”
+- Context Hide Other Answers (`contextHideAllTestOne`) — applies to **one Rem**, not to a subtree.
   - By default, the context tree hides only the blank you are actually being tested on; every *other* cloze line is shown with its answer revealed. Tag a cloze card with this power‑up when you don’t want **that card’s** review to be spoiled by its siblings — while it is under review, all other cloze answers are hidden (shown as `…`) instead.
-  - Apply it to the cloze card Rem that would receive the spoiler (the leaf), **not** to the anchor/parent. See [Context Hide All Test One](#context-hide-all-test-one--protecting-a-cloze-from-its-siblings) below.
+  - Apply it to the cloze card Rem that would receive the spoiler (the leaf), **not** to the anchor/parent. See [Context Hide Other Answers](#context-hide-other-answers--protecting-a-cloze-from-its-siblings) below.
 - How to add power‑ups to Rems
   - Commands:
     - Add Context for Cloze (quick code `cfc`)
-    - Add Context Hide All Test One (quick code `cfchideall`)
+    - Context: Hide Other Answers for This Rem (quick code `cfchide`)
   - Works on multi‑selection.
 
 ## Compatibility with queue‑display power‑ups (“Hide in Queue” official plugin and "Incremental Everything" plugin)
@@ -46,7 +46,7 @@ The context tree starts **collapsed**. Only the branch that leads down to the ca
 - Prefer the old always‑expanded tree? Turn off **Start Collapsed** in Settings.
 
 ## The eye and tag buttons — switch cloze modes mid‑review
-The tree renders the other lines' clozes in one of two modes: **revealed** (blue underline, the default) or **masked** (`…`, the default for a card tagged `Context Hide All Test One`). An **👁 eye button in the top‑right corner of the context area** switches between them for the card in front of you.
+The tree renders the other lines' clozes in one of two modes: **revealed** (blue underline, the default) or **masked** (`…`, the default for a card tagged `Context Hide Other Answers`). An **👁 eye button in the top‑right corner of the context area** switches between them for the card in front of you.
 
 - Eye **open** = the other answers are revealed. Click it to hide them.
 - Eye **struck through** = the other answers are masked as `…`. Click it to reveal them.
@@ -58,7 +58,7 @@ The tree renders the other lines' clozes in one of two modes: **revealed** (blue
 
 **Make it permanent — the 🏷 tag button.** As soon as the eye puts the tree in a mode that disagrees with the card's tag, a second button appears **to the left of the eye**. Click it and the choice is written to the Rem itself, so every future review starts that way:
 
-- Plain tag icon = *add* `Context Hide All Test One` to this Rem (keep the other answers hidden).
+- Plain tag icon = *add* `Context Hide Other Answers` to this Rem (keep the other answers hidden).
 - Tag icon with a slash = *remove* it from this Rem (keep the other answers revealed).
 - Hover or focus either button and a short explanation appears in the same row, to the left of the icons.
 - The button disappears once the tag matches what you see, and a toast confirms the change. This is the only action in the plugin that writes to your knowledge base.
@@ -76,18 +76,27 @@ The tree renders the other lines' clozes in one of two modes: **revealed** (blue
 ## How to Use
 1. Pick a Rem as the “context anchor” and add the power‑up “Context for Cloze” (`contextForCloze`).
 2. Start reviewing: whenever any descendant becomes a card, a context tree rooted at the anchor appears under the card.
-3. Optional: if a cloze card would be spoiled by its siblings’ revealed answers, add “Context Hide All Test One” (`contextHideAllTestOne`) to **that card**. See the dedicated section below.
+3. Optional: if a cloze card would be spoiled by its siblings’ revealed answers, add “Context Hide Other Answers” to **that card** — run **Context: Hide Other Answers for This Rem** (`cfchide`). See the dedicated section below.
 4. Click the ▸ arrows during review to open any branch you want to see; the rest stays out of the way.
 5. Use the 👁 button in the top‑right of the context area to reveal or hide the other lines' cloze answers whenever the current mode does not suit the card — and the 🏷 button next to it if you want that choice to stick to the Rem.
 6. Tune Max Depth / Max Nodes in Settings to balance information density and readability.
 
-## Context Hide All Test One — protecting a cloze from its siblings
+## Context Hide Other Answers — protecting a cloze from its siblings
 
 **What it does.** By default this plugin hides only the blank you are actually being tested on. Every *other* cloze in the context tree — siblings, and any other cloze line — is shown with its answer **revealed** (blue underline), so the surrounding answers act as visible context.
 
-`Context Hide All Test One` reverses that for the card it is applied to: while that card is under review, the answers on **all other** cloze lines in the tree are **masked** (shown as `…`) instead of revealed. Mnemonic: *Hide All [other answers], Test [this] One.*
+`Context Hide Other Answers` reverses that for the card it is applied to: while that card is under review, the answers on **all other** cloze lines in the tree are **masked** (shown as `…`) instead of revealed. Note the scope difference from the anchor tag: `Context for Cloze` is placed on the **root** of a subtree and affects every descendant, while this one is placed on **a single Rem** and affects only that Rem’s reviews.
 
 The tag sets the **starting** mode only — the 👁 button described above flips it either way for the card in front of you, without changing the tag.
+
+### When there is no context anchor above the Rem
+This tag only changes how a *context tree* looks, and a context tree exists only below a Rem tagged `Context for Cloze`. Tagging a Rem with no such ancestor would therefore do nothing at all, so the command checks first. If the anchor is missing, a dialog appears explaining the situation and offering three ways out:
+
+- **Tag the parent too** — the parent becomes the context anchor and the selected Rem gets `Context Hide Other Answers`. The dialog names the parent and states the consequence up front: an anchor cascades, so *every* card under that parent will show a context tree from then on. It also reports how many siblings the Rem has, since those siblings are what the context is made of — with none, the tree would be thin and a higher ancestor may be the better anchor.
+- **Tag only this Rem** — adds the tag anyway; it stays dormant until an ancestor becomes an anchor.
+- **Cancel** — nothing is written.
+
+On a multi‑selection, the Rems that already sit under an anchor are tagged immediately and the dialog asks only about the rest.
 
 The current card’s own line is always masked as `?` regardless of this power‑up, and plain (non‑cloze) context text is always shown. This power‑up only changes how *other* clozes appear.
 
@@ -95,7 +104,7 @@ The current card’s own line is always masked as `?` regardless of this power�
 - Apply it to **the cloze card Rem that would receive the unwanted spoiler from its siblings** — i.e. the leaf whose own review you want to keep clean. It is not a group marker: it protects the specific card it sits on.
 - Do **not** apply it to the anchor/parent that carries `Context for Cloze`. The effect is keyed to the Rem of the card currently under review, and there is no inheritance down the tree, so a tag on the parent does nothing.
 - The protection is per‑card and one‑directional: tagging card A only cleans up **A’s own** review; it has no effect on what B or C show when their turn comes. So when several siblings would each be spoiled by the others, tag **each** card you want protected — any sibling you leave untagged will still reveal all the answers during its own review.
-- Tip: select the cloze cards you want to protect and run **Add Context Hide All Test One** (`cfchideall`) — the command applies to a multi‑selection, so you can tag them in one step.
+- Tip: select the cloze cards you want to protect and run **Context: Hide Other Answers for This Rem** (`cfchide`) — the command applies to a multi‑selection, so you can tag them in one step.
 
 **When to use it.** Use it when a parent groups several sibling clozes that would spoil each other if shown together — e.g. an enumerated list where each item is its own cloze card, or a set of parallel facts you want to recall independently. Keep the default (don’t tag) when the neighboring answers are legitimate context you *want* to see while recalling the current one.
 

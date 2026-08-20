@@ -1,9 +1,14 @@
 import { declareIndexPlugin, type ReactRNPlugin, WidgetLocation, SelectionType } from '@remnote/plugin-sdk';
 import '../style.css';
 import '../index.css';
-
-const POW_CODE = 'contextForCloze';
-const POW_CODE_HIDE_ALL_TEST_ONE = 'contextHideAllTestOne';
+import { addPowerupToRems, planHideOtherAnswers } from '../lib/anchorCheck';
+import {
+  ACTION_HIDE_OTHER_ANSWERS,
+  LABEL_CONTEXT_FOR_CLOZE,
+  LABEL_HIDE_OTHER_ANSWERS,
+  POW_CONTEXT_FOR_CLOZE as POW_CODE,
+  POW_HIDE_OTHER_ANSWERS as POW_CODE_HIDE_OTHER_ANSWERS,
+} from '../lib/powerups';
 
 async function onActivate(plugin: ReactRNPlugin) {
   // Settings
@@ -15,25 +20,42 @@ async function onActivate(plugin: ReactRNPlugin) {
   console.log('[CFC] Plugin activated');
 
   // Power-Up
-  await plugin.app.registerPowerup({ name: 'Context for Cloze', code: POW_CODE, description: 'Provide nearby context for Cloze review (display layer).', options: { slots: [] } });
-  await plugin.app.registerPowerup({ name: 'Context Hide All Test One', code: POW_CODE_HIDE_ALL_TEST_ONE, description: 'When tagged on a cloze card: while it is under review, hide all OTHER clozes in the context tree (masked as clickable "…") instead of revealing them.', options: { slots: [] } });
+  await plugin.app.registerPowerup({ name: LABEL_CONTEXT_FOR_CLOZE, code: POW_CODE, description: 'Tag the ROOT of a subtree: every descendant of it shows a context tree rooted here while being reviewed.', options: { slots: [] } });
+  await plugin.app.registerPowerup({ name: LABEL_HIDE_OTHER_ANSWERS, code: POW_CODE_HIDE_OTHER_ANSWERS, description: `Tag an individual cloze Rem — not the context anchor. While that Rem is under review, the other cloze answers in its context tree start hidden as "…" instead of revealed. Affects only the Rem you tag; the eye button in the review widget can flip it for a single review.`, options: { slots: [] } });
 
-  // Commands: add the power-up to the selected Rem(s) — works on a multi-selection.
-  const runAddPowerupCommand = async (powerup: string, label: string) => {
+  // Commands operate on the current selection, single Rem or multi-selection alike.
+  const selectedRemIds = async (): Promise<string[]> => {
     const sel = await plugin.editor.getSelection();
-    if (!sel?.type) return;
-    if (sel.type === SelectionType.Rem) {
-      const rems = (await plugin.rem.findMany(sel.remIds)) || [];
-      await Promise.all(rems.map(r => r.addPowerup(powerup)));
-    } else {
-      const rem = await plugin.rem.findOne(sel.remId);
-      await rem?.addPowerup(powerup);
-    }
+    if (!sel?.type) return [];
+    if (sel.type === SelectionType.Rem) return sel.remIds || [];
+    return sel.remId ? [sel.remId] : [];
+  };
+
+  const runAddPowerupCommand = async (powerup: string, label: string) => {
+    const remIds = await selectedRemIds();
+    if (!remIds.length) return;
+    await addPowerupToRems(plugin, remIds, powerup);
     await plugin.app.toast(`Added "${label}"`);
   };
 
-  await plugin.app.registerCommand({ id: 'add-context-for-cloze', name: 'Add Context for Cloze', quickCode: 'cfc', action: async () => runAddPowerupCommand(POW_CODE, 'Context for Cloze') });
-  await plugin.app.registerCommand({ id: 'add-context-hide-all-test-one', name: 'Add Context Hide All Test One', quickCode: 'cfchideall', action: async () => runAddPowerupCommand(POW_CODE_HIDE_ALL_TEST_ONE, 'Context Hide All Test One') });
+  // "Hide Other Answers" is inert unless the Rem sits below a context anchor, so this command
+  // checks first and, when the anchor is missing, hands over to a popup that explains the situation
+  // and offers to place one on the parent. Rems that are already covered are tagged straight away.
+  const runHideOtherAnswersCommand = async () => {
+    const remIds = await selectedRemIds();
+    if (!remIds.length) return;
+    const { anchored, orphans } = await planHideOtherAnswers(plugin, remIds);
+    if (!orphans.length) {
+      await addPowerupToRems(plugin, anchored, POW_CODE_HIDE_OTHER_ANSWERS);
+      await plugin.app.toast(`Added "${LABEL_HIDE_OTHER_ANSWERS}"`);
+      return;
+    }
+    if (anchored.length) await addPowerupToRems(plugin, anchored, POW_CODE_HIDE_OTHER_ANSWERS);
+    await plugin.widget.openPopup('context_anchor_prompt', { orphans, taggedAlready: anchored.length });
+  };
+
+  await plugin.app.registerCommand({ id: 'add-context-for-cloze', name: 'Add Context for Cloze', quickCode: 'cfc', action: async () => runAddPowerupCommand(POW_CODE, LABEL_CONTEXT_FOR_CLOZE) });
+  await plugin.app.registerCommand({ id: 'add-context-hide-all-test-one', name: ACTION_HIDE_OTHER_ANSWERS, quickCode: 'cfchide', action: runHideOtherAnswersCommand });
 
   await plugin.app.registerCommand({ id: 'cfc-debug', name: 'CFC: Debug Probe', quickCode: 'cfcdbg', action: async () => {
     try {
@@ -70,6 +92,9 @@ async function onActivate(plugin: ReactRNPlugin) {
   await plugin.app.registerWidget('flashcard_context_question', WidgetLocation.FlashcardUnder, { dimensions: { height: 'auto', width: '100%' } });
   await plugin.app.registerWidget('flashcard_context_answer',   WidgetLocation.FlashcardUnder, { dimensions: { height: 'auto', width: '100%' } });
 
+  // Confirmation popup for the command above, shown only when the anchor is missing.
+  await plugin.app.registerWidget('context_anchor_prompt', WidgetLocation.Popup, { dimensions: { width: 520, height: 'auto' } });
+
   // CSS: queue-only styling that stays close to the native look and hides in the editor.
   const CFC_CSS = `
     /* Show only inside the review queue. */
@@ -101,7 +126,7 @@ async function onActivate(plugin: ReactRNPlugin) {
       text-underline-offset: 2px;
     }
 
-    /* Click-to-reveal masked clozes (Hide All Test One): the "…" is a button; */
+    /* Click-to-reveal masked clozes (Hide Other Answers): the "…" is a button; */
     /* once revealed it drops the chip background so it reads as inline text. */
     .rn-queue__content .cfc-reveal { cursor: pointer; user-select: none; }
     .rn-queue__content .cfc-reveal:hover { outline: 1px dashed var(--rn-clr-warning, #b58900); outline-offset: 1px; }

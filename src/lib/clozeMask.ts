@@ -15,7 +15,7 @@ export const QUESTION_HTML = '<span class="cfc-question" style="display:inline-b
 export const PIN_HTML = '<span class="cfc-pin" style="display:inline-block;opacity:.7;vertical-align:baseline" title="Pinned reference (hidden in context)">📌</span>';
 export const isPinRef = (el: any) => el != null && typeof el === 'object' && el.i === 'q' && !!el.pin;
 
-// Click-to-reveal support for masked sibling clozes (used with Hide All Test One):
+// Click-to-reveal support for masked sibling clozes (used with Hide Other Answers):
 // each masked "…" carries its own revealed text (base64 in data-cfc-reveal) so it can be
 // toggled open/closed independently, letting you self-evaluate hidden clozes one at a time.
 const REVEAL_UNDERLINE_OPEN = '<span class="cfc-revealed-cloze" style="text-decoration:underline;text-decoration-color:var(--rn-clr-accent, #0969da);text-decoration-thickness:2px;text-underline-offset:2px">';

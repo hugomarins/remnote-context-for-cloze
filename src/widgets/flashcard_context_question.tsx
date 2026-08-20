@@ -5,9 +5,8 @@ import { useRevealDelegation } from '../lib/revealInteraction';
 import { useRevealedAnswer } from '../lib/useRevealedAnswer';
 import { collectFullTree, collectQueueDisplaySets, getCurrentCardRemId, getNearestAnchor, TreeItem } from '../lib/contextTree';
 import { ContextTreeView } from '../lib/contextTreeView';
+import { LABEL_HIDE_OTHER_ANSWERS, POW_CONTEXT_FOR_CLOZE as POW_CODE, POW_HIDE_OTHER_ANSWERS } from '../lib/powerups';
 
-const POW_CODE = 'contextForCloze';
-const HIDE_ALL_TEST_ONE = 'contextHideAllTestOne';
 const LOG = '[CFC][Q]';
 
 function Widget() {
@@ -98,12 +97,12 @@ function Widget() {
         return { items: only, defaultMasked: false, enabled: true } as any;
       }
 
-      // Hide All Test One on the current card → START with the other lines' clozes masked as
+      // Hide Other Answers on the current card → START with the other lines' clozes masked as
       // clickable "…". From here on it is only a default: the eye button in the widget flips the
       // mode for this card without touching the tag.
       const defaultMasked = await (async () => {
         try {
-          const power = await plugin.powerup.getPowerupByCode(HIDE_ALL_TEST_ONE);
+          const power = await plugin.powerup.getPowerupByCode(POW_HIDE_OTHER_ANSWERS);
           const tagged = power ? await power.taggedRem() : [];
           const set = new Set((tagged || []).map((r: any) => r._id));
           return set.has(maskId || ctx.remId);
@@ -125,7 +124,7 @@ function Widget() {
   // Cloze mode for the card in front of us. `null` = follow the card's own default; the eye
   // button pins it either way until the tree changes (next card, or the question→answer flip).
   const [maskOverride, setMaskOverride] = React.useState<boolean | null>(null);
-  // Local view of the card's "Context Hide All Test One" tag. Tagging is written straight to the
+  // Local view of the card's "Context Hide Other Answers" tag. Tagging is written straight to the
   // Rem, but the collected tree is not re-read for it, so we track the new value here to keep the
   // toolbar honest for the rest of this card.
   const [taggedOverride, setTaggedOverride] = React.useState<boolean | null>(null);
@@ -150,8 +149,8 @@ function Widget() {
     try {
       const rem = await plugin.rem.findOne(currentRemId);
       if (!rem) return;
-      if (masked) await rem.addPowerup(HIDE_ALL_TEST_ONE);
-      else await rem.removePowerup(HIDE_ALL_TEST_ONE);
+      if (masked) await rem.addPowerup(POW_HIDE_OTHER_ANSWERS);
+      else await rem.removePowerup(POW_HIDE_OTHER_ANSWERS);
       setTaggedOverride(masked);
       setMaskOverride(null);
       await plugin.app.toast(
@@ -160,8 +159,8 @@ function Widget() {
           : 'Untagged: the other answers stay revealed for this Rem'
       );
     } catch (e) {
-      console.error(`${LOG} could not update the Hide All Test One tag:`, e);
-      await plugin.app.toast('Could not update the "Context Hide All Test One" tag');
+      console.error(`${LOG} could not update the ${LABEL_HIDE_OTHER_ANSWERS} tag:`, e);
+      await plugin.app.toast(`Could not update the "${LABEL_HIDE_OTHER_ANSWERS}" tag`);
     }
   }, [plugin, currentRemId, masked]);
 

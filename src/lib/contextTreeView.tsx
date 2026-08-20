@@ -15,6 +15,7 @@
 //
 import * as React from 'react';
 import { TreeItem } from './contextTree';
+import { ACTION_HIDE_OTHER_ANSWERS, ACTION_SHOW_OTHER_ANSWERS, LABEL_HIDE_OTHER_ANSWERS } from './powerups';
 
 const INDENT_PX = 24;
 
@@ -240,8 +241,8 @@ export function ContextTreeView({ items, startCollapsed, masked, onToggleMasked,
 
   const eyeLabel = masked ? 'Reveal the other cloze answers' : 'Hide the other cloze answers';
   const persistLabel = masked
-    ? 'Keep the other answers hidden for this Rem (adds the "Context Hide All Test One" tag)'
-    : 'Stop hiding the other answers for this Rem (removes the "Context Hide All Test One" tag)';
+    ? `${ACTION_HIDE_OTHER_ANSWERS} — adds the "${LABEL_HIDE_OTHER_ANSWERS}" tag`
+    : `${ACTION_SHOW_OTHER_ANSWERS} — removes the "${LABEL_HIDE_OTHER_ANSWERS}" tag`;
   const hintText = hint === 'eye' ? eyeLabel : hint === 'persist' ? persistLabel : null;
 
   return (
