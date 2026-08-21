@@ -38,25 +38,57 @@ const HINT_TOKEN_PREFIX = '[[[CFC_HINT_';
 const hintHTML = (text: string) =>
   `<span class="cfc-hint" style="opacity:.75;font-style:italic;color:var(--rn-clr-text-secondary, #57606a)">(${escapeHtml(text.trim())})</span>`;
 
-// Swap pin refs and hint elements for plain-text tokens before handing the rich text to
-// toHTML(), then put the real markup back. Tokens are used because toHTML() would otherwise
-// expand a pin into the referenced rem's text and render a hint indistinguishably from body text.
-function substituteTokens(rich: any[]): { out: any[]; hints: string[] } {
-  const hints: string[] = [];
-  const out = rich.map((el: any) => {
-    if (isPinRef(el)) return { i: 'm', text: PIN_TOKEN };
-    if (isHintEl(el)) {
-      hints.push(el.text || '');
-      return { i: 'm', text: `${HINT_TOKEN_PREFIX}${hints.length - 1}]]]` };
-    }
-    return el;
-  });
-  return { out, hints };
+// Rem REFERENCES (i:'q') get our own markup rather than whatever toHTML() emits. The host's
+// rendering carries a real link, and following it inside the widget iframe loads the whole
+// RemNote app in there — which looks like a crash. Ours is inert markup carrying the rem id in
+// a data attribute; contextTreeView's delegated handlers turn it into open-in-pane and hover
+// preview. See refInteraction.ts.
+export const REF_ATTR = 'data-cfc-rem';
+const REF_TOKEN_PREFIX = '[[[CFC_REF_';
+const escapeAttr = (s: string) => escapeHtml(s).replace(/"/g, '&quot;');
+// `revealed` marks a reference that IS the cloze answer, rendered on the answer stage: it gets the
+// same underline/highlight as revealed cloze text, so the tested content is still identifiable.
+const refHTML = (id: string, name: string, revealed?: boolean) => {
+  const ref = `<span class="cfc-ref" ${REF_ATTR}="${escapeAttr(id)}" role="link" tabindex="0">${escapeHtml(name)}</span>`;
+  return revealed ? `${REVEAL_UNDERLINE_OPEN}${ref}</span>` : ref;
+};
+
+export interface TokenBag { hints: string[]; refs: { id: string; name: string; revealed?: boolean }[] }
+const emptyBag = (): TokenBag => ({ hints: [], refs: [] });
+
+// Swap pins, hints and rem references for plain-text tokens before handing the rich text to
+// toHTML(), then put the real markup back. Returns the token text, or null when `el` is none of
+// those and should be passed through untouched.
+async function tokenize(plugin: any, el: any, bag: TokenBag): Promise<string | null> {
+  if (isPinRef(el)) return PIN_TOKEN;
+  if (isHintEl(el)) {
+    bag.hints.push(el.text || '');
+    return `${HINT_TOKEN_PREFIX}${bag.hints.length - 1}]]]`;
+  }
+  if (el?.i === 'q') {
+    let name = '';
+    try { name = (await plugin.richText.toString([el])) || ''; } catch {}
+    bag.refs.push({ id: el.aliasId || el._id || '', name: name.trim() || '⧉', revealed: !!el.cId });
+    return `${REF_TOKEN_PREFIX}${bag.refs.length - 1}]]]`;
+  }
+  return null;
 }
 
-function restoreTokens(html: string, hints: string[]): string {
+async function substituteTokens(plugin: any, rich: any[]): Promise<{ out: any[]; bag: TokenBag }> {
+  const bag = emptyBag();
+  const out: any[] = [];
+  for (const el of rich) {
+    if (typeof el === 'string') { out.push(el); continue; }
+    const token = await tokenize(plugin, el, bag);
+    out.push(token == null ? el : { i: 'm', text: token });
+  }
+  return { out, bag };
+}
+
+function restoreTokens(html: string, bag: TokenBag): string {
   let out = html.replaceAll(PIN_TOKEN, PIN_HTML);
-  for (let n = hints.length - 1; n >= 0; n--) out = out.replaceAll(`${HINT_TOKEN_PREFIX}${n}]]]`, hintHTML(hints[n]));
+  for (let n = bag.hints.length - 1; n >= 0; n--) out = out.replaceAll(`${HINT_TOKEN_PREFIX}${n}]]]`, hintHTML(bag.hints[n]));
+  for (let n = bag.refs.length - 1; n >= 0; n--) out = out.replaceAll(`${REF_TOKEN_PREFIX}${n}]]]`, refHTML(bag.refs[n].id, bag.refs[n].name, bag.refs[n].revealed));
   return out;
 }
 
@@ -107,10 +139,10 @@ export function addClozeRevealHighlight(html: string): string {
 export async function richToHTMLWithClozeMask(plugin: any, rich: any[], mode: MaskMode, tag = '[CFC]'): Promise<string> {
   if (!Array.isArray(rich)) return '';
   if (mode === 'none') {
-    const { out: withTokens, hints } = substituteTokens(rich);
+    const { out: withTokens, bag } = await substituteTokens(plugin, rich);
     try {
       const html = await plugin.richText.toHTML(withTokens);
-      const finalHtml = restoreTokens(revealClozeInHTML(html), hints);
+      const finalHtml = restoreTokens(revealClozeInHTML(html), bag);
       try { const dbg = await plugin.settings.getSetting('debug'); if (dbg) console.log(`${tag} toHTML noMask`, { rich, html, finalHtml }); } catch {}
       return finalHtml;
     } catch {
@@ -124,18 +156,19 @@ export async function richToHTMLWithClozeMask(plugin: any, rich: any[], mode: Ma
     }
   }
   const masked: any[] = [];
-  const hints: string[] = [];
+  const bag = emptyBag();
   const reveals: string[] = []; // ellipsis mode: revealed HTML per masked cloze (for click-to-reveal)
   for (let idx = 0; idx < rich.length; idx++) {
     const el: any = rich[idx];
     if (typeof el === 'string') { masked.push(el); continue; }
-    if (isPinRef(el)) { masked.push({ i: 'm', text: PIN_TOKEN }); continue; }
-    if (isHintEl(el)) {
-      hints.push(el.text || '');
-      masked.push({ i: 'm', text: `${HINT_TOKEN_PREFIX}${hints.length - 1}]]]` });
+    // Clozed elements are masked below; everything else that needs our own markup (pins, hints,
+    // rem references) becomes a token here. The cloze check comes second so a clozed REFERENCE is
+    // masked rather than rendered — that is the answer leak this ordering exists to prevent.
+    if (!(MASKABLE_TYPES.has(el?.i) && hasAnyCloze(el))) {
+      const token = await tokenize(plugin, el, bag);
+      masked.push(token == null ? el : { i: 'm', text: token });
       continue;
     }
-    if (!(MASKABLE_TYPES.has(el?.i) && hasAnyCloze(el))) { masked.push(el); continue; }
     // One cloze can span several adjacent elements sharing a cId (e.g. a rem reference plus the
     // trailing space it was created with). Consume the whole run so it yields ONE placeholder
     // instead of one per element.
@@ -161,7 +194,7 @@ export async function richToHTMLWithClozeMask(plugin: any, rich: any[], mode: Ma
   }
   try {
     const html = await plugin.richText.toHTML(masked);
-    let finalHtml = restoreTokens(html, hints);
+    let finalHtml = restoreTokens(html, bag);
     if (mode === 'question') {
       finalHtml = finalHtml.replaceAll(ELLIPSIS_TOKEN, QUESTION_HTML);
     } else {
@@ -178,7 +211,7 @@ export async function richToHTMLWithClozeMask(plugin: any, rich: any[], mode: Ma
     const replacement = mode === 'question' ? QUESTION_HTML : ELLIPSIS_HTML;
     return restoreTokens(
       (s || '').replace(/\[…\]/g, replacement).replace(/\[\[\[CFC_EL_\d+\]\]\]/g, ELLIPSIS_HTML),
-      hints,
+      bag,
     );
   }
 }

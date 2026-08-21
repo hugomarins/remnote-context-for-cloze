@@ -13,8 +13,10 @@
 // you, so you can hide answers that turn out to leak a hint, or reveal them when the masked tree
 // stops making sense.
 //
+import { usePlugin } from '@remnote/plugin-sdk';
 import * as React from 'react';
 import { TreeItem } from './contextTree';
+import { RefTarget, useRefDelegation } from './refInteraction';
 import { ACTION_HIDE_OTHER_ANSWERS, ACTION_SHOW_OTHER_ANSWERS, LABEL_HIDE_OTHER_ANSWERS } from './powerups';
 
 const INDENT_PX = 24;
@@ -233,6 +235,28 @@ export function ContextTreeView({ items, startCollapsed, masked, onToggleMasked,
 
   const visible = React.useMemo(() => visibleItems(items, expanded), [items, expanded]);
 
+  // Rem references in the tree: hover previews and click-to-open, wired in refInteraction.
+  // Opening one navigates the pane, which ENDS the review session — so a click only arms this
+  // confirmation, it never navigates on its own.
+  const plugin = usePlugin();
+  const listRef = React.useRef<HTMLUListElement>(null);
+  const [pendingRef, setPendingRef] = React.useState<RefTarget | null>(null);
+  React.useEffect(() => { setPendingRef(null); }, [items]);
+  useRefDelegation(listRef, plugin, items, setPendingRef);
+  const confirmOpen = React.useCallback(async () => {
+    const target = pendingRef;
+    setPendingRef(null);
+    if (!target?.id) return;
+    try {
+      const rem = await plugin.rem.findOne(target.id);
+      if (rem) await plugin.window.openRem(rem);
+      else await plugin.app.toast('That Rem no longer exists');
+    } catch (e) {
+      console.error('[CFC] could not open the referenced Rem:', e);
+      await plugin.app.toast('Could not open that Rem');
+    }
+  }, [plugin, pendingRef]);
+
   // Inline hover/focus explanation for the toolbar buttons, and a guard against a double write
   // while the tag is being applied.
   const [hint, setHint] = React.useState<HintKey | null>(null);
@@ -255,6 +279,17 @@ export function ContextTreeView({ items, startCollapsed, masked, onToggleMasked,
         .cfc-toggle:focus-visible, .cfc-mask-toggle:focus-visible, .cfc-mask-persist:focus-visible { outline: 2px solid var(--rn-clr-accent, #0969da); outline-offset: 1px; }
         .cfc-mask-toggle, .cfc-mask-persist { opacity: 0.55; transition: opacity 150ms ease; }
         .cfc-mask-toggle:hover, .cfc-mask-toggle:focus-visible, .cfc-mask-persist:hover, .cfc-mask-persist:focus-visible { opacity: 1; }
+        /* Rem references. Our own markup, not the host's — see clozeMask/refInteraction — so it is
+           styled here to read like a native reference instead of like revealed cloze text. */
+        .cfc-ref {
+          color: var(--rn-clr-content-accent, var(--rn-clr-accent, #3b82f6));
+          text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px;
+          border-radius: 3px; padding: 0 1px; cursor: pointer;
+        }
+        .cfc-ref:hover { background: var(--rn-clr-background--hovered, rgba(59,130,246,0.12)); text-decoration-thickness: 2px; }
+        .cfc-ref:focus-visible { outline: 2px solid var(--rn-clr-accent, #0969da); outline-offset: 1px; }
+        .cfc-confirm-btn { border-radius: 5px; padding: 2px 10px; cursor: pointer; user-select: none; border: 1px solid var(--rn-clr-border, #e4e8ef); }
+        .cfc-confirm-btn:hover { background: var(--rn-clr-background--hovered, rgba(148,163,184,0.22)); }
       `}</style>
       {onToggleMasked && (
         // Top-right, on its own row: out of the reading flow of the tree, in the corner where a
@@ -304,6 +339,7 @@ export function ContextTreeView({ items, startCollapsed, masked, onToggleMasked,
         </div>
       )}
       <ul
+        ref={listRef}
         className="cfc-list"
         style={{ listStyle: 'none', margin: 0, padding: 0, paddingBottom: 8, width: '100%', fontSize: '1.08rem' }}
       >
@@ -344,6 +380,37 @@ export function ContextTreeView({ items, startCollapsed, masked, onToggleMasked,
           );
         })}
       </ul>
+      {pendingRef && (
+        // Inline rather than floated: this widget's iframe is only as tall as its content, so a
+        // floating confirmation would be clipped (same reason the toolbar hint lives in its row).
+        <div
+          className="cfc-confirm"
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          style={{
+            display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8,
+            margin: '4px 0 8px', padding: '6px 8px', borderRadius: 6,
+            background: 'var(--rn-clr-background-secondary, rgba(148,163,184,0.12))',
+            fontSize: '0.82rem', lineHeight: 1.35,
+          }}
+        >
+          <span style={{ minWidth: 0, color: 'var(--rn-clr-content-secondary, rgba(100,116,139,0.9))' }}>
+            Open <strong>{pendingRef.name}</strong>? This leaves the queue and ends the review session.
+          </span>
+          <span style={{ display: 'flex', gap: 6, marginLeft: 'auto' }}>
+            <span className="cfc-confirm-btn" role="button" tabIndex={0}
+                  onClick={confirmOpen}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); confirmOpen(); } }}>
+              Open anyway
+            </span>
+            <span className="cfc-confirm-btn" role="button" tabIndex={0}
+                  onClick={() => setPendingRef(null)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setPendingRef(null); } }}>
+              Cancel
+            </span>
+          </span>
+        </div>
+      )}
     </>
   );
 }

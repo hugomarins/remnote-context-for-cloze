@@ -120,6 +120,11 @@ async function onActivate(plugin: ReactRNPlugin) {
   // Confirmation popup for the command above, shown only when the anchor is missing.
   await plugin.app.registerWidget('context_anchor_prompt', WidgetLocation.Popup, { dimensions: { width: 520, height: 'auto' } });
 
+  // Hover preview for a rem reference inside the context tree. Floating rather than a popup so it
+  // sits next to the reference without covering the card, and host-level so it is not clipped by
+  // the tree's own widget iframe (which is only as tall as its content).
+  await plugin.app.registerWidget('rem_preview', WidgetLocation.FloatingWidget, { dimensions: { width: 460, height: 'auto' } });
+
   // CSS: queue-only styling that stays close to the native look and hides in the editor.
   const CFC_CSS = `
     /* Show only inside the review queue. */
