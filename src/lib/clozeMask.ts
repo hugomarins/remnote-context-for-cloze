@@ -25,7 +25,49 @@ export const decodeReveal = (b64: string) => { try { return decodeURIComponent(e
 const clickableOmissionHTML = (revealHtml: string) =>
   `<span class="cfc-omission cfc-reveal" role="button" tabindex="0" data-cfc-reveal="${encodeReveal(revealHtml)}" title="Click to reveal / hide" style="display:inline-block;padding:0 10px;border-radius:6px;line-height:1.2;background:var(--rn-clr-warning-muted, rgba(255,212,0,0.15));color:var(--rn-clr-warning, #b58900);border:0;cursor:pointer">…</span>`;
 
-const hasAnyCloze = (obj: any) => !!(obj?.cId || obj?.hiddenCloze || obj?.revealedCloze || obj?.latexClozes?.length || Object.keys(obj || {}).some((k) => /cloze/i.test(k)));
+// Cloze HINTS are rich-text elements carrying a `cloze-hint` (or card-hint-*) key and NO cId.
+// They are meant to be visible on the question side — RemNote itself shows them next to the "?" —
+// so they must never be treated as cloze content. The `/cloze/i` catch-all below used to match
+// `cloze-hint` and blank the hint out, so hint keys are excluded explicitly.
+const HINT_KEYS = ['cloze-hint', 'card-hint-front', 'card-hint-back', 'multiline-card-item-hint'];
+export const isHintEl = (el: any) =>
+  el != null && typeof el === 'object' && el.i === 'm' && !el.cId && HINT_KEYS.some((k) => !!el[k]);
+
+// A hint is shown, but styled so it reads as a prompt rather than as part of the sentence.
+const HINT_TOKEN_PREFIX = '[[[CFC_HINT_';
+const hintHTML = (text: string) =>
+  `<span class="cfc-hint" style="opacity:.75;font-style:italic;color:var(--rn-clr-text-secondary, #57606a)">(${escapeHtml(text.trim())})</span>`;
+
+// Swap pin refs and hint elements for plain-text tokens before handing the rich text to
+// toHTML(), then put the real markup back. Tokens are used because toHTML() would otherwise
+// expand a pin into the referenced rem's text and render a hint indistinguishably from body text.
+function substituteTokens(rich: any[]): { out: any[]; hints: string[] } {
+  const hints: string[] = [];
+  const out = rich.map((el: any) => {
+    if (isPinRef(el)) return { i: 'm', text: PIN_TOKEN };
+    if (isHintEl(el)) {
+      hints.push(el.text || '');
+      return { i: 'm', text: `${HINT_TOKEN_PREFIX}${hints.length - 1}]]]` };
+    }
+    return el;
+  });
+  return { out, hints };
+}
+
+function restoreTokens(html: string, hints: string[]): string {
+  let out = html.replaceAll(PIN_TOKEN, PIN_HTML);
+  for (let n = hints.length - 1; n >= 0; n--) out = out.replaceAll(`${HINT_TOKEN_PREFIX}${n}]]]`, hintHTML(hints[n]));
+  return out;
+}
+
+const hasAnyCloze = (obj: any) => !!(obj?.cId || obj?.hiddenCloze || obj?.revealedCloze || obj?.latexClozes?.length || obj?.blocks?.some?.((b: any) => b?.cId) || Object.keys(obj || {}).some((k) => /cloze/i.test(k) && !/hint/i.test(k)));
+
+// Element types whose cloze content we can safely replace with a single placeholder.
+//  - 'm' text, 'x' latex: mask the text itself.
+//  - 'q' rem reference: a cloze can be applied to a reference, and rendering it would print the
+//    referenced rem's full name — i.e. the answer. This is the leak this set exists to close.
+// Images ('i') are deliberately absent: their occlusion is rendered by RemNote itself.
+const MASKABLE_TYPES = new Set(['m', 'x', 'q']);
 
 export function richHasCloze(rich: any[]): boolean {
   if (!Array.isArray(rich)) return false;
@@ -64,12 +106,11 @@ export function addClozeRevealHighlight(html: string): string {
 //  - 'ellipsis' : mask every cloze as a clickable "…" that can be toggled to reveal its own text.
 export async function richToHTMLWithClozeMask(plugin: any, rich: any[], mode: MaskMode, tag = '[CFC]'): Promise<string> {
   if (!Array.isArray(rich)) return '';
-  // Collapse pin references to a token before rendering (applies in every mode).
-  const withPins = rich.map((el: any) => (isPinRef(el) ? { i: 'm', text: PIN_TOKEN } : el));
   if (mode === 'none') {
+    const { out: withTokens, hints } = substituteTokens(rich);
     try {
-      const html = await plugin.richText.toHTML(withPins);
-      const finalHtml = revealClozeInHTML(html).replaceAll(PIN_TOKEN, PIN_HTML);
+      const html = await plugin.richText.toHTML(withTokens);
+      const finalHtml = restoreTokens(revealClozeInHTML(html), hints);
       try { const dbg = await plugin.settings.getSetting('debug'); if (dbg) console.log(`${tag} toHTML noMask`, { rich, html, finalHtml }); } catch {}
       return finalHtml;
     } catch {
@@ -83,29 +124,44 @@ export async function richToHTMLWithClozeMask(plugin: any, rich: any[], mode: Ma
     }
   }
   const masked: any[] = [];
+  const hints: string[] = [];
   const reveals: string[] = []; // ellipsis mode: revealed HTML per masked cloze (for click-to-reveal)
-  for (const el of rich) {
+  for (let idx = 0; idx < rich.length; idx++) {
+    const el: any = rich[idx];
     if (typeof el === 'string') { masked.push(el); continue; }
     if (isPinRef(el)) { masked.push({ i: 'm', text: PIN_TOKEN }); continue; }
-    const i = (el as any)?.i;
-    if ((i === 'm' || i === 'x') && hasAnyCloze(el)) {
-      if (mode === 'ellipsis') {
-        // Remember this cloze's own text so a click can reveal it in place.
-        let revealText = '';
-        try { revealText = (await plugin.richText.toString([el])) || ''; } catch {}
-        if (!revealText) revealText = (el as any)?.text || '';
-        reveals.push(`${REVEAL_UNDERLINE_OPEN}${escapeHtml(revealText)}</span>`);
-        masked.push({ i: 'm', text: `[[[CFC_EL_${reveals.length - 1}]]]` });
-      } else {
-        masked.push({ i: 'm', text: ELLIPSIS_TOKEN });
-      }
+    if (isHintEl(el)) {
+      hints.push(el.text || '');
+      masked.push({ i: 'm', text: `${HINT_TOKEN_PREFIX}${hints.length - 1}]]]` });
+      continue;
+    }
+    if (!(MASKABLE_TYPES.has(el?.i) && hasAnyCloze(el))) { masked.push(el); continue; }
+    // One cloze can span several adjacent elements sharing a cId (e.g. a rem reference plus the
+    // trailing space it was created with). Consume the whole run so it yields ONE placeholder
+    // instead of one per element.
+    const group: any[] = [el];
+    const cId = el.cId;
+    while (cId && idx + 1 < rich.length) {
+      const next: any = rich[idx + 1];
+      if (!next || typeof next === 'string' || next.cId !== cId || !MASKABLE_TYPES.has(next.i) || isPinRef(next)) break;
+      group.push(next);
+      idx++;
+    }
+    if (mode === 'ellipsis') {
+      // Remember this cloze's own text so a click can reveal it in place. toString() resolves a
+      // rem reference to its name, which is exactly what the reveal should show.
+      let revealText = '';
+      try { revealText = (await plugin.richText.toString(group)) || ''; } catch {}
+      if (!revealText) revealText = group.map((g: any) => g?.text || '').join('');
+      reveals.push(`${REVEAL_UNDERLINE_OPEN}${escapeHtml(revealText.trim())}</span>`);
+      masked.push({ i: 'm', text: `[[[CFC_EL_${reveals.length - 1}]]]` });
     } else {
-      masked.push(el);
+      masked.push({ i: 'm', text: ELLIPSIS_TOKEN });
     }
   }
   try {
     const html = await plugin.richText.toHTML(masked);
-    let finalHtml = html.replaceAll(PIN_TOKEN, PIN_HTML);
+    let finalHtml = restoreTokens(html, hints);
     if (mode === 'question') {
       finalHtml = finalHtml.replaceAll(ELLIPSIS_TOKEN, QUESTION_HTML);
     } else {
@@ -120,6 +176,9 @@ export async function richToHTMLWithClozeMask(plugin: any, rich: any[], mode: Ma
   } catch {
     const s = await plugin.richText.toString(masked as any);
     const replacement = mode === 'question' ? QUESTION_HTML : ELLIPSIS_HTML;
-    return (s || '').replace(/\[…\]/g, replacement).replace(/\[\[\[CFC_EL_\d+\]\]\]/g, ELLIPSIS_HTML);
+    return restoreTokens(
+      (s || '').replace(/\[…\]/g, replacement).replace(/\[\[\[CFC_EL_\d+\]\]\]/g, ELLIPSIS_HTML),
+      hints,
+    );
   }
 }
