@@ -16,6 +16,7 @@ async function onActivate(plugin: ReactRNPlugin) {
   await plugin.settings.registerNumberSetting({ id: 'maxDepth', title: 'Max Depth', description: 'Maximum depth of the context tree.', defaultValue: 8 });
   await plugin.settings.registerNumberSetting({ id: 'maxNodes', title: 'Max Nodes', description: 'Maximum number of nodes shown.', defaultValue: 200 });
   await plugin.settings.registerBooleanSetting({ id: 'startCollapsed', title: 'Start Collapsed', description: 'Show the context tree collapsed: only the branches leading to the card under review are open, deeper branches are hidden behind a ▸ arrow you can click to expand (avoids spoiling the answer). Turn off to always show the whole tree.', defaultValue: true });
+  await plugin.settings.registerNumberSetting({ id: 'previewCloseDelay', title: 'Reference Preview Close Delay (ms)', description: 'How long the hover preview of a Rem reference stays after the pointer moves to another part of the context tree. Moving the pointer onto the preview itself keeps it open regardless — it is then dismissed by clicking anywhere, hovering another reference, or moving on to the next card. Set to 0 to turn the hover preview off.', defaultValue: 2000 });
   await plugin.settings.registerBooleanSetting({ id: 'debug', title: 'Debug Mode', description: 'Enable debugging (console logs and placeholder hints).', defaultValue: false });
   await plugin.app.toast('Context for Cloze activated');
   console.log('[CFC] Plugin activated');

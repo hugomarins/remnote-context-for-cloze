@@ -13,10 +13,10 @@
 // you, so you can hide answers that turn out to leak a hint, or reveal them when the masked tree
 // stops making sense.
 //
-import { usePlugin } from '@remnote/plugin-sdk';
+import { usePlugin, useRunAsync } from '@remnote/plugin-sdk';
 import * as React from 'react';
 import { TreeItem } from './contextTree';
-import { RefTarget, useRefDelegation } from './refInteraction';
+import { DEFAULT_CLOSE_DELAY_MS, RefTarget, useRefDelegation } from './refInteraction';
 import { ACTION_HIDE_OTHER_ANSWERS, ACTION_SHOW_OTHER_ANSWERS, LABEL_HIDE_OTHER_ANSWERS } from './powerups';
 
 const INDENT_PX = 24;
@@ -242,7 +242,11 @@ export function ContextTreeView({ items, startCollapsed, masked, onToggleMasked,
   const listRef = React.useRef<HTMLUListElement>(null);
   const [pendingRef, setPendingRef] = React.useState<RefTarget | null>(null);
   React.useEffect(() => { setPendingRef(null); }, [items]);
-  useRefDelegation(listRef, plugin, items, setPendingRef);
+  const closeDelay = useRunAsync(async () => {
+    const raw = Number(await plugin.settings.getSetting('previewCloseDelay'));
+    return Number.isFinite(raw) && raw >= 0 ? raw : DEFAULT_CLOSE_DELAY_MS;
+  }, []);
+  useRefDelegation(listRef, plugin, items, setPendingRef, closeDelay ?? DEFAULT_CLOSE_DELAY_MS);
   const confirmOpen = React.useCallback(async () => {
     const target = pendingRef;
     setPendingRef(null);

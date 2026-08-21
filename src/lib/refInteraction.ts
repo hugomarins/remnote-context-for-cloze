@@ -21,9 +21,26 @@ export const PREVIEW_REM_KEY = 'cfc-preview-rem-id';
 
 // Long enough that skimming a line doesn't fire popups, short enough to feel like a hover.
 const OPEN_DELAY_MS = 500;
-// The popup is a host element outside this iframe, so moving the pointer toward it registers as
-// a mouseleave here. This grace period is what makes the popup reachable at all.
-const CLOSE_DELAY_MS = 400;
+// Grace period after the pointer moves off a reference to somewhere ELSE INSIDE the tree.
+// Overridable through the "Reference Preview Close Delay" setting.
+export const DEFAULT_CLOSE_DELAY_MS = 2000;
+
+// Why the popup cannot simply close on mouseleave:
+//
+// The preview is a host-level window and its body is a FakeEmbed, both rendered outside this
+// iframe. Once the pointer is over either, this iframe receives no further mouse events, and the
+// SDK's FakeEmbed bridge only re-dispatches a host-chosen set of DOM events — mouseenter/leave
+// are not among them — so the preview widget cannot tell us "the pointer is on me" either.
+// A plain close-on-mouseleave therefore kills the popup exactly when you reach for it.
+//
+// What IS observable is the difference between the two ways of leaving a reference:
+//   - relatedTarget inside this iframe → the pointer moved to another part of the tree, so the
+//     preview is no longer wanted: close it after the grace period.
+//   - relatedTarget null → the pointer left the iframe altogether, which is what happens when it
+//     moves onto the popup. Keep the preview open and let one of the explicit dismissals take it:
+//     hovering another reference, any click (the window is opened with closeWhenClickOutside),
+//     or the tree re-rendering when the card changes.
+const leftTheIframe = (e: MouseEvent) => e.relatedTarget == null;
 
 const refAt = (t: EventTarget | null) => (t as HTMLElement)?.closest?.('.cfc-ref') as HTMLElement | null;
 const targetOf = (el: HTMLElement): RefTarget => ({
@@ -36,6 +53,7 @@ export function useRefDelegation(
   plugin: any,
   dep: unknown,
   onRequestOpen: (target: RefTarget) => void,
+  closeDelayMs = DEFAULT_CLOSE_DELAY_MS,
 ) {
   // Kept in refs so the delegated listeners never close over stale state.
   const openRequest = React.useRef(onRequestOpen);
@@ -92,6 +110,7 @@ export function useRefDelegation(
     };
 
     const onOver = (e: MouseEvent) => {
+      if (closeDelayMs === 0) return; // hover preview turned off in settings
       const el = refAt(e.target);
       if (!el || !root.contains(el)) return;
       const id = el.getAttribute(REF_ATTR);
@@ -111,11 +130,16 @@ export function useRefDelegation(
       if (!el || !root.contains(el)) return;
       // Moving within the same reference (across its child nodes) is not a leave.
       if (refAt(e.relatedTarget) === el) return;
-      clearTimers();
+      // Always drop a preview that hasn't opened yet — the hover was too short to have meant it.
+      if (openTimer) { clearTimeout(openTimer); openTimer = null; }
+      // Heading out of the iframe, i.e. very likely onto the popup itself: leave it open so it
+      // can be read and scrolled. See the note above `leftTheIframe`.
+      if (leftTheIframe(e)) return;
+      if (closeTimer) { clearTimeout(closeTimer); }
       closeTimer = setTimeout(() => {
         el.removeAttribute('data-cfc-previewing');
         closePreview();
-      }, CLOSE_DELAY_MS);
+      }, closeDelayMs);
     };
 
     const onClick = (e: MouseEvent) => {
@@ -164,5 +188,5 @@ export function useRefDelegation(
       clearTimers();
       closePreview();
     };
-  }, [dep, plugin]);
+  }, [dep, plugin, closeDelayMs]);
 }
