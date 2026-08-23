@@ -30,8 +30,8 @@ async function anchorIds(plugin: any): Promise<Set<string>> {
 }
 
 // Sort the selection into "already covered by an anchor" and "not covered, and here is the parent
-// we would offer to tag". Ancestors only — a Rem tagged as its own anchor still needs one above it,
-// exactly as the review widgets resolve it.
+// we would offer to tag". A Rem that is itself tagged as an anchor counts as covered — the review
+// widgets root the tree at the card's own Rem in that case, so there is nothing to offer.
 export async function planHideOtherAnswers(plugin: any, remIds: string[]): Promise<AnchorPlan> {
   const anchors = await anchorIds(plugin);
   const anchored: string[] = [];
@@ -41,9 +41,9 @@ export async function planHideOtherAnswers(plugin: any, remIds: string[]): Promi
     const rem = await plugin.rem.findOne(remId);
     if (!rem) continue;
 
-    let hasAnchor = false;
+    let hasAnchor = anchors.has(rem._id);
     let cur = rem;
-    for (let i = 0; cur?.parent && i < 2048; i++) {
+    for (let i = 0; !hasAnchor && cur?.parent && i < 2048; i++) {
       const parent = await plugin.rem.findOne(cur.parent);
       if (!parent) break;
       if (anchors.has(parent._id)) { hasAnchor = true; break; }

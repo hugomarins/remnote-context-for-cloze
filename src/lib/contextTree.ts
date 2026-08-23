@@ -80,13 +80,20 @@ export async function collectQueueDisplaySets(plugin: any): Promise<QueueDisplay
   return { hideSet, removeSet, noHierarchySet };
 }
 
-// Walk up from `remId` to the nearest ancestor tagged with the context power-up (the anchor/root).
+// Find the anchor/root for `remId`: the Rem itself if it carries the context power-up, otherwise
+// the nearest ancestor that does.
+//
+// Self first, because a cloze written on the anchor Rem itself is an ordinary case — the tested
+// line is the anchor's own text and the context is its children, exactly the tree the user tagged
+// the Rem to get. Requiring the anchor to be a strict ancestor used to leave that card with no
+// context at all, which read as the plugin silently doing nothing on a Rem visibly tagged for it.
 export async function getNearestAnchor(plugin: any, remId: string, powCode: string) {
   const power = await plugin.powerup.getPowerupByCode(powCode);
   if (!power) return null;
   const anchors = await power.taggedRem();
   const set = new Set((anchors || []).map((r: any) => r._id));
   let cur = await plugin.rem.findOne(remId);
+  if (cur && set.has(cur._id)) return cur;
   while (cur?.parent) {
     const p = await plugin.rem.findOne(cur.parent);
     if (!p) break;
