@@ -2,6 +2,7 @@
 // skip metadata/search-portal rems, and collect the masked tree rooted at the anchor.
 import { BuiltInPowerupCodes, PORTAL_TYPE } from '@remnote/plugin-sdk';
 import { richToHTMLWithClozeMask, richHasCloze, addClozeRevealHighlight } from './clozeMask';
+import { isPowerupSlotChild } from './powerupSlotFilter';
 
 export interface Ctx { remId?: string; cardId?: string; revealed?: boolean }
 export interface QueueAdaptOpts { hideSet: Set<string>; removeSet: Set<string>; applyHideInQueue: boolean }
@@ -102,6 +103,9 @@ export async function getNearestAnchor(plugin: any, remId: string, powCode: stri
 //    Normal portals (portalType PORTAL / undefined) are deliberately kept: they can be real context.
 //  - Title-style metadata rems: RemNote's "Size" label, matched in English and in the Chinese
 //    localization it carries in a zh knowledge base.
+//  - Power-up slot children — incremental-everything's ("Priority", "Next Rep Date", …) and
+//    RemNote's own legacy built-in ones ("Sources", a PDF's "Title", …). Metadata materialised
+//    under a tagged Rem, not context. See powerupSlotFilter.ts.
 export async function shouldSkipChildAsMeta(plugin: any, rem: any): Promise<boolean> {
   try {
     if (rem && typeof rem.getPortalType === 'function' && (await rem.getPortalType()) === PORTAL_TYPE.SEARCH_PORTAL) return true;
@@ -114,6 +118,9 @@ export async function shouldSkipChildAsMeta(plugin: any, rem: any): Promise<bool
     const s = (await plugin.richText.toString(rem?.text || []) || '').trim();
     const lower = s.toLowerCase();
     if (lower === 'size' || s === '大小') return true;
+  } catch {}
+  try {
+    if (await isPowerupSlotChild(plugin, rem)) return true;
   } catch {}
   return false;
 }
