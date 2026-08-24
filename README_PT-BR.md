@@ -189,9 +189,17 @@ Para reproduzi‑las: ponha o cursor no Rem do título do documento, execute **A
 
 4) **`Context Hide Others` — quando os vizinhos entregam a resposta**
 
-   Às vezes os vizinhos falam demais. Ao revisar a linha de duas lacunas sob **9. Avoid sets**, a árvore lhe entrega dois cartões irmãos com as respostas em texto puro — *“…due to ⇒ **the high cost of retaining memories based on sets**”* e *“…you should always try to ⇒ **convert them into Enumerations**”* — enquanto você ainda tenta recordar esta. Marque o Rem em revisão com `Context Hide Others` (`cfchide`) e toda *outra* resposta da árvore, esses versos inclusive, encolhe para um `…` clicável. Clique nelas uma a uma para se autoavaliar no resto da regra 9 depois de ter respondido.
+   Duas capturas do mesmo cartão: a linha de duas lacunas sob **9. Avoid sets**.
 
-   ![Hide Other Answers, com clique para revelar](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others.png)
+   **Sem a marcação — o padrão.** Tudo, exceto a linha em revisão, aparece respondido. O irmão destacado em vermelho, *“if sets are absolutely necessary, you should always try to ⇒ **convert them into Enumerations**”*, lhe entrega boa parte do que essa regra diz antes que você tenha recordado qualquer coisa — e as regras 2 e 8 também estão com as próprias lacunas preenchidas.
+
+   ![Padrão: as respostas vizinhas aparecem reveladas](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others.png)
+
+   **Com `Context Hide Others` (`cfchide`) — recomendado para um cartão assim.** Toda *outra* resposta da árvore encolhe para um `…`: os versos dos irmãos e os clozes das regras 2 e 8. Cada `…` é um botão, então, depois de responder o seu próprio cartão, dá para clicar neles um a um e se autoavaliar no resto. O olho no canto superior direito agora está cortado, e é assim que você vê de relance em que modo está.
+
+   ![Recomendado: as respostas vizinhas ficam escondidas](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others-recomended.png)
+
+   Compare as duas: a linha em revisão é idêntica nas duas. A marcação nunca toca no cartão que está sendo perguntado — só nos vizinhos dele.
 
 5) **Um cartão frente/verso e sua seta de direção, com uma referência de Rem**
 

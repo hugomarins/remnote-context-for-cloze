@@ -187,9 +187,17 @@ RemNote 在这里有[一个特例](https://help.remnote.com/en/articles/6751778-
 
 4) **`Context Hide Others`——当邻居把答案泄露出去时**
 
-   有时候邻居说得太多了。复习 **9. Avoid sets** 之下那条带两个填空的行时，树会把两张兄弟卡片的答案以明文摆在你面前——*“…due to ⇒ **the high cost of retaining memories based on sets**”* 和 *“…you should always try to ⇒ **convert them into Enumerations**”*——而你还在努力回忆当前这张。给正在复习的 Rem 加上 `Context Hide Others`（`cfchide`），树中所有*其他*答案（包括这些背面）都会收缩成一个可点击的 `…`。答完之后再逐个点开，对规则 9 的其余部分做自我检测。
+   同一张卡的两张截图：**9. Avoid sets** 之下那条带两个填空的行。
 
-   ![Hide Other Answers 与点击揭示](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others.png)
+   **不加标记——默认状态。** 除正在复习的那一行之外，一切都以已答状态显示。红框标出的那个兄弟节点 *“if sets are absolutely necessary, you should always try to ⇒ **convert them into Enumerations**”*，在你还没回忆出任何东西之前，就把这条规则的大半内容递到了你面前——而第 2、8 条也都把自己的填空填好了。
+
+   ![默认：相邻答案处于揭示状态](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others.png)
+
+   **加上 `Context Hide Others`（`cfchide`）——这类卡片推荐这样做。** 树中所有*其他*答案都收缩成一个 `…`：兄弟节点的背面，以及第 2、8 条里的 cloze。每个 `…` 都是一个按钮，所以答完自己这张卡之后，可以逐个点开，对其余内容做自我检测。右上角的眼睛现在带上了斜线，你一眼就能看出当前处于哪种模式。
+
+   ![推荐：相邻答案被遮起来](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others-recomended.png)
+
+   对比这两张：正在复习的那一行在两张图里完全一样。标记从不触碰正在考你的那张卡片——只作用于它的邻居。
 
 5) **一张正/背面卡及其方向箭头，外加一个 Rem 引用**
 

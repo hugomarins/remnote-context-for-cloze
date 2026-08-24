@@ -189,9 +189,17 @@ Para reproducirlas: pon el cursor en el Rem del título del documento, ejecuta *
 
 4) **`Context Hide Others` — cuando los vecinos lo delatan**
 
-   A veces los vecinos hablan de más. Al repasar la línea de dos huecos bajo **9. Avoid sets**, el árbol te entrega dos tarjetas hermanas con sus respuestas en texto plano — *“…due to ⇒ **the high cost of retaining memories based on sets**”* y *“…you should always try to ⇒ **convert them into Enumerations**”* — mientras todavía intentas recordar esta. Etiqueta el Rem en repaso con `Context Hide Others` (`cfchide`) y toda *otra* respuesta del árbol, esos reversos incluidos, se reduce a un `…` clicable. Púlsalos de uno en uno para autoevaluarte con el resto de la regla 9 una vez hayas respondido.
+   Dos capturas de la misma tarjeta: la línea de dos huecos bajo **9. Avoid sets**.
 
-   ![Hide Other Answers, con clic para revelar](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others.png)
+   **Sin la etiqueta — por defecto.** Todo salvo la línea en repaso se muestra contestado. El hermano recuadrado en rojo, *“if sets are absolutely necessary, you should always try to ⇒ **convert them into Enumerations**”*, te entrega buena parte de lo que dice esta regla antes de que hayas recordado nada — y las reglas 2 y 8 tienen también sus propios huecos rellenos.
+
+   ![Por defecto: las respuestas vecinas aparecen reveladas](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others.png)
+
+   **Con `Context Hide Others` (`cfchide`) — recomendado para una tarjeta así.** Toda *otra* respuesta del árbol se reduce a un `…`: los reversos de los hermanos y los clozes de las reglas 2 y 8. Cada `…` es un botón, así que una vez contestada tu propia tarjeta puedes pulsarlos de uno en uno y autoevaluarte con el resto. El ojo de la esquina superior derecha aparece ahora tachado, que es como distingues de un vistazo en qué modo estás.
+
+   ![Recomendado: las respuestas vecinas quedan ocultas](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others-recomended.png)
+
+   Compara las dos: la línea en repaso es idéntica en ambas. La etiqueta nunca toca la tarjeta que se te pregunta — solo a sus vecinas.
 
 5) **Una tarjeta anverso/reverso y su flecha de dirección, con una referencia de Rem**
 

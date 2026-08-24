@@ -191,9 +191,17 @@ To reproduce them: put the cursor on the document's title Rem, run **Add Context
 
 4) **`Context Hide Others` — when the neighbours give it away**
 
-   Sometimes the neighbours say too much. Reviewing the two‑blank line under **9. Avoid sets**, the tree hands you two sibling flashcards with their answers in plain text — *“…due to ⇒ **the high cost of retaining memories based on sets**”* and *“…you should always try to ⇒ **convert them into Enumerations**”* — while you are still trying to recall this one. Tag the Rem under review with `Context Hide Others` (`cfchide`) and every *other* answer in the tree, those back sides included, collapses to a clickable `…`. Click them one at a time to check yourself on the rest of rule 9 once you have answered.
+   Two shots of the same card: the two‑blank line under **9. Avoid sets**.
 
-   ![Hide Other Answers, with click-to-reveal](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others.png)
+   **Without the tag — the default.** Everything except the line under review is shown answered. The sibling boxed in red, *“if sets are absolutely necessary, you should always try to ⇒ **convert them into Enumerations**”*, hands you a good part of what this rule is about before you have recalled any of it — and rules 2 and 8 have their own blanks filled in as well.
+
+   ![Default: the neighbouring answers are revealed](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others.png)
+
+   **With `Context Hide Others` (`cfchide`) — recommended for a card like this.** Every *other* answer in the tree collapses to a `…`: the siblings' back sides, and the clozes on rules 2 and 8. Each `…` is a button, so once you have answered your own card you can click them one at a time and check yourself on the rest. The eye in the top‑right is now struck through, which is how you tell at a glance which mode you are in.
+
+   ![Recommended: the neighbouring answers are masked](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others-recomended.png)
+
+   Compare the two: the line under review is identical in both. The tag never touches the card you are being asked — only its neighbours.
 
 5) **A front/back card and its direction arrow, with a Rem reference**
 
