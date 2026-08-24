@@ -201,11 +201,15 @@ Para reproducirlas: pon el cursor en el Rem del título del documento, ejecuta *
 
    Compara las dos: la línea en repaso es idéntica en ambas. La etiqueta nunca toca la tarjeta que se te pregunta — solo a sus vecinas.
 
-5) **Una tarjeta anverso/reverso y su flecha de dirección, con una referencia de Rem**
+5) **Una tarjeta anverso/reverso, su flecha de dirección y la vista previa de una referencia**
 
-   Repasando *“if sets are absolutely necessary, you should always try to ⇒ convert them into \[Enumerations\]”*. El reverso es la respuesta, así que se oculta como **?**, y la `⇒` dice que la tarjeta se pregunta de anverso a reverso. Fíjate en la referencia *Enumerations* dentro del árbol: pasa el ratón para la vista previa, haz clic para recibir la confirmación antes de que se salga de la cola.
+   Repasando *“you should avoid such items whenever possible ⇒ ?”* — un Descriptor directo bajo **9. Avoid sets**. Su reverso es la respuesta, así que el árbol lo oculta como **?**, y la `⇒` deja constancia de que la tarjeta se pregunta de anverso a reverso.
 
-   ![Tarjeta anverso/reverso con flecha de dirección](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/05-arrow-and-reference.png)
+   La línea justo debajo conserva su propia respuesta, y esa respuesta lleva una referencia de Rem: *“…you should always try to ⇒ convert them into **Enumerations**”*. Pasa el ratón por la referencia y se abre junto al árbol una vista previa de ese Rem — aquí, todo lo que las notas dicen bajo *Enumerations* — sin salir de la cola. Al hacer clic te pide confirmación en lugar de navegar, porque abrir un Rem mueve el panel y termina la sesión de repaso.
+
+   Fíjate en *qué* tarjeta es esta. Repasar la propia línea *Enumerations* no mostraría nada de esto: allí la referencia **es** la respuesta, así que el árbol la oculta junto con el resto de ese reverso. Una referencia solo se puede explorar cuando no es aquello que se te está preguntando.
+
+   ![Tarjeta anverso/reverso con flecha de dirección y vista previa de referencia](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/05-arrow-and-reference.png)
 
 6) **Los hermanos — lo que RemNote no te enseña** *(caso de uso 2)*
 

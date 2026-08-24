@@ -203,11 +203,15 @@ To reproduce them: put the cursor on the document's title Rem, run **Add Context
 
    Compare the two: the line under review is identical in both. The tag never touches the card you are being asked — only its neighbours.
 
-5) **A front/back card and its direction arrow, with a Rem reference**
+5) **A front/back card, its direction arrow, and a Rem reference preview**
 
-   Reviewing *“if sets are absolutely necessary, you should always try to ⇒ convert them into \[Enumerations\]”*. The back side is the answer, so it is masked as **?** and the `⇒` says the card is asked front‑to‑back. Note the *Enumerations* reference inside the tree: hover it for a preview, click it for the confirmation prompt before it leaves the queue.
+   Reviewing *“you should avoid such items whenever possible ⇒ ?”* — a forward Descriptor under **9. Avoid sets**. Its back side is the answer, so the tree masks it as **?**, and the `⇒` records that the rem has a card asked front‑to‑back.
 
-   ![Front/back card with direction arrow](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/05-arrow-and-reference.png)
+   The line just below keeps its own answer, and that answer carries a Rem reference: *“…you should always try to ⇒ convert them into **Enumerations**”*. Hover the reference and a preview of that Rem opens beside the tree — here, everything the notes say under *Enumerations* — without leaving the queue. Clicking it asks for confirmation first instead of navigating, because opening a Rem moves the pane and ends the review session.
+
+   Note *which* card this is. Reviewing the *Enumerations* line itself would not show any of this: there the reference **is** the answer, so the tree masks it along with the rest of that back side. A reference is browsable only when it is not the thing you are being asked for.
+
+   ![Front/back card with direction arrow and a reference preview](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/05-arrow-and-reference.png)
 
 6) **The siblings — what RemNote does not show you** *(use case 2)*
 

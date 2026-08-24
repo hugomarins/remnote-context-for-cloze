@@ -201,11 +201,15 @@ Para reproduzi‑las: ponha o cursor no Rem do título do documento, execute **A
 
    Compare as duas: a linha em revisão é idêntica nas duas. A marcação nunca toca no cartão que está sendo perguntado — só nos vizinhos dele.
 
-5) **Um cartão frente/verso e sua seta de direção, com uma referência de Rem**
+5) **Um cartão frente/verso, sua seta de direção e a prévia de uma referência**
 
-   Revisando *“if sets are absolutely necessary, you should always try to ⇒ convert them into \[Enumerations\]”*. O verso é a resposta, então é mascarado como **?**, e o `⇒` diz que o cartão é perguntado da frente para o verso. Repare na referência *Enumerations* dentro da árvore: passe o mouse para ver a prévia, clique para receber a confirmação antes de sair da fila.
+   Revisando *“you should avoid such items whenever possible ⇒ ?”* — um Descritor direto sob **9. Avoid sets**. O verso é a resposta, então a árvore o mascara como **?**, e o `⇒` registra que o cartão é perguntado da frente para o verso.
 
-   ![Cartão frente/verso com seta de direção](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/05-arrow-and-reference.png)
+   A linha logo abaixo mantém a própria resposta, e essa resposta carrega uma referência de Rem: *“…you should always try to ⇒ convert them into **Enumerations**”*. Passe o mouse sobre a referência e uma prévia daquele Rem abre ao lado da árvore — aqui, tudo o que as notas dizem sob *Enumerations* — sem sair da fila. Clicar nela pede confirmação antes de navegar, porque abrir um Rem move o painel e encerra a sessão de revisão.
+
+   Repare em *qual* cartão é este. Revisar a própria linha *Enumerations* não mostraria nada disso: ali a referência **é** a resposta, então a árvore a mascara junto com o resto daquele verso. Uma referência só é navegável quando não é aquilo que está sendo perguntado a você.
+
+   ![Cartão frente/verso com seta de direção e prévia de referência](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/05-arrow-and-reference.png)
 
 6) **Os irmãos — o que o RemNote não lhe mostra** *(caso de uso 2)*
 
