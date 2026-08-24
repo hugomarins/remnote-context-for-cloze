@@ -57,6 +57,19 @@ Um Rem que é um cartão guarda a resposta no seu **verso** (`backText`) — é 
 - Todos os *outros* cartões da árvore mostram os dois lados revelados por padrão, e escondem o lado da resposta atrás de um único `…` clicável quando a árvore está no modo escondido (veja o botão de olho abaixo).
 - Um Rem sem verso é desenhado exatamente como antes.
 
+### Cartões inversos de Descritor testam o Conceito, não o Descritor
+O RemNote tem [um caso especial aqui](https://help.remnote.com/en/articles/6751778-creating-concept-descriptor-flashcards): um **cartão inverso em um Descritor mostra o verso do Descritor, mas pergunta pelo Conceito acima dele**, e não pelo Descritor em si. Pedir que você responda “*abreviação*” não serve para nada; mostrar “*abreviação ⇐ PC*” e perguntar *de que PC é abreviação* é o cartão de verdade.
+
+A árvore segue esse comportamento. Em um cartão inverso de Descritor:
+
+- O **?** mascarado vai para o **ancestral mais próximo que não seja Descritor** — o conceito que está sendo testado — e não para o rótulo do próprio descritor. Se houver descritores aninhados em vários níveis, a árvore sobe por todos eles até o primeiro Conceito de verdade.
+- A linha desse conceito fica reduzida ao **?** puro na fase de pergunta: o verso dele também é removido, porque a definição de um conceito nomeia o conceito e entregaria a resposta.
+- A linha do próprio descritor continua totalmente visível — ela é o enunciado.
+- Depois do “Show Answer” o conceito reaparece por inteiro, sublinhado e destacado, com o verso restaurado.
+- Se o descritor não tiver nenhum Conceito ancestral dentro da árvore, nada é mascarado. A resposta simplesmente não é exibida, então não há vazamento.
+
+O rótulo de um descritor nunca é tratado como resposta em lugar nenhum da árvore, então o “Hide Other Answers” não apaga os rótulos *abreviação* / *definição* que dão forma ao outline.
+
 ## Recolhida por padrão — expanda o que precisar
 A árvore de contexto começa **recolhida**. Apenas o ramo que leva até o cartão em revisão fica aberto, de modo que a linha testada está sempre visível enquanto os descendentes mais profundos — que muitas vezes entregam a resposta ou dão pistas demais — permanecem escondidos.
 

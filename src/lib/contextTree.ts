@@ -1,6 +1,6 @@
 // Shared context-tree traversal for the question/answer widgets: find the anchor,
 // skip metadata/search-portal rems, and collect the masked tree rooted at the anchor.
-import { BuiltInPowerupCodes, PORTAL_TYPE } from '@remnote/plugin-sdk';
+import { BuiltInPowerupCodes, PORTAL_TYPE, RemType } from '@remnote/plugin-sdk';
 import {
   addClozeRevealHighlight,
   applyDelimiter,
@@ -170,20 +170,65 @@ export async function getCurrentCardRemId(plugin: any, ctx: Ctx | undefined) {
 //              has one) belongs to a DIFFERENT card of the same Rem.
 export type TestedSide = 'front' | 'back' | 'cloze';
 
-// Read the card type of the card under review. 'cloze' is the fallback whenever the type cannot be
-// read, because that is the rendering this plugin used before it knew about card sides at all.
-export async function getTestedSide(plugin: any, ctx: Ctx | undefined): Promise<TestedSide> {
+export interface TestedInfo {
+  side: TestedSide;
+  /** The Rem whose side actually holds the answer — see `getTestedTarget` for when it is not the
+   *  Rem the card belongs to. */
+  remId: string;
+  /** The answer sits on a Rem OTHER than the card's own (a backward Descriptor card). */
+  redirected: boolean;
+}
+
+async function remTypeOf(rem: any): Promise<number | undefined> {
   try {
-    if (ctx?.cardId) {
-      const card = await plugin.card.findOne(ctx.cardId);
-      const type = card ? await card.getType() : undefined;
-      if (type === 'forward') return 'back';
-      if (type === 'backward') return 'front';
-    }
-  } catch (e) {
-    console.error('[CFC] getTestedSide error:', e);
+    if (rem && typeof rem.getType === 'function') return await rem.getType();
+  } catch {}
+  return rem?.type;
+}
+const isDescriptorRem = async (rem: any) => (await remTypeOf(rem)) === RemType.DESCRIPTOR;
+
+// Climb past every Descriptor above `rem` and return the first Rem that is not one — the concept
+// (or plain Rem) the whole descriptor chain hangs under.
+async function nearestNonDescriptorAncestor(plugin: any, rem: any) {
+  let cur = rem;
+  // Guard against a malformed chain; a real descriptor chain is a handful of levels at most.
+  for (let i = 0; cur?.parent && i < 256; i++) {
+    const p = await plugin.rem.findOne(cur.parent);
+    if (!p) break;
+    if (!(await isDescriptorRem(p))) return p;
+    cur = p;
   }
-  return 'cloze';
+  return null;
+}
+
+// Work out what the card under review is asking for, and WHERE that answer lives.
+//
+// Usually the answer is a side of the card's own Rem. The exception is a backward DESCRIPTOR card:
+// a descriptor's own text is just its label ("this is a", "definition", …), not an answer. What a
+// backward descriptor card asks you to recall is the CONCEPT it hangs under, so RemNote masks that
+// ancestor natively — and the tree has to mask the same line, not the descriptor's label.
+//
+// 'cloze' is the fallback whenever the card type cannot be read, because that is the rendering
+// this plugin used before it knew about card sides at all.
+export async function getTestedTarget(plugin: any, ctx: Ctx | undefined, cardRemId: string): Promise<TestedInfo> {
+  const own = (side: TestedSide): TestedInfo => ({ side, remId: cardRemId, redirected: false });
+  try {
+    if (!ctx?.cardId) return own('cloze');
+    const card = await plugin.card.findOne(ctx.cardId);
+    const type = card ? await card.getType() : undefined;
+    if (type === 'forward') return own('back');
+    if (type !== 'backward') return own('cloze');
+
+    const rem = await plugin.rem.findOne(cardRemId);
+    if (!rem || !(await isDescriptorRem(rem))) return own('front');
+    const target = await nearestNonDescriptorAncestor(plugin, rem);
+    // No concept above it: mask nothing rather than masking the descriptor's own label. The answer
+    // is then simply absent from the tree, which leaks nothing.
+    return target ? { side: 'front', remId: target._id, redirected: true } : own('cloze');
+  } catch (e) {
+    console.error('[CFC] getTestedTarget error:', e);
+  }
+  return own('cloze');
 }
 
 // One side of a Rem, rendered for both cloze modes. `masked` is present only where hiding actually
@@ -236,6 +281,15 @@ function combineSides(front: SideHTML, back: SideHTML, arrow: string): { html: s
 
 export interface NodeRender { html: string; maskedHtml?: string; hasCloze: boolean }
 
+export interface NodeRole {
+  /** This Rem holds the answer the card is asking for. */
+  isTested: boolean;
+  /** This Rem is the one the card belongs to. Its lines are the card's PROMPT, so they are never
+   *  hidden as somebody else's answer — even on a backward Descriptor card, where the Rem is the
+   *  prompt and the answer lives on an ancestor. */
+  isCardRem: boolean;
+}
+
 // Render one Rem — both of its sides — into the two variants the widget switches between.
 //
 // The back side is what makes this plugin work for plain flashcards and not only for clozes: a
@@ -244,9 +298,9 @@ export interface NodeRender { html: string; maskedHtml?: string; hasCloze: boole
 export async function renderTreeNode(
   plugin: any,
   rem: any,
-  isCurrent: boolean,
+  role: NodeRole,
   currentIsQuestionStage: boolean,
-  testedSide: TestedSide,
+  tested: TestedInfo,
   tag = '[CFC]'
 ): Promise<NodeRender> {
   const front: any[] = Array.isArray(rem?.text) ? rem.text : [];
@@ -260,24 +314,40 @@ export async function renderTreeNode(
     try { direction = (await rem.getPracticeDirection()) || 'none'; } catch {}
   }
   const arrow = ARROW_BY_DIRECTION[direction] || DEFAULT_ARROW;
-  const frontIsAnswer = direction === 'backward';
+
+  // A Descriptor's own text is its label ("abbreviation", "definition", …), never an answer: its
+  // backward card tests the concept above it instead. So a descriptor's front is not hidden as an
+  // answer, however the direction reads. Only backward Rems pay for the type lookup.
+  const isDescriptor = direction === 'backward' ? await isDescriptorRem(rem) : false;
+  const frontIsAnswer = direction === 'backward' && !isDescriptor;
   const backIsAnswer = direction === 'forward' || direction === 'both';
 
   // Without a back side there is nothing a forward/backward card could be testing, so fall back to
-  // cloze rendering however the card type read.
-  const tested: TestedSide = hasBack ? testedSide : 'cloze';
+  // cloze rendering however the card type read. A REDIRECTED target is exempt: the concept under
+  // test answers with its own text, whether or not it carries a back side of its own.
+  let side: TestedSide = 'cloze';
+  if (role.isTested) {
+    side = tested.side;
+    if (side !== 'cloze' && !hasBack && !tested.redirected) side = 'cloze';
+  }
 
   let frontSide: SideHTML;
   let backSide: SideHTML;
-  if (!isCurrent) {
-    frontSide = await renderContextSide(plugin, front, frontIsAnswer, tag);
-    backSide = await renderContextSide(plugin, back, backIsAnswer, tag);
-  } else if (tested === 'back') {
+  if (!role.isTested) {
+    const isPrompt = role.isCardRem;
+    frontSide = await renderContextSide(plugin, front, frontIsAnswer && !isPrompt, tag);
+    backSide = await renderContextSide(plugin, back, backIsAnswer && !isPrompt, tag);
+  } else if (side === 'back') {
     frontSide = await renderContextSide(plugin, front, false, tag); // the prompt: always visible
     backSide = await renderTestedSide(plugin, back, currentIsQuestionStage, true, tag);
-  } else if (tested === 'front') {
+  } else if (side === 'front') {
     frontSide = await renderTestedSide(plugin, front, currentIsQuestionStage, true, tag);
-    backSide = await renderContextSide(plugin, back, false, tag); // the prompt: always visible
+    // A redirected target is not the card's prompt, so its back side is pure giveaway — a concept's
+    // definition names the concept. Drop it on the question stage, leaving the bare "?" that
+    // RemNote's own rendering of a backward Descriptor card shows.
+    backSide = tested.redirected && currentIsQuestionStage
+      ? EMPTY_SIDE
+      : await renderContextSide(plugin, back, false, tag);
   } else {
     frontSide = await renderTestedSide(plugin, front, currentIsQuestionStage, false, tag);
     // A back side on a cloze card answers a different card, so it is an "other answer" like any
@@ -289,33 +359,36 @@ export async function renderTreeNode(
 }
 
 // The single-line tree used when the card carries "No Hierarchy": the current Rem only, rendered
-// by exactly the same rules as it would be inside a full tree.
+// by exactly the same rules as it would be inside a full tree. On a backward Descriptor card the
+// answer lives on an ancestor that this view does not show, so nothing is masked — and nothing
+// leaks either, because the answer is simply absent.
 export async function collectCurrentOnly(
   plugin: any,
   rem: any,
   currentIsQuestionStage: boolean,
-  testedSide: TestedSide,
+  tested: TestedInfo,
   tag = '[CFC]'
 ): Promise<TreeItem[]> {
-  const rendered = await renderTreeNode(plugin, rem, true, currentIsQuestionStage, testedSide, tag);
+  const role: NodeRole = { isTested: rem._id === tested.remId, isCardRem: true };
+  const rendered = await renderTreeNode(plugin, rem, role, currentIsQuestionStage, tested, tag);
   return [{ id: rem._id, depth: 0, ...rendered, isCurrent: true }];
 }
 
 // Depth-first collect the tree rooted at `root`, masking answers per policy.
-//  - The current card's line: its tested side masked as "?" on the question stage, or revealed
-//    (highlighted) on the answer stage. It is never affected by the reveal/hide toggle — it is the
-//    line being tested.
+//  - The line that holds the answer: masked as "?" on the question stage, or revealed
+//    (highlighted) on the answer stage. It is never affected by the reveal/hide toggle. Usually
+//    that is the card's own line; on a backward Descriptor card it is the concept above it.
 //  - Other lines: rendered BOTH ways (`html` revealed, `maskedHtml` with their clozes and their
 //    flashcard answers as clickable "…"), so the widget can switch between the two modes without
 //    re-collecting.
-// `currentIsQuestionStage` selects the current-line rendering; official Hide/Remove marks are honoured via `opts`.
+// `currentIsQuestionStage` selects the tested-line rendering; official Hide/Remove marks are honoured via `opts`.
 export async function collectFullTree(
   plugin: any,
   root: any,
   currentRemId: string,
   maxNodes: number,
   currentIsQuestionStage: boolean,
-  testedSide: TestedSide,
+  tested: TestedInfo,
   opts?: QueueAdaptOpts,
   tag = '[CFC]'
 ): Promise<TreeItem[]> {
@@ -324,14 +397,18 @@ export async function collectFullTree(
   async function dfs(rem: any, depth: number, parentId?: string) {
     if (count >= maxNodes) return;
     const id = rem._id;
-    const isCurrent = id === currentRemId;
-    const removed = !isCurrent && !!opts?.removeSet?.has(id);
+    const isCardRem = id === currentRemId;
+    const isTested = id === tested.remId;
+    // Neither the card's own line nor the line holding its answer may be dropped or blanked by a
+    // queue-display tag — the review would lose the prompt or the answer.
+    const pinned = isCardRem || isTested;
+    const removed = !pinned && !!opts?.removeSet?.has(id);
     if (!removed) {
-      if (!isCurrent && opts?.applyHideInQueue && opts?.hideSet?.has(id)) {
+      if (!pinned && opts?.applyHideInQueue && opts?.hideSet?.has(id)) {
         items.push({ id, depth, html: HIDDEN_IN_QUEUE_HTML, isCurrent: false, hasCloze: false, parentId, hasChildren: false });
       } else {
-        const rendered = await renderTreeNode(plugin, rem, isCurrent, currentIsQuestionStage, testedSide, tag);
-        items.push({ id, depth, ...rendered, isCurrent, parentId, hasChildren: false });
+        const rendered = await renderTreeNode(plugin, rem, { isTested, isCardRem }, currentIsQuestionStage, tested, tag);
+        items.push({ id, depth, ...rendered, isCurrent: isCardRem, parentId, hasChildren: false });
       }
     }
     count++;

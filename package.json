@@ -1,6 +1,6 @@
 {
   "name": "remnote-context-for-cloze",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "private": true,
   "description": "Show the surrounding outline under any flashcard in the review queue, when within a 'Context Tree' powerup scope.",
   "scripts": {

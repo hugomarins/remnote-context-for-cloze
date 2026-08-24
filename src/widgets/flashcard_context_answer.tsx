@@ -8,7 +8,7 @@ import {
   collectQueueDisplaySets,
   getCurrentCardRemId,
   getNearestAnchor,
-  getTestedSide,
+  getTestedTarget,
   TreeItem,
 } from '../lib/contextTree';
 import { ContextTreeView } from '../lib/contextTreeView';
@@ -88,19 +88,20 @@ function Widget() {
         }
       })();
 
-      // Which side of the Rem this card asks for (forward / backward / cloze) — it decides what is
-      // masked as the answer and which way the direction arrow points.
-      const testedSide = await getTestedSide(plugin, ctx);
+      // What this card asks for, and which Rem holds that answer — the card's own Rem, except on a
+      // backward Descriptor card, where RemNote tests the concept above it. Decides what is masked
+      // and which way the direction arrows point.
+      const tested = await getTestedTarget(plugin, ctx, maskId || ctx.remId);
 
       // No Hierarchy on the current card: show only the current line (matches native).
       if (noHierarchySet.has(maskId || ctx.remId)) {
         const cur = await plugin.rem.findOne(maskId || ctx.remId);
         if (!cur) return { items: [], enabled: false } as any;
-        const only = await collectCurrentOnly(plugin, cur, QUESTION_STAGE, testedSide, LOG);
+        const only = await collectCurrentOnly(plugin, cur, QUESTION_STAGE, tested, LOG);
         return { items: only, defaultMasked, enabled: true } as any;
       }
 
-      const items = await collectFullTree(plugin, anchor, maskId || ctx.remId, maxNodes, QUESTION_STAGE, testedSide, { hideSet, removeSet, applyHideInQueue: false }, LOG);
+      const items = await collectFullTree(plugin, anchor, maskId || ctx.remId, maxNodes, QUESTION_STAGE, tested, { hideSet, removeSet, applyHideInQueue: false }, LOG);
       if (isDebug) console.log(`${LOG} generated`, items.length, 'items');
       return { items, defaultMasked, enabled: true };
     } catch (e) {

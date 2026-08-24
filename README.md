@@ -57,6 +57,19 @@ This is the same notation the *Incremental Everything* plugin uses, so a card re
 - Every *other* flashcard in the tree shows both of its sides revealed by default, and hides its answer side behind one clickable `…` when the tree is in masked mode (see the eye button below).
 - A Rem with no back side renders exactly as before.
 
+### Backward Descriptor cards test the Concept, not the Descriptor
+RemNote has [one special case here](https://help.remnote.com/en/articles/6751778-creating-concept-descriptor-flashcards): a **backward card on a Descriptor shows the Descriptor’s back side but asks you for the Concept above it**, not for the Descriptor itself. Being asked to answer “*abbreviation*” is useless; being shown “*abbreviation ⇐ PC*” and asked *what is PC short for* is the real card.
+
+The tree follows that. On a backward Descriptor card:
+
+- The masked **?** goes on the **nearest non‑Descriptor ancestor** — the concept being tested — not on the descriptor’s own label. If descriptors are nested several levels deep, the tree climbs past all of them to the first real Concept.
+- That concept’s line is reduced to the bare **?** on the question stage: its own back side is dropped too, because a concept’s definition names the concept and would hand you the answer.
+- The descriptor’s own line stays fully visible — it is the prompt.
+- After “Show Answer” the concept comes back in full, underlined and highlighted, with its back side restored.
+- If the descriptor has no Concept ancestor inside the tree, nothing is masked. The answer is simply not shown, so nothing leaks.
+
+A descriptor’s label is never treated as an answer anywhere in the tree, so “Hide Other Answers” does not black out the *abbreviation* / *definition* labels that give the outline its shape.
+
 ## Collapsed by default — expand what you need
 The context tree starts **collapsed**. Only the branch that leads down to the card under review is open, so the tested line is always visible while deeper descendants — which often spoil or heavily hint at the answer — stay hidden.
 

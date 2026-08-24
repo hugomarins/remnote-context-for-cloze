@@ -57,6 +57,19 @@ Es la misma notación que usa el plugin *Incremental Everything*, así que una t
 - Cualquier *otra* tarjeta del árbol muestra sus dos lados revelados por defecto, y oculta su lado de respuesta tras un único `…` clicable cuando el árbol está en modo oculto (véase el botón de ojo más abajo).
 - Un Rem sin reverso se dibuja exactamente como antes.
 
+### Las tarjetas inversas de Descriptor evalúan el Concepto, no el Descriptor
+RemNote tiene [un caso especial aquí](https://help.remnote.com/en/articles/6751778-creating-concept-descriptor-flashcards): una **tarjeta inversa sobre un Descriptor muestra el reverso del Descriptor, pero te pregunta por el Concepto que hay encima**, no por el Descriptor en sí. Pedirte que respondas “*abreviatura*” no sirve de nada; mostrarte “*abreviatura ⇐ PC*” y preguntarte *de qué es abreviatura PC* es la tarjeta de verdad.
+
+El árbol sigue ese comportamiento. En una tarjeta inversa de Descriptor:
+
+- El **?** oculto va al **ancestro más cercano que no sea Descriptor** — el concepto que se evalúa — y no a la etiqueta del propio descriptor. Si hay descriptores anidados en varios niveles, el árbol sube por todos ellos hasta el primer Concepto real.
+- La línea de ese concepto queda reducida al **?** a secas en la fase de pregunta: su propio reverso también se elimina, porque la definición de un concepto lo nombra y te daría la respuesta.
+- La línea del descriptor permanece totalmente visible — es el enunciado.
+- Tras “Show Answer” el concepto vuelve completo, subrayado y resaltado, con su reverso restaurado.
+- Si el descriptor no tiene ningún Concepto ancestro dentro del árbol, no se oculta nada. La respuesta sencillamente no se muestra, así que no hay filtración.
+
+La etiqueta de un descriptor nunca se trata como respuesta en ninguna parte del árbol, así que “Hide Other Answers” no tapa las etiquetas *abreviatura* / *definición* que dan forma al esquema.
+
 ## Plegado por defecto — despliega lo que necesites
 El árbol de contexto comienza **plegado**. Solo está abierta la rama que conduce hasta la tarjeta en repaso, de modo que la línea evaluada siempre está visible mientras que los descendientes más profundos — que a menudo revelan la respuesta o la sugieren demasiado — permanecen ocultos.
 
