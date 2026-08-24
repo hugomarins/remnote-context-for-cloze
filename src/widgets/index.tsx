@@ -3,9 +3,11 @@ import '../style.css';
 import '../index.css';
 import { addPowerupToRems, planHideOtherAnswers } from '../lib/anchorCheck';
 import {
+  ACTION_ADD_CONTEXT_TREE,
   ACTION_HIDE_OTHER_ANSWERS,
-  LABEL_CONTEXT_FOR_CLOZE,
+  LABEL_CONTEXT_TREE,
   LABEL_HIDE_OTHER_ANSWERS,
+  PREVIOUS_LABELS_CONTEXT_TREE,
   PREVIOUS_LABELS_HIDE_OTHER_ANSWERS,
   POW_CONTEXT_FOR_CLOZE as POW_CODE,
   POW_HIDE_OTHER_ANSWERS as POW_CODE_HIDE_OTHER_ANSWERS,
@@ -20,11 +22,11 @@ async function onActivate(plugin: ReactRNPlugin) {
   await plugin.settings.registerBooleanSetting({ id: 'startCollapsed', title: 'Start Collapsed', description: 'Show the context tree collapsed: only the branches leading to the card under review are open, deeper branches are hidden behind a ▸ arrow you can click to expand (avoids spoiling the answer). Turn off to always show the whole tree.', defaultValue: true });
   await plugin.settings.registerNumberSetting({ id: 'previewCloseDelay', title: 'Reference Preview Close Delay (ms)', description: 'How long the hover preview of a Rem reference stays after the pointer moves to another part of the context tree. Moving the pointer onto the preview itself keeps it open regardless — it is then dismissed by clicking anywhere, hovering another reference, or moving on to the next card. Set to 0 to turn the hover preview off.', defaultValue: 2000 });
   await plugin.settings.registerBooleanSetting({ id: 'debug', title: 'Debug Mode', description: 'Enable debugging (console logs and placeholder hints).', defaultValue: false });
-  await plugin.app.toast('Context for Cloze activated');
+  await plugin.app.toast('Context Tree for Outline Cards activated');
   console.log('[CFC] Plugin activated');
 
   // Power-Up
-  await plugin.app.registerPowerup({ name: LABEL_CONTEXT_FOR_CLOZE, code: POW_CODE, description: 'Tag the ROOT of a subtree: every descendant of it shows a context tree rooted here while being reviewed.', options: { slots: [] } });
+  await plugin.app.registerPowerup({ name: LABEL_CONTEXT_TREE, code: POW_CODE, description: 'Tag the ROOT of an outline: every card below it — cloze, front/back, any type — shows a context tree rooted here while being reviewed.', options: { slots: [] } });
   await plugin.app.registerPowerup({ name: LABEL_HIDE_OTHER_ANSWERS, code: POW_CODE_HIDE_OTHER_ANSWERS, description: `Tag an individual flashcard Rem — not the context anchor. While that Rem is under review, the other answers in its context tree start hidden as "…" instead of revealed: every other line's cloze answers, and the back side of every flashcard in the tree. Affects only the Rem you tag; the eye button in the review widget can flip it for a single review.`, options: { slots: [] } });
 
   // registerPowerup() creates the power-up Rem the first time and then leaves its text alone, so a
@@ -33,6 +35,7 @@ async function onActivate(plugin: ReactRNPlugin) {
   // but only while it still carries a label WE shipped: if the user renamed the tag themselves,
   // that name is theirs to keep.
   const PREVIOUS_LABELS: Record<string, string[]> = {
+    [POW_CODE]: PREVIOUS_LABELS_CONTEXT_TREE,
     [POW_CODE_HIDE_OTHER_ANSWERS]: PREVIOUS_LABELS_HIDE_OTHER_ANSWERS,
   };
   const syncPowerupLabel = async (code: string, label: string) => {
@@ -48,7 +51,7 @@ async function onActivate(plugin: ReactRNPlugin) {
       console.error(`[CFC] could not rename power-up ${code}:`, e);
     }
   };
-  await syncPowerupLabel(POW_CODE, LABEL_CONTEXT_FOR_CLOZE);
+  await syncPowerupLabel(POW_CODE, LABEL_CONTEXT_TREE);
   await syncPowerupLabel(POW_CODE_HIDE_OTHER_ANSWERS, LABEL_HIDE_OTHER_ANSWERS);
 
   // Commands operate on the current selection, single Rem or multi-selection alike.
@@ -82,7 +85,9 @@ async function onActivate(plugin: ReactRNPlugin) {
     await plugin.widget.openPopup('context_anchor_prompt', { orphans, taggedAlready: anchored.length });
   };
 
-  await plugin.app.registerCommand({ id: 'add-context-for-cloze', name: 'Add Context for Cloze', quickCode: 'cfc', action: async () => runAddPowerupCommand(POW_CODE, LABEL_CONTEXT_FOR_CLOZE) });
+  // The id is the STORED identity of a command (keybindings and the recent-commands list are keyed
+  // by it), so it keeps its original spelling even though the name and quick code moved on.
+  await plugin.app.registerCommand({ id: 'add-context-for-cloze', name: ACTION_ADD_CONTEXT_TREE, quickCode: 'cont', action: async () => runAddPowerupCommand(POW_CODE, LABEL_CONTEXT_TREE) });
   await plugin.app.registerCommand({ id: 'add-context-hide-all-test-one', name: ACTION_HIDE_OTHER_ANSWERS, quickCode: 'cfchide', action: runHideOtherAnswersCommand });
 
   await plugin.app.registerCommand({ id: 'cfc-debug', name: 'CFC: Debug Probe', quickCode: 'cfcdbg', action: async () => {

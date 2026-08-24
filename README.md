@@ -1,12 +1,14 @@
-# Context for Cloze — User Guide (English)
+# Context Tree for Outline Cards — User Guide (English)
 
 🇨🇳 [中文](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README_ZH.md) | 🇪🇸 [Español](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README_ES.md) | 🇧🇷 [Português Brasileiro](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README_PT-BR.md)
 
 Make your reviews clearer by showing where the current card sits in your knowledge tree. This plugin renders a compact “Context Tree” under the card in the review queue, so you can orient, associate, and recall — without changing the card content or scheduling.
 
+> **Renamed in 0.2.0.** The plugin used to be called *Context for Cloze*, and its anchor power‑up used to read *Context for Cloze* too. Both now say **Context Tree**, because the tree is no longer about clozes only — it works for every card type. Nothing you tagged is affected: the stored power‑up code is still `contextForCloze`, and the tag Rem in your knowledge base is renamed in place the first time this version loads. If you had renamed that tag yourself, your name is kept. The command that adds it is now **Add Context Tree to the Cards in This Outline**, quick code `cont` (was `cfc`).
+
 ## Features
-- Context for Cloze (Core)
-  - Add the power‑up “Context for Cloze” (code: `contextForCloze`) to a Rem. All its descendants, when reviewed as cards, will show a context tree rooted at that Rem under the card.
+- Context Tree (Core)
+  - Add the power‑up “Context Tree” (code: `contextForCloze`) to a Rem. All its descendants, when reviewed as cards, will show a context tree rooted at that Rem under the card.
   - Works for **every card type**, not only clozes: a Concept/Descriptor/Question Rem shows its **back side** in the tree, joined to the front by an arrow that spells out the card’s direction (`⇒` forward, `⇐` backward, `⇔` both).
   - Question stage: the context is shown while avoiding any leak of the answer — the cloze you are tested on, or the whole side the card is asking for.
   - Answer stage: the context remains; the revealed answer is indicated by a blue underline with a light‑blue highlight for easy comparison.
@@ -15,7 +17,7 @@ Make your reviews clearer by showing where the current card sits in your knowled
   - Apply it to the card Rem that would receive the spoiler (the leaf), **not** to the anchor/parent. See [Context Hide Others](#context-hide-others--protecting-a-cloze-from-its-siblings) below.
 - How to add power‑ups to Rems
   - Commands:
-    - Add Context for Cloze (quick code `cfc`)
+    - Add Context Tree to the Cards in This Outline (quick code `cont`)
     - Context: Hide Other Answers for This Rem (quick code `cfchide`)
   - Works on multi‑selection.
 
@@ -92,7 +94,7 @@ The tree renders the other lines' answers in one of two modes: **revealed** (blu
   - Adds extra hints in UI/console for troubleshooting (most users can keep it off).
 
 ## How to Use
-1. Pick a Rem as the “context anchor” and add the power‑up “Context for Cloze” (`contextForCloze`).
+1. Pick a Rem as the “context anchor” — the top of the outline you want cards to see — and add the power‑up “Context Tree” (`contextForCloze`), via the command **Add Context Tree to the Cards in This Outline** (`cont`).
 2. Start reviewing: whenever any descendant becomes a card, a context tree rooted at the anchor appears under the card.
 3. Optional: if a card would be spoiled by its neighbours’ revealed answers, add “Context Hide Others” to **that card** — run **Context: Hide Other Answers for This Rem** (`cfchide`). See the dedicated section below.
 4. Click the ▸ arrows during review to open any branch you want to see; the rest stays out of the way.
@@ -103,12 +105,12 @@ The tree renders the other lines' answers in one of two modes: **revealed** (blu
 
 **What it does.** By default this plugin hides only the answer you are actually being tested on. Every *other* answer in the context tree — other clozes, and the back side of every other flashcard — is shown **revealed** (blue underline), so the surrounding answers act as visible context.
 
-`Context Hide Others` reverses that for the card it is applied to: while that card is under review, **all other** answers in the tree are **masked** (shown as `…`) instead of revealed. Note the scope difference from the anchor tag: `Context for Cloze` is placed on the **root** of a subtree and affects every descendant, while this one is placed on **a single Rem** and affects only that Rem’s reviews.
+`Context Hide Others` reverses that for the card it is applied to: while that card is under review, **all other** answers in the tree are **masked** (shown as `…`) instead of revealed. Note the scope difference from the anchor tag: `Context Tree` is placed on the **root** of an outline and affects every descendant, while this one is placed on **a single Rem** and affects only that Rem’s reviews.
 
 The tag sets the **starting** mode only — the 👁 button described above flips it either way for the card in front of you, without changing the tag.
 
 ### When there is no context anchor above the Rem
-This tag only changes how a *context tree* looks, and a context tree exists only below a Rem tagged `Context for Cloze`. Tagging a Rem with no such ancestor would therefore do nothing at all, so the command checks first. If the anchor is missing, a dialog appears explaining the situation and offering three ways out:
+This tag only changes how a *context tree* looks, and a context tree exists only below a Rem tagged `Context Tree`. Tagging a Rem with no such ancestor would therefore do nothing at all, so the command checks first. If the anchor is missing, a dialog appears explaining the situation and offering three ways out:
 
 - **Tag the parent too** — the parent becomes the context anchor and the selected Rem gets `Context Hide Others`. The dialog names the parent and states the consequence up front: an anchor cascades, so *every* card under that parent will show a context tree from then on. It also reports how many siblings the Rem has, since those siblings are what the context is made of — with none, the tree would be thin and a higher ancestor may be the better anchor.
 - **Tag only this Rem** — adds the tag anyway; it stays dormant until an ancestor becomes an anchor.
@@ -120,7 +122,7 @@ The current card’s own line is always masked as `?` regardless of this power�
 
 **Where to apply it.**
 - Apply it to **the cloze card Rem that would receive the unwanted spoiler from its siblings** — i.e. the leaf whose own review you want to keep clean. It is not a group marker: it protects the specific card it sits on.
-- Do **not** apply it to the anchor/parent that carries `Context for Cloze`. The effect is keyed to the Rem of the card currently under review, and there is no inheritance down the tree, so a tag on the parent does nothing.
+- Do **not** apply it to the anchor/parent that carries `Context Tree`. The effect is keyed to the Rem of the card currently under review, and there is no inheritance down the tree, so a tag on the parent does nothing.
 - The protection is per‑card and one‑directional: tagging card A only cleans up **A’s own** review; it has no effect on what B or C show when their turn comes. So when several siblings would each be spoiled by the others, tag **each** card you want protected — any sibling you leave untagged will still reveal all the answers during its own review.
 - Tip: select the cloze cards you want to protect and run **Context: Hide Other Answers for This Rem** (`cfchide`) — the command applies to a multi‑selection, so you can tag them in one step.
 
@@ -130,7 +132,7 @@ The current card’s own line is always masked as `?` regardless of this power�
 
 ## Tips
 - The plugin only renders in the review queue; the editor view is not affected.
-- If the current card is not under any “Context for Cloze” anchor, no context tree is shown.
+- If the current card is not under any “Context Tree” anchor, no context tree is shown.
 - When used together with No Hierarchy (`noHierarchy`), only the current line is shown. This is by design.
 
 ## Example Screenshots

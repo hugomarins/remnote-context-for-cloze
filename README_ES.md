@@ -1,12 +1,14 @@
-# Context for Cloze — Guía de usuario (Español)
+# Context Tree for Outline Cards — Guía de usuario (Español)
 
 🇬🇧 [English](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README.md) | 🇨🇳 [中文](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README_ZH.md) | 🇧🇷 [Português Brasileiro](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README_PT-BR.md)
 
 Haz que tus repasos sean más claros mostrando dónde se sitúa la tarjeta actual dentro de tu árbol de conocimiento. Este plugin dibuja un “árbol de contexto” compacto debajo de la tarjeta en la cola de repaso, para que puedas orientarte, asociar y recordar — sin modificar el contenido de la tarjeta ni su programación.
 
+> **Renombrado en 0.2.0.** El plugin se llamaba *Context for Cloze*, y su power‑up de ancla también se llamaba *Context for Cloze*. Ahora ambos dicen **Context Tree**, porque el árbol ya no va solo de clozes: funciona con todos los tipos de tarjeta. Nada de lo que ya has etiquetado se ve afectado: el código almacenado del power‑up sigue siendo `contextForCloze`, y el Rem de la etiqueta se renombra en su sitio la primera vez que se carga esta versión. Si tú mismo habías renombrado esa etiqueta, se conserva tu nombre. El comando que la añade es ahora **Add Context Tree to the Cards in This Outline**, código rápido `cont` (antes `cfc`).
+
 ## Funciones
-- Context for Cloze (núcleo)
-  - Añade el power‑up “Context for Cloze” (código: `contextForCloze`) a un Rem. Todos sus descendientes, cuando se repasen como tarjetas, mostrarán debajo un árbol de contexto con raíz en ese Rem.
+- Context Tree (núcleo)
+  - Añade el power‑up “Context Tree” (código: `contextForCloze`) a un Rem. Todos sus descendientes, cuando se repasen como tarjetas, mostrarán debajo un árbol de contexto con raíz en ese Rem.
   - Funciona con **todos los tipos de tarjeta**, no solo con clozes: un Rem de tipo Concepto/Descriptor/Pregunta muestra su **reverso** en el árbol, unido al anverso por una flecha que indica la dirección de la tarjeta (`⇒` directa, `⇐` inversa, `⇔` ambas).
   - Fase de pregunta: se muestra el contexto evitando cualquier filtración de la respuesta — sea el cloze que se está preguntando, sea el lado completo que pide la tarjeta.
   - Fase de respuesta: el contexto permanece; la respuesta revelada se indica con un subrayado azul y un resaltado azul claro para facilitar la comparación.
@@ -15,7 +17,7 @@ Haz que tus repasos sean más claros mostrando dónde se sitúa la tarjeta actua
   - Aplícalo al Rem de la tarjeta que recibiría el spoiler (la hoja), **no** al ancla ni al padre. Consulta [Context Hide Others](#context-hide-others--proteger-un-cloze-de-sus-hermanos) más abajo.
 - Cómo añadir power‑ups a los Rems
   - Comandos:
-    - Add Context for Cloze (código rápido `cfc`)
+    - Add Context Tree to the Cards in This Outline (código rápido `cont`)
     - Context: Hide Other Answers for This Rem (código rápido `cfchide`)
   - Funcionan con selección múltiple.
 
@@ -90,7 +92,7 @@ El árbol muestra las respuestas de las demás líneas en uno de dos modos: **re
   - Añade pistas adicionales en la interfaz y la consola para diagnosticar problemas (la mayoría de usuarios puede dejarlo desactivado).
 
 ## Cómo usarlo
-1. Elige un Rem como “ancla de contexto” y añádele el power‑up “Context for Cloze” (`contextForCloze`).
+1. Elige un Rem como “ancla de contexto” — la cima del esquema que quieres que vean las tarjetas — y añádele el power‑up “Context Tree” (`contextForCloze`), con el comando **Add Context Tree to the Cards in This Outline** (`cont`).
 2. Empieza a repasar: siempre que cualquier descendiente se convierta en tarjeta, aparecerá debajo un árbol de contexto con raíz en el ancla.
 3. Opcional: si una tarjeta fuera a arruinarse por las respuestas reveladas de sus vecinas, añade “Context Hide Others” a **esa tarjeta** — ejecuta **Context: Hide Other Answers for This Rem** (`cfchide`). Consulta la sección dedicada más abajo.
 4. Haz clic en las flechas ▸ durante el repaso para abrir la rama que quieras ver; el resto se mantiene apartado.
@@ -101,12 +103,12 @@ El árbol muestra las respuestas de las demás líneas en uno de dos modos: **re
 
 **Qué hace.** Por defecto, este plugin oculta únicamente la respuesta que se te está preguntando. Cualquier *otra* respuesta del árbol de contexto — otros clozes y el reverso de todas las demás tarjetas — se muestra **revelada** (subrayado azul), de modo que las respuestas del entorno actúan como contexto visible.
 
-`Context Hide Others` invierte eso para la tarjeta a la que se aplica: mientras esa tarjeta está en repaso, **todas las demás** respuestas del árbol aparecen **ocultas** (como `…`) en lugar de reveladas. Fíjate en la diferencia de alcance respecto a la etiqueta del ancla: `Context for Cloze` se coloca en la **raíz** de un subárbol y afecta a todos sus descendientes, mientras que esta se coloca en **un único Rem** y solo afecta a los repasos de ese Rem.
+`Context Hide Others` invierte eso para la tarjeta a la que se aplica: mientras esa tarjeta está en repaso, **todas las demás** respuestas del árbol aparecen **ocultas** (como `…`) en lugar de reveladas. Fíjate en la diferencia de alcance respecto a la etiqueta del ancla: `Context Tree` se coloca en la **raíz** de un esquema y afecta a todos sus descendientes, mientras que esta se coloca en **un único Rem** y solo afecta a los repasos de ese Rem.
 
 La etiqueta define únicamente el modo **inicial** — el botón 👁 descrito arriba lo cambia en ambos sentidos para la tarjeta que tienes delante, sin modificar la etiqueta.
 
 ### Cuando no hay ningún ancla de contexto por encima del Rem
-Esta etiqueta solo cambia el aspecto de un *árbol de contexto*, y un árbol de contexto solo existe por debajo de un Rem etiquetado con `Context for Cloze`. Etiquetar un Rem sin ese ancestro no haría absolutamente nada, así que el comando lo comprueba primero. Si falta el ancla, aparece un diálogo que explica la situación y ofrece tres salidas:
+Esta etiqueta solo cambia el aspecto de un *árbol de contexto*, y un árbol de contexto solo existe por debajo de un Rem etiquetado con `Context Tree`. Etiquetar un Rem sin ese ancestro no haría absolutamente nada, así que el comando lo comprueba primero. Si falta el ancla, aparece un diálogo que explica la situación y ofrece tres salidas:
 
 - **Etiquetar también al padre** — el padre se convierte en el ancla de contexto y el Rem seleccionado recibe `Context Hide Others`. El diálogo nombra al padre y expone la consecuencia por adelantado: un ancla se propaga en cascada, así que *todas* las tarjetas por debajo de ese padre mostrarán un árbol de contexto a partir de entonces. También indica cuántos hermanos tiene el Rem, ya que esos hermanos son de lo que está hecho el contexto — sin ninguno, el árbol quedaría escaso y quizá un ancestro más alto sea mejor ancla.
 - **Etiquetar solo este Rem** — añade la etiqueta de todos modos; permanecerá inactiva hasta que algún ancestro se convierta en ancla.
@@ -118,7 +120,7 @@ La línea de la propia tarjeta actual siempre aparece oculta como `?`, independi
 
 **Dónde aplicarlo.**
 - Aplícalo **al Rem de la tarjeta de cloze que recibiría el spoiler no deseado de sus hermanos** — es decir, la hoja cuyo repaso quieres mantener limpio. No es un marcador de grupo: protege la tarjeta concreta en la que está.
-- **No** lo apliques al ancla ni al padre que lleva `Context for Cloze`. El efecto está ligado al Rem de la tarjeta que se está repasando y no se hereda hacia abajo en el árbol, así que una etiqueta en el padre no hace nada.
+- **No** lo apliques al ancla ni al padre que lleva `Context Tree`. El efecto está ligado al Rem de la tarjeta que se está repasando y no se hereda hacia abajo en el árbol, así que una etiqueta en el padre no hace nada.
 - La protección es por tarjeta y unidireccional: etiquetar la tarjeta A solo limpia **el repaso de A**; no influye en lo que muestren B o C cuando les toque. Por eso, cuando varios hermanos se arruinarían mutuamente, etiqueta **cada** tarjeta que quieras proteger — cualquier hermano sin etiquetar seguirá revelando todas las respuestas durante su propio repaso.
 - Consejo: selecciona las tarjetas de cloze que quieras proteger y ejecuta **Context: Hide Other Answers for This Rem** (`cfchide`) — el comando admite selección múltiple, así que puedes etiquetarlas de una vez.
 
@@ -128,7 +130,7 @@ La línea de la propia tarjeta actual siempre aparece oculta como `?`, independi
 
 ## Consejos
 - El plugin solo se dibuja en la cola de repaso; la vista del editor no se ve afectada.
-- Si la tarjeta actual no está bajo ningún ancla “Context for Cloze”, no se muestra ningún árbol de contexto.
+- Si la tarjeta actual no está bajo ningún ancla “Context Tree”, no se muestra ningún árbol de contexto.
 - Cuando se usa junto con No Hierarchy (`noHierarchy`), solo se muestra la línea actual. Es intencionado.
 
 ## Capturas de ejemplo

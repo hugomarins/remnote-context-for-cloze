@@ -1,12 +1,14 @@
-# Context for Cloze — 用户指南
+# Context Tree for Outline Cards — 用户指南
 
 🇬🇧 [English](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README.md) | 🇪🇸 [Español](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README_ES.md) | 🇧🇷 [Português Brasileiro](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README_PT-BR.md)
 
 让你在复习时，快速看清“当前卡片在知识结构中的位置”。本插件在复习队列中，于卡片下方显示一棵简洁的“上下文树”，帮助定位、联想与回顾；不更改卡片内容与复习调度。
 
+> **0.2.0 更名。** 本插件原名 *Context for Cloze*，其锚点 Power‑Up 也叫 *Context for Cloze*。现在两者都改为 **Context Tree**，因为这棵树已不再只服务于 cloze——它适用于所有卡片类型。你已经打过的标记不受影响：Power‑Up 存储的 code 仍是 `contextForCloze`，而知识库中的标记 Rem 会在本版本首次加载时就地改名。若你自己改过该标记的名字，则保留你的命名。添加它的命令现在是 **Add Context Tree to the Cards in This Outline**，快速码 `cont`（原为 `cfc`）。
+
 ## 功能介绍
-- Context for Cloze（核心功能）
-  - 在某个 Rem 上添加 Power‑Up“Context for Cloze”后（code：`contextForCloze`），该 Rem 的所有子代在复习成为题卡时，卡片下方会显示以该 Rem 为根的“上下文树”。
+- Context Tree（核心功能）
+  - 在某个 Rem 上添加 Power‑Up“Context Tree”后（code：`contextForCloze`），该 Rem 的所有子代在复习成为题卡时，卡片下方会显示以该 Rem 为根的“上下文树”。
   - 适用于**所有卡片类型**，不只是 cloze：概念 / 描述 / 问题类 Rem 会在树中显示其**背面**，并用一个箭头与正面相连，指明卡片的提问方向（`⇒` 正向、`⇐` 反向、`⇔` 双向）。
   - 题面阶段：上下文照常显示，但会避免泄露答案——无论是正在被测的 cloze，还是卡片正在提问的整个一面。
   - 答案阶段：继续显示上下文；被“揭示”的答案以蓝色下划线和浅蓝背景作提示，便于对照与回顾。
@@ -15,7 +17,7 @@
   - 应把它加在**会被剧透的那张卡片 Rem（叶子节点）**上，而**不是**加在锚点/父级上。详见下文 [Context Hide Others](#context-hide-others保护会被兄弟节点剧透的-cloze-卡片)。
 - 为 Rem 添加 Power‑Up 的方式
   - 命令：
-    - Add Context for Cloze（快速码 `cfc`）
+    - Add Context Tree to the Cards in This Outline（快速码 `cont`）
     - Context: Hide Other Answers for This Rem（快速码 `cfchide`）
   - 支持对多选 Rem 一次性添加。
 
@@ -90,7 +92,7 @@
   - 在界面与控制台输出更多提示，便于排查（一般用户可保持关闭）。
 
 ## 使用方法
-1. 选择一个 Rem 作为“上下文锚点”，为其添加 Power‑Up“Context for Cloze”（`contextForCloze`）。
+1. 选择一个 Rem 作为“上下文锚点”——你希望卡片能看到的那段大纲的顶端——并通过命令 **Add Context Tree to the Cards in This Outline**（`cont`）为其添加 Power‑Up“Context Tree”（`contextForCloze`）。
 2. 开始复习：当该锚点的任意子代成为题卡时，卡片下方会显示以锚点为根的“上下文树”。
 3. 可选：如果某张卡片会被邻近节点揭示的答案剧透，就给**这张卡片**添加“Context Hide Others”——运行 **Context: Hide Other Answers for This Rem**（`cfchide`）。详见下文专门章节。
 4. 复习时点击 ▸ 箭头即可展开想看的分支，其余分支不会干扰回忆。
@@ -101,20 +103,20 @@
 
 **功能说明。** 默认情况下，本插件只隐藏你当前正在被测的那个答案。上下文树中其他每一个答案——其他 cloze，以及其他每张卡片的背面——都会显示揭示后的内容（蓝色下划线），让周围的答案充当可见的上下文。
 
-`Context Hide Others` 会为它所应用的那张卡片反转这一行为：当该卡片被复习时，树中**其他所有**答案改为被**遮挡**（显示为 `…`），而不再揭示。注意它与锚点标记的作用范围不同：`Context for Cloze` 加在子树的**根**上并影响全部子代，而本标记加在**单个 Rem** 上，只影响该 Rem 的复习；它也只决定**初始**模式，👁 按钮可随时为当前卡片切换。
+`Context Hide Others` 会为它所应用的那张卡片反转这一行为：当该卡片被复习时，树中**其他所有**答案改为被**遮挡**（显示为 `…`），而不再揭示。注意它与锚点标记的作用范围不同：`Context Tree` 加在大纲的**根**上并影响全部子代，而本标记加在**单个 Rem** 上，只影响该 Rem 的复习；它也只决定**初始**模式，👁 按钮可随时为当前卡片切换。
 
 无论是否添加此 Power‑Up，当前卡片自己那一行始终以 `?` 遮挡，而纯文本（非 cloze）上下文始终照常显示。此 Power‑Up 只改变*其他* cloze 的显示方式。
 
 **加在哪里。**
 - 应把它加在**会被兄弟节点剧透的那张 cloze 卡片 Rem（叶子节点）**上，也就是你希望保持“干净复习”的那张卡片。它不是分组标记：它只保护自己所在的这张卡片。
-- **不要**把它加在承载 `Context for Cloze` 的锚点/父级上。该效果以“当前正在复习的卡片 Rem”为准，且不会沿树向下继承，因此加在父级上不会有任何作用。
+- **不要**把它加在承载 `Context Tree` 的锚点/父级上。该效果以“当前正在复习的卡片 Rem”为准，且不会沿树向下继承，因此加在父级上不会有任何作用。
 - 保护是按卡片、单向生效的：给卡片 A 添加，只会让 **A 自己的**复习变干净，对 B、C 轮到时的显示毫无影响。所以当多张兄弟节点会互相剧透时，需要给**每一张**你想保护的卡片都添加——任何未添加的兄弟节点，在它自己复习时仍会揭示全部答案。
 - 小技巧：选中所有你想保护的 cloze 卡片，再运行 **Context: Hide Other Answers for This Rem**（`cfchide`）——该命令支持多选，可一次性添加。
 
 **何时使用。** 当某个父级下有多张兄弟 cloze 会在同时显示时互相剧透时使用——例如每一项都是独立 cloze 卡片的编号列表，或一组你想独立回忆的并列事实。如果周围的答案是你*希望*在回忆当前项时看到的合理上下文，则保持默认（不添加）。
 
 ### 当该 Rem 上方没有上下文锚点时
-本标记只改变*上下文树*的显示方式，而上下文树只存在于带 `Context for Cloze` 标记的 Rem 之下。若某 Rem 上方没有这样的祖先，加了标记也毫无作用，因此该命令会先行检查。若缺少锚点，会弹出对话框说明情况并提供三个选项：
+本标记只改变*上下文树*的显示方式，而上下文树只存在于带 `Context Tree` 标记的 Rem 之下。若某 Rem 上方没有这样的祖先，加了标记也毫无作用，因此该命令会先行检查。若缺少锚点，会弹出对话框说明情况并提供三个选项：
 
 - **同时标记父级**——父级成为上下文锚点，所选 Rem 获得 `Context Hide Others`。对话框会显示该父级并预先说明后果：锚点会向下级联，此后该父级下的**每一张**卡片都会显示上下文树；同时报告该 Rem 有多少兄弟节点——上下文正由这些兄弟构成，若一个都没有，树会很单薄，更高层的祖先可能才是更合适的锚点。
 - **仅标记该 Rem**——仍然添加标记，但在祖先成为锚点之前处于休眠状态。
@@ -126,7 +128,7 @@
 
 ## 提示
 - 本插件仅在“复习队列”中显示；编辑器视图不受影响。
-- 若当前卡片不在任何“Context for Cloze”锚点的子树内，则不会显示上下文。
+- 若当前卡片不在任何“Context Tree”锚点的子树内，则不会显示上下文。
 - 与 No Hierarchy（`noHierarchy`）同时使用时，上下文将仅显示当前题目一行，这是设计预期。
 
 ## 示例截图

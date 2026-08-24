@@ -9,7 +9,7 @@ import { RemViewer, renderWidget, usePlugin, useRunAsync } from '@remnote/plugin
 import * as React from 'react';
 import { addPowerupToRems, OrphanRem } from '../lib/anchorCheck';
 import {
-  LABEL_CONTEXT_FOR_CLOZE,
+  LABEL_CONTEXT_TREE,
   LABEL_HIDE_OTHER_ANSWERS,
   POW_CONTEXT_FOR_CLOZE,
   POW_HIDE_OTHER_ANSWERS,
@@ -65,8 +65,8 @@ function Widget() {
         await addPowerupToRems(plugin, orphans.map((o) => o.remId), POW_HIDE_OTHER_ANSWERS);
         await plugin.app.toast(
           tagParents
-            ? `Tagged ${parentIds.length} parent Rem(s) as "${LABEL_CONTEXT_FOR_CLOZE}" and ${orphans.length} Rem(s) as "${LABEL_HIDE_OTHER_ANSWERS}"`
-            : `Tagged ${orphans.length} Rem(s) as "${LABEL_HIDE_OTHER_ANSWERS}" — inactive until an ancestor carries "${LABEL_CONTEXT_FOR_CLOZE}"`
+            ? `Tagged ${parentIds.length} parent Rem(s) as "${LABEL_CONTEXT_TREE}" and ${orphans.length} Rem(s) as "${LABEL_HIDE_OTHER_ANSWERS}"`
+            : `Tagged ${orphans.length} Rem(s) as "${LABEL_HIDE_OTHER_ANSWERS}" — inactive until an ancestor carries "${LABEL_CONTEXT_TREE}"`
         );
       } catch (e) {
         console.error(`${LOG} tagging failed:`, e);
@@ -156,7 +156,7 @@ function Widget() {
 
       <p style={{ margin: '0 0 10px' }}>
         “{LABEL_HIDE_OTHER_ANSWERS}” only changes how a <b>context tree</b> is displayed, and a context
-        tree appears only below a Rem tagged “{LABEL_CONTEXT_FOR_CLOZE}”. {one ? 'This Rem has' : 'These Rems have'} no
+        tree appears only below a Rem tagged “{LABEL_CONTEXT_TREE}”. {one ? 'This Rem has' : 'These Rems have'} no
         such ancestor, so the tag alone would have no visible effect.
       </p>
 
@@ -204,7 +204,7 @@ function Widget() {
       {!canTagParents && (
         <p style={{ margin: '0 0 14px' }}>
           {one ? 'This Rem is' : 'These Rems are'} at the top level, so there is no parent to use as an
-          anchor. Tag a Rem higher in the hierarchy with “{LABEL_CONTEXT_FOR_CLOZE}” yourself, or continue
+          anchor. Tag a Rem higher in the hierarchy with “{LABEL_CONTEXT_TREE}” yourself, or continue
           and the tag will start working once one exists.
         </p>
       )}
