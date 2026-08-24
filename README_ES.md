@@ -2,17 +2,19 @@
 
 🇬🇧 [English](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README.md) | 🇨🇳 [中文](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README_ZH.md) | 🇧🇷 [Português Brasileiro](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README_PT-BR.md)
 
-Haz que tus repasos sean más claros mostrando la tarjeta actual **rodeada de su esquema**. La cola de RemNote ya te da los ancestros de una tarjeta; este plugin dibuja debajo un “árbol de contexto” compacto que añade todo lo que está *alrededor* — sus hermanos, sus propias sub‑ramas y las respuestas que llevan — para que puedas orientarte, asociar y recordar, sin modificar el contenido de la tarjeta ni su programación.
+Haz que tus repasos sean más claros mostrando la tarjeta actual **rodeada de su esquema**. La cola de RemNote ya te da los ancestros de una tarjeta; este plugin dibuja debajo un “árbol de contexto” compacto que añade todo lo que está *alrededor* — sus hermanos y las sub‑ramas de estos, y las respuestas que llevan — para que puedas orientarte, asociar y recordar, sin modificar el contenido de la tarjeta ni su programación.
 
 > **Renombrado en 0.2.0.** El plugin se llamaba *Context for Cloze*, y su power‑up de ancla también se llamaba *Context for Cloze*. Ahora ambos dicen **Context Tree**, porque el árbol ya no va solo de clozes: funciona con todos los tipos de tarjeta. Nada de lo que ya has etiquetado se ve afectado: el código almacenado del power‑up sigue siendo `contextForCloze`, y el Rem de la etiqueta se renombra en su sitio la primera vez que se carga esta versión. Si tú mismo habías renombrado esa etiqueta, se conserva tu nombre. El comando que la añade es ahora **Add Context Tree to the Cards in This Outline**, código rápido `cont` (antes `cfc`).
+
+![Cambiando el modo de cloze con el botón de ojo y fijándolo con el botón de etiqueta](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/context-for-cloze-mode-switch.gif)
 
 ## Por qué querrías esto — dos formas de estudiar a las que se ajusta
 
 **1) Estudiar listas como clozes en contexto, en lugar de como tarjetas de lista.**
-Un conjunto o una enumeración es lo más caro que puedes meter en una cola de repaso. Se califica todo‑o‑nada, es material propenso a convertirse en leech y, la mayoría de las veces, en realidad no necesitas *producir* la lista entera bajo demanda: necesitas haber captado lo que hay en ella. Escribir la lista como un esquema y hacer cloze de las palabras que sostienen el sentido sale mucho más barato: cada hueco se convierte en su propia tarjeta pequeña, así que un fallo en un elemento cuesta un lapso en vez de tumbar la lista completa. Lo que eso suele perder es la lista misma: un hueco suelto, sin sus hermanos alrededor, cuesta de situar. El árbol de contexto lo devuelve: cada hueco se muestra **dentro de su propia lista**, con los elementos vecinos a la vista, de modo que conservas la forma del conjunto mientras recuerdas una pieza de él. Cuando los vecinos delatan demasiado, `Context Hide Others` los oculta y los vas descubriendo de uno en uno.
+Un conjunto o una enumeración es lo más caro que puedes meter en una cola de repaso. Contestarlo lleva mucho tiempo, se califica todo‑o‑nada, es material propenso a convertirse en leech y, la mayoría de las veces, en realidad no necesitas *producir* la lista entera bajo demanda: necesitas haber captado lo que hay en ella. Escribir la lista como un esquema y hacer cloze de las palabras que sostienen el sentido sale mucho más barato: cada hueco se convierte en su propia tarjeta pequeña, así que repasarla es rapidísimo y un fallo en un elemento cuesta un lapso en vez de tumbar la lista completa. Lo que eso suele perder es la lista misma: un hueco suelto, sin sus hermanos alrededor, cuesta de situar. El árbol de contexto lo devuelve: cada hueco se muestra **dentro de su propia lista**, con los elementos vecinos a la vista, de modo que conservas la forma del conjunto mientras recuerdas una pieza de él. Cuando los vecinos delatan demasiado, `Context Hide Others` los oculta y los vas descubriendo de uno en uno.
 
 **2) Notas en estilo esquema.**
-RemNote ya muestra el *linaje* de una tarjeta: la cadena de ancestros que va del documento hasta la línea en repaso. Lo que no muestra es nada que esté **al lado** de esa cadena: los hermanos de la tarjeta, sus propios hijos y las ramas que cuelgan de sus ancestros. En notas en esquema ahí es donde suele vivir el significado, porque un elemento se define tanto por lo que tiene *al lado* como por lo que tiene *encima* — una tarjeta sacada de un contraste de cuatro elementos sigue siendo respondible, pero el contraste se ha perdido. Etiqueta la cima del esquema una vez y el árbol dibuja la rama entera bajo cada tarjeta por debajo, linaje y vecindario juntos, con toda respuesta que no sea la tuya o revelada como contexto u oculta, a tu elección. Es también así como detectas la interferencia (la regla 11 de la lista de Woźniak): los elementos confundibles suelen ser hermanos, y no puedes notar la confusión mirando uno de ellos en aislamiento.
+RemNote ya muestra el *linaje* de una tarjeta: la cadena de ancestros que va del documento hasta la línea en repaso. Lo que no muestra es nada que esté **al lado** de esa cadena: los hermanos de la tarjeta y las ramas que cuelgan de sus ancestros. En notas en esquema ahí es donde suele vivir el significado, porque un elemento se define tanto por lo que tiene *al lado* como por lo que tiene *encima* — una tarjeta sacada de un contraste de cuatro elementos sigue siendo respondible, pero el contraste se ha perdido. Etiqueta la cima del esquema una vez y el árbol dibuja la rama entera bajo cada tarjeta por debajo, linaje y vecindario juntos, con toda respuesta que no sea la tuya o revelada como contexto u oculta, a tu elección. Es también así como detectas la interferencia (la regla 11 de la lista de Woźniak): los elementos confundibles suelen ser hermanos, y no puedes notar la confusión mirando uno de ellos en aislamiento.
 
 Ambos casos funcionan con **cualquier tipo de tarjeta**: clozes, tarjetas Concepto/Descriptor, tarjetas de Pregunta, o una mezcla de ellas en el mismo árbol.
 
@@ -30,8 +32,6 @@ Ambos casos funcionan con **cualquier tipo de tarjeta**: clozes, tarjetas Concep
     - Add Context Tree to the Cards in This Outline (código rápido `cont`)
     - Context: Hide Other Answers for This Rem (código rápido `cfchide`)
   - Funcionan con selección múltiple.
-
-![Cambiando el modo de cloze con el botón de ojo y fijándolo con el botón de etiqueta](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/context-for-cloze-mode-switch.gif)
 
 ## Compatibilidad con los power‑ups de visualización en la cola (plugin oficial “Hide in Queue” y plugin “Incremental Everything”)
 El árbol de contexto refleja los power‑ups de visualización en la cola del plugin oficial “Hide in Queue” de RemNote **y** del plugin Incremental Everything. Este plugin no registra ninguno de ellos — solo lee sus etiquetas cuando existen, de modo que nada se ve afectado si un power‑up no está instalado.
@@ -90,6 +90,8 @@ El árbol de contexto comienza **plegado**. Solo está abierta la rama que condu
 
 ## Los botones de ojo y de etiqueta — cambiar el modo de las respuestas durante el repaso
 El árbol muestra las respuestas de las demás líneas en uno de dos modos: **revelado** (subrayado azul, el modo por defecto) u **oculto** (`…`, el modo por defecto para una tarjeta etiquetada con `Context Hide Others`). “Respuesta” abarca ambos casos: un cloze dentro de una línea y el reverso de una línea que es tarjeta. Un **botón 👁 en la esquina superior derecha del área de contexto** alterna entre ambos para la tarjeta que tienes delante.
+
+![Cambiando el modo de cloze con el botón de ojo y fijándolo con el botón de etiqueta](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/context-for-cloze-mode-switch.gif)
 
 - Ojo **abierto** = las demás respuestas están reveladas. Haz clic para ocultarlas.
 - Ojo **tachado** = las demás respuestas están ocultas como `…`. Haz clic para revelarlas.
@@ -172,7 +174,7 @@ Para reproducirlas: pon el cursor en el Rem del título del documento, ejecuta *
 
    Repasando *“2. `{{Learn}}` before you `{{memorize}}`”*. La tarjeta pide un hueco; el árbol devuelve esa línea a la lista a la que pertenece, con el resto de las veinte reglas a su alrededor.
 
-   Esta es la alternativa barata a la tarjeta de conjunto, y el documento demuestra el argumento sobre sí mismo: una tarjeta que pregunte *“enumera las veinte reglas de Woźniak”* es justo el elemento que las reglas 9 y 10 te dicen que no construyas — calificado todo‑o‑nada y leech en potencia. Un cloze por regla cuesta un solo lapso cuando se escapa, en lugar de tumbar la lista entera, y, como el árbol mantiene los demás títulos a la vista, repasas la forma de la enumeración cada vez que aparece uno de sus miembros.
+   Esta es la alternativa barata a la tarjeta de conjunto, y el documento demuestra el argumento sobre sí mismo: una tarjeta que pregunte *“enumera las veinte reglas de Woźniak”* es justo el elemento que las reglas 9 y 10 te dicen que no construyas — calificado todo‑o‑nada y leech en potencia. Hacer cloze de las palabras clave de cada regla es mucho más rápido de repasar, cuesta un solo lapso cuando se escapa en lugar de tumbar la lista entera, y, como el árbol mantiene los demás títulos a la vista, puedes repasar la forma de la enumeración cada vez que aparece uno de sus miembros.
 
    En esta captura se ven dos detalles de renderizado:
 
@@ -203,7 +205,7 @@ Para reproducirlas: pon el cursor en el Rem del título del documento, ejecuta *
 
 5) **Una tarjeta anverso/reverso, su flecha de dirección y la vista previa de una referencia**
 
-   Repasando *“you should avoid such items whenever possible ⇒ ?”* — un Descriptor directo bajo **9. Avoid sets**. Su reverso es la respuesta, así que el árbol lo oculta como **?**, y la `⇒` deja constancia de que la tarjeta se pregunta de anverso a reverso.
+   Repasando *“you should avoid such items whenever possible ⇒ ?”* — un Descriptor directo bajo **9. Avoid sets**. Su reverso es la respuesta, así que el árbol lo oculta como **?**, y la `⇒` deja constancia de que el rem tiene una tarjeta que se pregunta de anverso a reverso.
 
    La línea justo debajo conserva su propia respuesta, y esa respuesta lleva una referencia de Rem: *“…you should always try to ⇒ convert them into **Enumerations**”*. Las referencias dentro del árbol están vivas, y se comportan de forma distinta al pasar el ratón y al hacer clic.
 
@@ -215,8 +217,6 @@ Para reproducirlas: pon el cursor en el Rem del título del documento, ejecuta *
 
    ![Al hacer clic en una referencia se pide confirmación antes de salir de la cola](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/05-navigating-to-a-tree-reference.png)
 
-   Fíjate en *qué* tarjeta es esta. Repasar la propia línea *Enumerations* no mostraría nada de esto: allí la referencia **es** la respuesta, así que el árbol la oculta junto con el resto de ese reverso. Una referencia solo se puede explorar cuando no es aquello que se te está preguntando.
-
 6) **Una tarjeta inversa de Descriptor — se oculta el Concepto, no la etiqueta**
 
    Repasando *“example ⇐ the alphabetical list of the members of the EU”* — un Descriptor inverso bajo el Concepto **Enumerations―ordered lists of members**, bajo **10. Avoid enumerations**. La **?** cae en el *Concepto*, que es lo que de verdad se te pide recordar, y no en la etiqueta *example* del descriptor. El reverso del propio Concepto también se elimina, así que esa línea queda en una **?** a secas. Esto refleja el comportamiento nativo de RemNote — véase [Las tarjetas inversas de Descriptor evalúan el Concepto, no el Descriptor](#las-tarjetas-inversas-de-descriptor-evalúan-el-concepto-no-el-descriptor).
@@ -227,4 +227,4 @@ Para reproducirlas: pon el cursor en el Rem del título del documento, ejecuta *
 
    Repasando cualquier tarjeta del fondo del documento mientras las otras diecinueve reglas siguen plegadas tras flechas ▸. Pulsa una para abrir esa rama solo para esta tarjeta.
 
-   ![Árbol plegado, desplegando una rama](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/07-collapsed-expand.png)
+   ![Árbol plegado, desplegando una rama](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/07-collapsed-expand.gif)

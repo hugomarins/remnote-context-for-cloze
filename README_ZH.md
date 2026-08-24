@@ -2,17 +2,19 @@
 
 🇬🇧 [English](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README.md) | 🇪🇸 [Español](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README_ES.md) | 🇧🇷 [Português Brasileiro](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README_PT-BR.md)
 
-让你在复习时看到**被自己的大纲包围着的当前卡片**。RemNote 的队列本来就会给出一张卡片的各级祖先；本插件在卡片下方另外画出一棵简洁的“上下文树”，补上它*周围*的一切——兄弟节点、它自己的子分支，以及它们所携带的答案——帮助定位、联想与回顾；不更改卡片内容与复习调度。
+让你在复习时看到**被自己的大纲包围着的当前卡片**。RemNote 的队列本来就会给出一张卡片的各级祖先；本插件在卡片下方另外画出一棵简洁的“上下文树”，补上它*周围*的一切——兄弟节点及其子分支，以及它们所携带的答案——帮助定位、联想与回顾；不更改卡片内容与复习调度。
 
 > **0.2.0 更名。** 本插件原名 *Context for Cloze*，其锚点 Power‑Up 也叫 *Context for Cloze*。现在两者都改为 **Context Tree**，因为这棵树已不再只服务于 cloze——它适用于所有卡片类型。你已经打过的标记不受影响：Power‑Up 存储的 code 仍是 `contextForCloze`，而知识库中的标记 Rem 会在本版本首次加载时就地改名。若你自己改过该标记的名字，则保留你的命名。添加它的命令现在是 **Add Context Tree to the Cards in This Outline**，快速码 `cont`（原为 `cfc`）。
+
+![用眼睛按钮切换 cloze 模式，再用标记按钮让选择永久生效](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/context-for-cloze-mode-switch.gif)
 
 ## 你为什么会需要它——它适配的两种学习方式
 
 **1）把列表当作“带上下文的 cloze”来学，而不是做成列表卡。**
-集合或枚举是你能放进复习队列里最昂贵的东西：它按全对全错评分，是天然的 leech 候选，而且大多数时候你其实并不需要按需*背出*整份列表——你需要的是掌握里面有什么。把列表写成大纲，再对承载含义的词做 cloze，代价要低得多：每个填空都成为一张自己的小卡，某一项卡壳只损失一次 lapse，而不是整份列表全军覆没。这样做通常会丢掉的，恰恰是列表本身——一个孤零零的填空，周围没有兄弟项，很难定位。上下文树把它还回来：每个填空都显示在**自己所属的列表之中**，相邻条目一并可见，于是你在回忆其中一块的同时仍保有整体的形状。当邻居泄露太多时，用 `Context Hide Others` 把它们遮起来，再一个一个揭开。
+集合或枚举是你能放进复习队列里最昂贵的东西：回答它很费时间，按全对全错评分，是天然的 leech 候选，而且大多数时候你其实并不需要按需*背出*整份列表——你需要的是掌握里面有什么。把列表写成大纲，再对承载含义的词做 cloze，代价要低得多：每个填空都成为一张自己的小卡，复习起来非常快，某一项卡壳也只损失一次 lapse，而不是整份列表全军覆没。这样做通常会丢掉的，恰恰是列表本身——一个孤零零的填空，周围没有兄弟项，很难定位。上下文树把它还回来：每个填空都显示在**自己所属的列表之中**，相邻条目一并可见，于是你在回忆其中一块的同时仍保有整体的形状。当邻居泄露太多时，用 `Context Hide Others` 把它们遮起来，再一个一个揭开。
 
 **2）大纲式笔记。**
-RemNote 本来就会显示一张卡片的*血统*——从文档一路到当前复习行的祖先链。它不显示的，是这条链**旁边**的一切：卡片的兄弟节点、它自己的子节点，以及挂在各级祖先上的其他分支。而在大纲式笔记里，含义往往恰恰住在那里，因为一个条目既由它*上面*是什么来定义，也同样由它*旁边*是什么来定义——一张从四项对比中抽出来的卡片仍然答得上来，但对比已经没了。给大纲顶端打一次标记，树就会在其下每张卡片下方画出整条分支，血统与邻里一并呈现，其中除你自己那条以外的每个答案，或作为上下文揭示，或按你的选择遮起来。这也是你察觉干扰（Woźniak 二十条里的第 11 条）的方式：容易混淆的条目通常就是兄弟节点，而只盯着其中一个看，是察觉不到混淆的。
+RemNote 本来就会显示一张卡片的*血统*——从文档一路到当前复习行的祖先链。它不显示的，是这条链**旁边**的一切：卡片的兄弟节点，以及挂在各级祖先上的其他分支。而在大纲式笔记里，含义往往恰恰住在那里，因为一个条目既由它*上面*是什么来定义，也同样由它*旁边*是什么来定义——一张从四项对比中抽出来的卡片仍然答得上来，但对比已经没了。给大纲顶端打一次标记，树就会在其下每张卡片下方画出整条分支，血统与邻里一并呈现，其中除你自己那条以外的每个答案，或作为上下文揭示，或按你的选择遮起来。这也是你察觉干扰（Woźniak 二十条里的第 11 条）的方式：容易混淆的条目通常就是兄弟节点，而只盯着其中一个看，是察觉不到混淆的。
 
 两种场景都适用于**所有卡片类型**：cloze、概念/描述卡、问答卡，或者同一棵树里的混合。
 
@@ -30,8 +32,6 @@ RemNote 本来就会显示一张卡片的*血统*——从文档一路到当前�
     - Add Context Tree to the Cards in This Outline（快速码 `cont`）
     - Context: Hide Other Answers for This Rem（快速码 `cfchide`）
   - 支持对多选 Rem 一次性添加。
-
-![用眼睛按钮切换 cloze 模式，再用标记按钮让选择永久生效](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/context-for-cloze-mode-switch.gif)
 
 ## 与队列显示 power‑up 的兼容性
 上下文树会与 RemNote 官方“Hide in Queue”插件**以及** Incremental Everything 插件的队列显示 power‑up 保持一致。本插件不注册其中任何一个——只在它们存在时读取其标记，因此某个 power‑up 未安装也不会有任何影响。
@@ -90,6 +90,8 @@ RemNote 在这里有[一个特例](https://help.remnote.com/en/articles/6751778-
 
 ## 眼睛与标记按钮——复习过程中切换答案模式
 上下文树中“其他行”的答案有两种显示模式：**揭示**（蓝色下划线，默认）或**遮挡**（`…`，带 `Context Hide Others` 标记的卡片默认如此）。这里的“答案”涵盖两类：行内的 cloze，以及卡片行的背面。上下文区域**右上角的 👁 眼睛按钮**可为当前这张卡片在两种模式间切换。
+
+![用眼睛按钮切换 cloze 模式，再用标记按钮让选择永久生效](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/context-for-cloze-mode-switch.gif)
 
 - 眼睛**睁开** = 其他答案处于揭示状态，点击即可隐藏。
 - 眼睛**带斜线** = 其他答案被遮挡为 `…`，点击即可揭示。
@@ -170,7 +172,7 @@ RemNote 在这里有[一个特例](https://help.remnote.com/en/articles/6751778-
 
    复习 *“2. `{{Learn}}` before you `{{memorize}}`”*。这张卡只问一个填空；而树把这一行放回它所属的列表中，二十条规则的其余部分环绕在旁。
 
-   这就是集合卡的廉价替代品，而这份文档在自己身上印证了这个论点：一张问 *“列出 Woźniak 的二十条规则”* 的卡片，正是第 9、10 条叫你不要做的那种——全对全错评分，且是潜在的 leech。每条规则做一个 cloze，失手时只损失一次 lapse，而不是整份列表全军覆没；又因为树把其余标题一直摆在眼前，每当其中一个成员出现，你都会重新演练一遍这份枚举的整体形状。
+   这就是集合卡的廉价替代品，而这份文档在自己身上印证了这个论点：一张问 *“列出 Woźniak 的二十条规则”* 的卡片，正是第 9、10 条叫你不要做的那种——全对全错评分，且是潜在的 leech。把每条规则的关键词做成 cloze，复习起来快得多，失手时只损失一次 lapse，而不是整份列表全军覆没；又因为树把其余标题一直摆在眼前，每当其中一个成员出现，你都可以重新演练一遍这份枚举的整体形状。
 
    这张截图里能看到两处渲染细节：
 
@@ -201,7 +203,7 @@ RemNote 在这里有[一个特例](https://help.remnote.com/en/articles/6751778-
 
 5) **一张正/背面卡、它的方向箭头，以及引用的悬停预览**
 
-   复习 **9. Avoid sets** 之下的 *“you should avoid such items whenever possible ⇒ ?”*——这是一条正向描述。它的背面就是答案，所以树把它遮为 **?**，而 `⇒` 记录了这张卡是从正面问向背面的。
+   复习 **9. Avoid sets** 之下的 *“you should avoid such items whenever possible ⇒ ?”*——这是一条正向描述。它的背面就是答案，所以树把它遮为 **?**，而 `⇒` 记录了这个 rem 有一张从正面问向背面的卡。
 
    紧接着的下一行保留着自己的答案，而那个答案里带有一个 Rem 引用：*“…you should always try to ⇒ convert them into **Enumerations**”*。树中的引用是活的，悬停与点击的行为并不相同。
 
@@ -213,8 +215,6 @@ RemNote 在这里有[一个特例](https://help.remnote.com/en/articles/6751778-
 
    ![点击引用会在离开队列前请求确认](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/05-navigating-to-a-tree-reference.png)
 
-   注意这是*哪一张*卡。如果复习的是 *Enumerations* 那一行本身，就看不到这些：在那里引用**就是**答案，树会连同背面的其余部分一起把它遮住。只有当引用不是你要回答的那个东西时，它才是可浏览的。
-
 6) **描述的反向卡——被遮的是概念，而不是标签**
 
    复习 *“example ⇐ the alphabetical list of the members of the EU”*——这是概念 **Enumerations―ordered lists of members**（位于 **10. Avoid enumerations** 之下）下的一条反向描述。**?** 落在那个*概念*上，因为它才是真正要你回忆的东西，而不是落在描述的标签 *example* 上。该概念自己的背面也一并去掉，所以那一行只剩一个 **?**。这与 RemNote 的原生渲染一致——参见[描述（Descriptor）的反向卡考的是概念（Concept），而不是描述本身](#描述descriptor的反向卡考的是概念concept而不是描述本身)。
@@ -225,4 +225,4 @@ RemNote 在这里有[一个特例](https://help.remnote.com/en/articles/6751778-
 
    在文档深处复习任意一张卡，而其余十九条规则都折叠在 ▸ 箭头之后。点开其中一条，就只为这张卡展开那一支。
 
-   ![折叠的树与展开分支](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/07-collapsed-expand.png)
+   ![折叠的树与展开分支](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/07-collapsed-expand.gif)

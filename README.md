@@ -6,10 +6,12 @@ Make your reviews clearer by showing the current card **surrounded by its outlin
 
 > **Renamed in 0.2.0.** The plugin used to be called *Context for Cloze*, and its anchor power‑up used to read *Context for Cloze* too. Both now say **Context Tree**, because the tree is no longer about clozes only — it works for every card type. Nothing you tagged is affected: the stored power‑up code is still `contextForCloze`, and the tag Rem in your knowledge base is renamed in place the first time this version loads. If you had renamed that tag yourself, your name is kept. The command that adds it is now **Add Context Tree to the Cards in This Outline**, quick code `cont` (was `cfc`).
 
+![Switching cloze modes with the eye button, then making it permanent with the tag button](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/context-for-cloze-mode-switch.gif)
+
 ## Why you would want this — two ways of studying it fits
 
 **1) Study lists as clozes in context, instead of as list cards.**
-A set or an enumeration is the most expensive thing you can put in a review queue. It is graded all‑or‑nothing, it is prime leech material, and most of the time you do not actually need to *produce* the whole list on demand — you need to have grasped what is in it. Writing the list as an outline and clozing the load‑bearing words is far cheaper: each blank becomes its own small card, so a slip on one item costs one lapse instead of failing the whole list. What that normally loses is the list itself — a lone blank with no siblings around it is hard to place. The context tree gives it back: every blank is shown **inside its own list**, with the neighbouring items visible, so you keep the shape of the whole while recalling one piece of it. When the neighbours give too much away, `Context Hide Others` masks them and you uncover them one at a time.
+A set or an enumeration is the most expensive thing you can put in a review queue. Answering it takes a long time, it is graded all‑or‑nothing, it is prime leech material, and most of the time you do not actually need to *produce* the whole list on demand — you need to have grasped what is in it. Writing the list as an outline and clozing the load‑bearing words is far cheaper: each blank becomes its own small card, so reviewing it is very fast and a slip on one item costs one lapse instead of failing the whole list. What that normally loses is the list itself — a lone blank with no siblings around it is hard to place. The context tree gives it back: every blank is shown **inside its own list**, with the neighbouring items visible, so you keep the shape of the whole while recalling one piece of it. When the neighbours give too much away, `Context Hide Others` masks them and you uncover them one at a time.
 
 **2) Outline‑style note‑taking.**
 RemNote already shows a card's *lineage* — the chain of ancestors from the document down to the line under review. What it does not show is anything to the **side** of that chain: the card's siblings and the branches hanging off its ancestors. In outline notes that is usually where the meaning is, because an item is defined as much by what it sits *beside* as by what it sits *under* — a card lifted out of a four‑item contrast is still answerable, but the contrast is gone. Tag the top of the outline once and the tree draws the whole branch under every card below it, lineage and neighbourhood together, with every answer in it other than your own either revealed as context or masked at your choice. It is also how you catch interference (rule 11 in Woźniak's list): confusable items are usually siblings, and you cannot notice the confusion while looking at one of them in isolation.
@@ -30,8 +32,6 @@ Both cases work for **any card type**: clozes, Concept/Descriptor cards, Questio
     - Add Context Tree to the Cards in This Outline (quick code `cont`)
     - Context: Hide Other Answers for This Rem (quick code `cfchide`)
   - Works on multi‑selection.
-
-![Switching cloze modes with the eye button, then making it permanent with the tag button](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/context-for-cloze-mode-switch.gif)
 
 ## Compatibility with queue‑display power‑ups (“Hide in Queue” official plugin and "Incremental Everything" plugin)
 The context tree mirrors the queue‑display power‑ups from RemNote’s official “Hide in Queue” plugin **and** from the Incremental Everything plugin. This plugin does not register any of them — it only reads their tags when they exist, so nothing is affected if a power‑up isn’t installed.
@@ -227,4 +227,4 @@ To reproduce them: put the cursor on the document's title Rem, run **Add Context
 
    Reviewing any card deep in the document while the other nineteen rules sit collapsed behind ▸ arrows. Click one to open that branch for this card only.
 
-   ![Collapsed tree, expanding a branch](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/07-collapsed-expand.png)
+   ![Collapsed tree, expanding a branch](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/07-collapsed-expand.gif)
