@@ -215,20 +215,14 @@ RemNote 在这里有[一个特例](https://help.remnote.com/en/articles/6751778-
 
    注意这是*哪一张*卡。如果复习的是 *Enumerations* 那一行本身，就看不到这些：在那里引用**就是**答案，树会连同背面的其余部分一起把它遮住。只有当引用不是你要回答的那个东西时，它才是可浏览的。
 
-6) **兄弟节点——RemNote 不会给你看的那部分**（用例 2）
-
-   复习概念 **Enumerations―ordered lists of members** 之下的描述 *“great advantage over sets ⇒ is that they are ordered…”*。上方的原生卡片区域本来就给出了通往这一行的血统；只有树才补上的，是笔记中关于 Enumerations 所说的其余内容——与这一行并排的那些兄弟行，每一行都带着自己的答案，可以揭示，也可以按你的选择遮起来。
-
-   ![概念之下的描述](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/06-descriptor-under-concept.png)
-
-7) **描述的反向卡——被遮的是概念，而不是标签**
+6) **描述的反向卡——被遮的是概念，而不是标签**
 
    复习 *“example ⇐ the alphabetical list of the members of the EU”*——这是概念 **Enumerations―ordered lists of members**（位于 **10. Avoid enumerations** 之下）下的一条反向描述。**?** 落在那个*概念*上，因为它才是真正要你回忆的东西，而不是落在描述的标签 *example* 上。该概念自己的背面也一并去掉，所以那一行只剩一个 **?**。这与 RemNote 的原生渲染一致——参见[描述（Descriptor）的反向卡考的是概念（Concept），而不是描述本身](#描述descriptor的反向卡考的是概念concept而不是描述本身)。
 
-   ![描述反向卡](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/07-backward-descriptor.png)
+   ![描述反向卡](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/06-backward-descriptor.png)
 
-8) **默认折叠——只展开你想看的**
+7) **默认折叠——只展开你想看的**
 
    在文档深处复习任意一张卡，而其余十九条规则都折叠在 ▸ 箭头之后。点开其中一条，就只为这张卡展开那一支。
 
-   ![折叠的树与展开分支](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/08-collapsed-expand.png)
+   ![折叠的树与展开分支](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/07-collapsed-expand.png)

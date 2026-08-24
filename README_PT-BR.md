@@ -217,20 +217,14 @@ Para reproduzi‑las: ponha o cursor no Rem do título do documento, execute **A
 
    Repare em *qual* cartão é este. Revisar a própria linha *Enumerations* não mostraria nada disso: ali a referência **é** a resposta, então a árvore a mascara junto com o resto daquele verso. Uma referência só é navegável quando não é aquilo que está sendo perguntado a você.
 
-6) **Os irmãos — o que o RemNote não lhe mostra** *(caso de uso 2)*
-
-   Revisando o descritor *“great advantage over sets ⇒ is that they are ordered…”* sob o Conceito **Enumerations―ordered lists of members**. A área nativa do cartão, acima, já lhe dá a linhagem até esta linha; o que só a árvore acrescenta é o resto do que as notas dizem sobre Enumerations — as linhas irmãs ao lado desta, cada uma com a sua própria resposta, revelada ou mascarada conforme você preferir.
-
-   ![Descritor sob o seu conceito](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/06-descriptor-under-concept.png)
-
-7) **Um cartão inverso de Descritor — quem é mascarado é o Conceito, não o rótulo**
+6) **Um cartão inverso de Descritor — quem é mascarado é o Conceito, não o rótulo**
 
    Revisando *“example ⇐ the alphabetical list of the members of the EU”* — um Descritor inverso sob o Conceito **Enumerations―ordered lists of members**, sob **10. Avoid enumerations**. O **?** cai no *Conceito*, que é o que de fato se pede que você recorde, e não no rótulo *example* do descritor. O verso do próprio Conceito também é removido, então aquela linha fica só com o **?**. Isso espelha o comportamento nativo do RemNote — veja [Cartões inversos de Descritor testam o Conceito, não o Descritor](#cartões-inversos-de-descritor-testam-o-conceito-não-o-descritor).
 
-   ![Cartão inverso de descritor](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/07-backward-descriptor.png)
+   ![Cartão inverso de descritor](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/06-backward-descriptor.png)
 
-8) **Recolhida por padrão — abra só o que você quiser**
+7) **Recolhida por padrão — abra só o que você quiser**
 
    Revisando um cartão qualquer no fundo do documento enquanto as outras dezenove regras ficam recolhidas atrás de setas ▸. Clique em uma para abrir aquele ramo só para este cartão.
 
-   ![Árvore recolhida, expandindo um ramo](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/08-collapsed-expand.png)
+   ![Árvore recolhida, expandindo um ramo](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/07-collapsed-expand.png)

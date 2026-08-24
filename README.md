@@ -217,21 +217,14 @@ To reproduce them: put the cursor on the document's title Rem, run **Add Context
 
    ![Clicking a reference asks for confirmation before leaving the queue](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/05-navigating-to-a-tree-reference.png)
 
-
-6) **The siblings — what RemNote does not show you** *(use case 2)*
-
-   Reviewing the descriptor *“great advantage over sets ⇒ is that they are ordered…”* under the Concept **Enumerations―ordered lists of members**. The native card area above already gives you the lineage down to this line; what only the tree adds is the rest of what the notes say about Enumerations — the sibling lines beside this one, each carrying its own answer, shown or masked as you choose.
-
-   ![Descriptor under its concept](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/06-descriptor-under-concept.png)
-
-7) **A backward Descriptor card — the Concept is masked, not the label**
+6) **A backward Descriptor card — the Concept is masked, not the label**
 
    Reviewing *“example ⇐ the alphabetical list of the members of the EU”* — a backward Descriptor under the Concept **Enumerations―ordered lists of members**, under **10. Avoid enumerations**. The **?** lands on the *Concept*, which is what you are actually asked to recall, and not on the descriptor's label *example*. The Concept's own back side is dropped too, so that line reads as a bare **?**. This mirrors RemNote's own rendering — see [Backward Descriptor cards test the Concept, not the Descriptor](#backward-descriptor-cards-test-the-concept-not-the-descriptor).
 
-   ![Backward descriptor card](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/07-backward-descriptor.png)
+   ![Backward descriptor card](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/06-backward-descriptor.png)
 
-8) **Collapsed by default — open only what you want**
+7) **Collapsed by default — open only what you want**
 
    Reviewing any card deep in the document while the other nineteen rules sit collapsed behind ▸ arrows. Click one to open that branch for this card only.
 
-   ![Collapsed tree, expanding a branch](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/08-collapsed-expand.png)
+   ![Collapsed tree, expanding a branch](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/07-collapsed-expand.png)

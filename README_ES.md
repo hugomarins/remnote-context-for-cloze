@@ -217,20 +217,14 @@ Para reproducirlas: pon el cursor en el Rem del título del documento, ejecuta *
 
    Fíjate en *qué* tarjeta es esta. Repasar la propia línea *Enumerations* no mostraría nada de esto: allí la referencia **es** la respuesta, así que el árbol la oculta junto con el resto de ese reverso. Una referencia solo se puede explorar cuando no es aquello que se te está preguntando.
 
-6) **Los hermanos — lo que RemNote no te enseña** *(caso de uso 2)*
-
-   Repasando el descriptor *“great advantage over sets ⇒ is that they are ordered…”* bajo el Concepto **Enumerations―ordered lists of members**. El área nativa de la tarjeta, arriba, ya te da el linaje hasta esta línea; lo que solo añade el árbol es el resto de lo que las notas dicen sobre Enumerations — las líneas hermanas junto a esta, cada una con su propia respuesta, revelada u oculta según prefieras.
-
-   ![Descriptor bajo su concepto](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/06-descriptor-under-concept.png)
-
-7) **Una tarjeta inversa de Descriptor — se oculta el Concepto, no la etiqueta**
+6) **Una tarjeta inversa de Descriptor — se oculta el Concepto, no la etiqueta**
 
    Repasando *“example ⇐ the alphabetical list of the members of the EU”* — un Descriptor inverso bajo el Concepto **Enumerations―ordered lists of members**, bajo **10. Avoid enumerations**. La **?** cae en el *Concepto*, que es lo que de verdad se te pide recordar, y no en la etiqueta *example* del descriptor. El reverso del propio Concepto también se elimina, así que esa línea queda en una **?** a secas. Esto refleja el comportamiento nativo de RemNote — véase [Las tarjetas inversas de Descriptor evalúan el Concepto, no el Descriptor](#las-tarjetas-inversas-de-descriptor-evalúan-el-concepto-no-el-descriptor).
 
-   ![Tarjeta inversa de descriptor](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/07-backward-descriptor.png)
+   ![Tarjeta inversa de descriptor](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/06-backward-descriptor.png)
 
-8) **Plegado por defecto — abre solo lo que quieras**
+7) **Plegado por defecto — abre solo lo que quieras**
 
    Repasando cualquier tarjeta del fondo del documento mientras las otras diecinueve reglas siguen plegadas tras flechas ▸. Pulsa una para abrir esa rama solo para esta tarjeta.
 
-   ![Árbol plegado, desplegando una rama](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/08-collapsed-expand.png)
+   ![Árbol plegado, desplegando una rama](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/07-collapsed-expand.png)
