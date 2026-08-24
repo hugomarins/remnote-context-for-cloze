@@ -205,11 +205,17 @@ Para reproduzi‑las: ponha o cursor no Rem do título do documento, execute **A
 
    Revisando *“you should avoid such items whenever possible ⇒ ?”* — um Descritor direto sob **9. Avoid sets**. O verso é a resposta, então a árvore o mascara como **?**, e o `⇒` registra que o cartão é perguntado da frente para o verso.
 
-   A linha logo abaixo mantém a própria resposta, e essa resposta carrega uma referência de Rem: *“…you should always try to ⇒ convert them into **Enumerations**”*. Passe o mouse sobre a referência e uma prévia daquele Rem abre ao lado da árvore — aqui, tudo o que as notas dizem sob *Enumerations* — sem sair da fila. Clicar nela pede confirmação antes de navegar, porque abrir um Rem move o painel e encerra a sessão de revisão.
+   A linha logo abaixo mantém a própria resposta, e essa resposta carrega uma referência de Rem: *“…you should always try to ⇒ convert them into **Enumerations**”*. As referências dentro da árvore são ativas, e se comportam de modo diferente ao passar o mouse e ao clicar.
 
-   Repare em *qual* cartão é este. Revisar a própria linha *Enumerations* não mostraria nada disso: ali a referência **é** a resposta, então a árvore a mascara junto com o resto daquele verso. Uma referência só é navegável quando não é aquilo que está sendo perguntado a você.
+   **Passar o mouse** abre uma prévia daquele Rem ao lado da árvore — aqui, tudo o que as notas dizem sob *Enumerations* — sem sair da fila.
 
    ![Cartão frente/verso com seta de direção e prévia de referência](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/05-arrow-and-reference.png)
+
+   **Clicar** não navega. Em vez disso, aparece uma barra de confirmação no pé da árvore — *“Open **Enumerations**? This leaves the queue and ends the review session.”* — com **Open anyway** e **Cancel**. Abrir um Rem move o painel, e isso encerraria a sessão no meio da revisão; então o clique apenas arma a ação e deixa a decisão com você.
+
+   ![Clicar em uma referência pede confirmação antes de sair da fila](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/05-navigating-to-a-tree-reference.png)
+
+   Repare em *qual* cartão é este. Revisar a própria linha *Enumerations* não mostraria nada disso: ali a referência **é** a resposta, então a árvore a mascara junto com o resto daquele verso. Uma referência só é navegável quando não é aquilo que está sendo perguntado a você.
 
 6) **Os irmãos — o que o RemNote não lhe mostra** *(caso de uso 2)*
 

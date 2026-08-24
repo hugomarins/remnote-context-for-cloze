@@ -203,11 +203,17 @@ RemNote 在这里有[一个特例](https://help.remnote.com/en/articles/6751778-
 
    复习 **9. Avoid sets** 之下的 *“you should avoid such items whenever possible ⇒ ?”*——这是一条正向描述。它的背面就是答案，所以树把它遮为 **?**，而 `⇒` 记录了这张卡是从正面问向背面的。
 
-   紧接着的下一行保留着自己的答案，而那个答案里带有一个 Rem 引用：*“…you should always try to ⇒ convert them into **Enumerations**”*。把鼠标悬停到该引用上，树旁边就会打开那个 Rem 的预览——这里是笔记中 *Enumerations* 之下的全部内容——而不必离开队列。点击它则会先请求确认，而不是直接跳转，因为打开一个 Rem 会移动面板并结束本次复习。
+   紧接着的下一行保留着自己的答案，而那个答案里带有一个 Rem 引用：*“…you should always try to ⇒ convert them into **Enumerations**”*。树中的引用是活的，悬停与点击的行为并不相同。
 
-   注意这是*哪一张*卡。如果复习的是 *Enumerations* 那一行本身，就看不到这些：在那里引用**就是**答案，树会连同背面的其余部分一起把它遮住。只有当引用不是你要回答的那个东西时，它才是可浏览的。
+   **悬停**会在树旁边打开那个 Rem 的预览——这里是笔记中 *Enumerations* 之下的全部内容——而不必离开队列。
 
    ![带方向箭头与引用预览的正/背面卡](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/05-arrow-and-reference.png)
+
+   **点击**并不会跳转。取而代之的是，树的底部会出现一条确认栏——*“Open **Enumerations**? This leaves the queue and ends the review session.”*——带有 **Open anyway** 和 **Cancel**。打开一个 Rem 会移动面板，那会在复习中途结束本次会话；所以点击只是把动作准备好，最终决定权仍在你手上。
+
+   ![点击引用会在离开队列前请求确认](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/05-navigating-to-a-tree-reference.png)
+
+   注意这是*哪一张*卡。如果复习的是 *Enumerations* 那一行本身，就看不到这些：在那里引用**就是**答案，树会连同背面的其余部分一起把它遮住。只有当引用不是你要回答的那个东西时，它才是可浏览的。
 
 6) **兄弟节点——RemNote 不会给你看的那部分**（用例 2）
 

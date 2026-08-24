@@ -207,11 +207,16 @@ To reproduce them: put the cursor on the document's title Rem, run **Add Context
 
    Reviewing *“you should avoid such items whenever possible ⇒ ?”* — a forward Descriptor under **9. Avoid sets**. Its back side is the answer, so the tree masks it as **?**, and the `⇒` records that the rem has a card asked front‑to‑back.
 
-   The line just below keeps its own answer, and that answer carries a Rem reference: *“…you should always try to ⇒ convert them into **Enumerations**”*. Hover the reference and a preview of that Rem opens beside the tree — here, everything the notes say under *Enumerations* — without leaving the queue. Clicking it asks for confirmation first instead of navigating, because opening a Rem moves the pane and ends the review session.
+   The line just below keeps its own answer, and that answer carries a Rem reference: *“…you should always try to ⇒ convert them into **Enumerations**”*. References inside the tree are live, and they behave differently on hover and on click.
 
-   Note *which* card this is. Reviewing the *Enumerations* line itself would not show any of this: there the reference **is** the answer, so the tree masks it along with the rest of that back side. A reference is browsable only when it is not the thing you are being asked for.
+   **Hover** opens a preview of that Rem beside the tree — here, everything the notes say under *Enumerations* — without leaving the queue.
 
    ![Front/back card with direction arrow and a reference preview](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/05-arrow-and-reference.png)
+
+   **Click** does not navigate. A confirmation bar appears at the foot of the tree instead — *“Open **Enumerations**? This leaves the queue and ends the review session.”* — with **Open anyway** and **Cancel**. Opening a Rem moves the pane, and that would end the session mid‑review, so a click only ever arms the action and leaves the decision to you.
+
+   ![Clicking a reference asks for confirmation before leaving the queue](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/05-navigating-to-a-tree-reference.png)
+
 
 6) **The siblings — what RemNote does not show you** *(use case 2)*
 

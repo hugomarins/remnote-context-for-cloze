@@ -205,11 +205,17 @@ Para reproducirlas: pon el cursor en el Rem del título del documento, ejecuta *
 
    Repasando *“you should avoid such items whenever possible ⇒ ?”* — un Descriptor directo bajo **9. Avoid sets**. Su reverso es la respuesta, así que el árbol lo oculta como **?**, y la `⇒` deja constancia de que la tarjeta se pregunta de anverso a reverso.
 
-   La línea justo debajo conserva su propia respuesta, y esa respuesta lleva una referencia de Rem: *“…you should always try to ⇒ convert them into **Enumerations**”*. Pasa el ratón por la referencia y se abre junto al árbol una vista previa de ese Rem — aquí, todo lo que las notas dicen bajo *Enumerations* — sin salir de la cola. Al hacer clic te pide confirmación en lugar de navegar, porque abrir un Rem mueve el panel y termina la sesión de repaso.
+   La línea justo debajo conserva su propia respuesta, y esa respuesta lleva una referencia de Rem: *“…you should always try to ⇒ convert them into **Enumerations**”*. Las referencias dentro del árbol están vivas, y se comportan de forma distinta al pasar el ratón y al hacer clic.
 
-   Fíjate en *qué* tarjeta es esta. Repasar la propia línea *Enumerations* no mostraría nada de esto: allí la referencia **es** la respuesta, así que el árbol la oculta junto con el resto de ese reverso. Una referencia solo se puede explorar cuando no es aquello que se te está preguntando.
+   **Al pasar el ratón** se abre junto al árbol una vista previa de ese Rem — aquí, todo lo que las notas dicen bajo *Enumerations* — sin salir de la cola.
 
    ![Tarjeta anverso/reverso con flecha de dirección y vista previa de referencia](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/05-arrow-and-reference.png)
+
+   **Al hacer clic** no se navega. En su lugar aparece una barra de confirmación al pie del árbol — *“Open **Enumerations**? This leaves the queue and ends the review session.”* — con **Open anyway** y **Cancel**. Abrir un Rem mueve el panel, y eso terminaría la sesión a mitad del repaso; así que el clic solo arma la acción y te deja la decisión a ti.
+
+   ![Al hacer clic en una referencia se pide confirmación antes de salir de la cola](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/05-navigating-to-a-tree-reference.png)
+
+   Fíjate en *qué* tarjeta es esta. Repasar la propia línea *Enumerations* no mostraría nada de esto: allí la referencia **es** la respuesta, así que el árbol la oculta junto con el resto de ese reverso. Una referencia solo se puede explorar cuando no es aquello que se te está preguntando.
 
 6) **Los hermanos — lo que RemNote no te enseña** *(caso de uso 2)*
 
