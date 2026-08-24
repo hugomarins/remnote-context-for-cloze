@@ -2,7 +2,7 @@
 
 🇨🇳 [中文](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README_ZH.md) | 🇪🇸 [Español](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README_ES.md) | 🇧🇷 [Português Brasileiro](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README_PT-BR.md)
 
-Make your reviews clearer by showing where the current card sits in your knowledge tree. This plugin renders a compact “Context Tree” under the card in the review queue, so you can orient, associate, and recall — without changing the card content or scheduling.
+Make your reviews clearer by showing the current card **surrounded by its outline**. RemNote's queue already gives you a card's ancestors; this plugin renders a compact “Context Tree” under the card that adds everything *around* it — its siblings and their sub‑branches, and the answers they carry — so you can orient, associate, and recall, without changing the card content or scheduling.
 
 > **Renamed in 0.2.0.** The plugin used to be called *Context for Cloze*, and its anchor power‑up used to read *Context for Cloze* too. Both now say **Context Tree**, because the tree is no longer about clozes only — it works for every card type. Nothing you tagged is affected: the stored power‑up code is still `contextForCloze`, and the tag Rem in your knowledge base is renamed in place the first time this version loads. If you had renamed that tag yourself, your name is kept. The command that adds it is now **Add Context Tree to the Cards in This Outline**, quick code `cont` (was `cfc`).
 
@@ -12,7 +12,7 @@ Make your reviews clearer by showing where the current card sits in your knowled
 A set or an enumeration is the most expensive thing you can put in a review queue. It is graded all‑or‑nothing, it is prime leech material, and most of the time you do not actually need to *produce* the whole list on demand — you need to have grasped what is in it. Writing the list as an outline and clozing the load‑bearing words is far cheaper: each blank becomes its own small card, so a slip on one item costs one lapse instead of failing the whole list. What that normally loses is the list itself — a lone blank with no siblings around it is hard to place. The context tree gives it back: every blank is shown **inside its own list**, with the neighbouring items visible, so you keep the shape of the whole while recalling one piece of it. When the neighbours give too much away, `Context Hide Others` masks them and you uncover them one at a time.
 
 **2) Outline‑style note‑taking.**
-If you take notes as an outline, a good part of the meaning lives in the indentation — a line means what it means *because* of the line above it. Pulled into the queue on its own, that line is often ambiguous, or answerable only by guessing which chapter it came from. The usual fixes are to write the context into every card (verbose, and it drifts out of date) or to add labels by hand (rule 16 in Wozniak's list). The context tree does it for free: tag the top of the outline once, and every card below it is reviewed with its own branch drawn underneath — ancestors, siblings and all — while the answer you owe stays masked.
+RemNote already shows a card's *lineage* — the chain of ancestors from the document down to the line under review. What it does not show is anything to the **side** of that chain: the card's siblings and the branches hanging off its ancestors. In outline notes that is usually where the meaning is, because an item is defined as much by what it sits *beside* as by what it sits *under* — a card lifted out of a four‑item contrast is still answerable, but the contrast is gone. Tag the top of the outline once and the tree draws the whole branch under every card below it, lineage and neighbourhood together, with every answer in it other than your own either revealed as context or masked at your choice. It is also how you catch interference (rule 11 in Woźniak's list): confusable items are usually siblings, and you cannot notice the confusion while looking at one of them in isolation.
 
 Both cases work for **any card type**: clozes, Concept/Descriptor cards, Question cards, or a mix of them in the same tree.
 
@@ -194,9 +194,9 @@ To reproduce them: put the cursor on the document's title Rem, run **Add Context
 
    ![Front/back card with direction arrow](img/05-arrow-and-reference.png)
 
-6) **A Descriptor read together with its Concept**
+6) **The siblings — what RemNote does not show you** *(use case 2)*
 
-   Reviewing the descriptor *“great advantage over sets ⇒ is that they are ordered…”*, which hangs under the Concept **Enumerations―ordered lists of members**, which hangs under **10. Avoid enumerations**. On its own that descriptor barely parses; the tree supplies the concept it is about. *(This is use case 2 in one screenshot.)*
+   Reviewing the descriptor *“great advantage over sets ⇒ is that they are ordered…”* under the Concept **Enumerations―ordered lists of members**. The native card area above already gives you the lineage down to this line; what only the tree adds is the rest of what the notes say about Enumerations — the sibling lines beside this one, each carrying its own answer, shown or masked as you choose.
 
    ![Descriptor under its concept](img/06-descriptor-under-concept.png)
 

@@ -2,7 +2,7 @@
 
 🇬🇧 [English](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README.md) | 🇨🇳 [中文](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README_ZH.md) | 🇪🇸 [Español](https://github.com/hugomarins/remnote-context-for-cloze/blob/main/README_ES.md)
 
-Deixe suas revisões mais claras mostrando onde o cartão atual se encaixa na sua árvore de conhecimento. Este plugin desenha uma “árvore de contexto” compacta abaixo do cartão na fila de revisão, para você se situar, associar e recordar — sem alterar o conteúdo do cartão nem o agendamento.
+Deixe suas revisões mais claras mostrando o cartão atual **cercado pelo seu outline**. A fila do RemNote já lhe dá os ancestrais de um cartão; este plugin desenha abaixo dele uma “árvore de contexto” compacta que acrescenta tudo o que está *ao redor* — os irmãos, os próprios sub‑ramos do cartão e as respostas que eles carregam — para você se situar, associar e recordar, sem alterar o conteúdo do cartão nem o agendamento.
 
 > **Renomeado na 0.2.0.** O plugin se chamava *Context for Cloze*, e seu power‑up de âncora também se chamava *Context for Cloze*. Agora ambos dizem **Context Tree**, porque a árvore não é mais só sobre clozes — ela funciona com todos os tipos de cartão. Nada do que você já marcou é afetado: o código armazenado do power‑up continua sendo `contextForCloze`, e o Rem da marcação é renomeado no lugar na primeira vez que esta versão carrega. Se você mesmo tinha renomeado essa marcação, o seu nome é preservado. O comando que a adiciona agora é **Add Context Tree to the Cards in This Outline**, código rápido `cont` (antes `cfc`).
 
@@ -12,7 +12,7 @@ Deixe suas revisões mais claras mostrando onde o cartão atual se encaixa na su
 Um conjunto ou uma enumeração é a coisa mais cara que você pode colocar numa fila de revisão. É avaliado em tudo‑ou‑nada, é candidato natural a leech e, na maior parte das vezes, você não precisa de fato *produzir* a lista inteira sob demanda — você precisa ter compreendido o que há nela. Escrever a lista como um outline e clozar as palavras que sustentam o sentido sai muito mais barato: cada lacuna vira um cartão pequeno, então um tropeço em um item custa um lapso em vez de derrubar a lista toda. O que normalmente se perde nisso é a própria lista — uma lacuna solta, sem os irmãos ao redor, é difícil de situar. A árvore de contexto devolve isso: toda lacuna é exibida **dentro da sua própria lista**, com os itens vizinhos visíveis, então você mantém a forma do conjunto enquanto recorda uma peça dele. Quando os vizinhos entregam demais, o `Context Hide Others` os esconde e você os descobre um a um.
 
 **2) Anotações em estilo outline.**
-Se você toma notas em outline, boa parte do significado mora na indentação — uma linha significa o que significa *por causa* da linha acima dela. Puxada sozinha para a fila, essa linha muitas vezes fica ambígua, ou só é respondível se você adivinhar de que capítulo veio. As saídas usuais são escrever o contexto dentro de cada cartão (verboso, e desatualiza) ou acrescentar rótulos à mão (a regra 16 da lista de Wozniak). A árvore de contexto faz isso de graça: marque o topo do outline uma vez e todo cartão abaixo dele passa a ser revisado com o seu próprio ramo desenhado embaixo — ancestrais, irmãos e tudo mais — enquanto a resposta que você deve continua mascarada.
+O RemNote já mostra a *linhagem* de um cartão — a cadeia de ancestrais que vai do documento até a linha em revisão. O que ele não mostra é nada que esteja **ao lado** dessa cadeia: os irmãos do cartão, os filhos dele e os ramos pendurados nos seus ancestrais. Em notas de outline é justamente aí que costuma morar o significado, porque um item é definido tanto pelo que está *ao lado* dele quanto pelo que está *acima* dele — um cartão retirado de um contraste de quatro itens continua respondível, mas o contraste se perdeu. Marque o topo do outline uma vez e a árvore desenha o ramo inteiro sob cada cartão abaixo dele, linhagem e vizinhança juntas, com toda resposta que não seja a sua ou revelada como contexto ou mascarada, à sua escolha. É também assim que você percebe a interferência (a regra 11 da lista de Woźniak): itens confundíveis costumam ser irmãos, e não dá para notar a confusão olhando para um deles isoladamente.
 
 Os dois casos funcionam com **qualquer tipo de cartão**: clozes, cartões Conceito/Descritor, cartões de Pergunta, ou uma mistura deles na mesma árvore.
 
@@ -192,9 +192,9 @@ Para reproduzi‑las: ponha o cursor no Rem do título do documento, execute **A
 
    ![Cartão frente/verso com seta de direção](img/05-arrow-and-reference.png)
 
-6) **Um Descritor lido junto com o seu Conceito**
+6) **Os irmãos — o que o RemNote não lhe mostra** *(caso de uso 2)*
 
-   Revisando o descritor *“great advantage over sets ⇒ is that they are ordered…”*, que fica sob o Conceito **Enumerations―ordered lists of members**, que por sua vez fica sob **10. Avoid enumerations**. Sozinho, esse descritor mal se sustenta; a árvore fornece o conceito de que ele fala. *(É o caso de uso 2 em uma única captura.)*
+   Revisando o descritor *“great advantage over sets ⇒ is that they are ordered…”* sob o Conceito **Enumerations―ordered lists of members**. A área nativa do cartão, acima, já lhe dá a linhagem até esta linha; o que só a árvore acrescenta é o resto do que as notas dizem sobre Enumerations — as linhas irmãs ao lado desta, cada uma com a sua própria resposta, revelada ou mascarada conforme você preferir.
 
    ![Descritor sob o seu conceito](img/06-descriptor-under-concept.png)
 
