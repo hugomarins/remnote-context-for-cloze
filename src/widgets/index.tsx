@@ -13,8 +13,10 @@ import {
 
 async function onActivate(plugin: ReactRNPlugin) {
   // Settings
-  await plugin.settings.registerNumberSetting({ id: 'maxDepth', title: 'Max Depth', description: 'Maximum depth of the context tree.', defaultValue: 8 });
-  await plugin.settings.registerNumberSetting({ id: 'maxNodes', title: 'Max Nodes', description: 'Maximum number of nodes shown.', defaultValue: 200 });
+  // No depth limit: the tree starts collapsed, so depth costs nothing to read. Max Nodes is the
+  // remaining guard, and it guards the part that collapsing does NOT help with — collection walks
+  // the whole subtree before anything is rendered.
+  await plugin.settings.registerNumberSetting({ id: 'maxNodes', title: 'Max Nodes', description: 'Safety budget for how many Rems the context tree collects before it stops walking. Collapsed branches are still collected, so this is what keeps a card under a very large anchor from stalling. Raise it if a tree comes out truncated.', defaultValue: 200 });
   await plugin.settings.registerBooleanSetting({ id: 'startCollapsed', title: 'Start Collapsed', description: 'Show the context tree collapsed: only the branches leading to the card under review are open, deeper branches are hidden behind a ▸ arrow you can click to expand (avoids spoiling the answer). Turn off to always show the whole tree.', defaultValue: true });
   await plugin.settings.registerNumberSetting({ id: 'previewCloseDelay', title: 'Reference Preview Close Delay (ms)', description: 'How long the hover preview of a Rem reference stays after the pointer moves to another part of the context tree. Moving the pointer onto the preview itself keeps it open regardless — it is then dismissed by clicking anywhere, hovering another reference, or moving on to the next card. Set to 0 to turn the hover preview off.', defaultValue: 2000 });
   await plugin.settings.registerBooleanSetting({ id: 'debug', title: 'Debug Mode', description: 'Enable debugging (console logs and placeholder hints).', defaultValue: false });
@@ -23,7 +25,7 @@ async function onActivate(plugin: ReactRNPlugin) {
 
   // Power-Up
   await plugin.app.registerPowerup({ name: LABEL_CONTEXT_FOR_CLOZE, code: POW_CODE, description: 'Tag the ROOT of a subtree: every descendant of it shows a context tree rooted here while being reviewed.', options: { slots: [] } });
-  await plugin.app.registerPowerup({ name: LABEL_HIDE_OTHER_ANSWERS, code: POW_CODE_HIDE_OTHER_ANSWERS, description: `Tag an individual cloze Rem — not the context anchor. While that Rem is under review, the other cloze answers in its context tree start hidden as "…" instead of revealed. Affects only the Rem you tag; the eye button in the review widget can flip it for a single review.`, options: { slots: [] } });
+  await plugin.app.registerPowerup({ name: LABEL_HIDE_OTHER_ANSWERS, code: POW_CODE_HIDE_OTHER_ANSWERS, description: `Tag an individual flashcard Rem — not the context anchor. While that Rem is under review, the other answers in its context tree start hidden as "…" instead of revealed: every other line's cloze answers, and the back side of every flashcard in the tree. Affects only the Rem you tag; the eye button in the review widget can flip it for a single review.`, options: { slots: [] } });
 
   // registerPowerup() creates the power-up Rem the first time and then leaves its text alone, so a
   // knowledge base that already has the tag keeps showing whatever name it was created with — which
@@ -148,6 +150,9 @@ async function onActivate(plugin: ReactRNPlugin) {
       color: var(--rn-clr-warning, #b58900);
       border: 1px solid rgba(255,212,0,0.3);
     }
+
+    /* Direction arrow between a Rem's front and back side (⇒ / ⇐ / ⇔). */
+    .rn-queue__content .cfc-arrow { opacity: .55; margin: 0 5px; color: var(--rn-clr-content-secondary, #57606a); }
 
     /* Underline hint on revealed cloze content (purely visual). */
     .rn-queue__content .cfc-revealed-cloze {

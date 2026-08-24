@@ -7,11 +7,12 @@ Deixe suas revisões mais claras mostrando onde o cartão atual se encaixa na su
 ## Funcionalidades
 - Context for Cloze (núcleo)
   - Adicione o power‑up “Context for Cloze” (código: `contextForCloze`) a um Rem. Todos os seus descendentes, quando revisados como cartões, exibirão abaixo uma árvore de contexto enraizada nesse Rem.
-  - Fase de pergunta: o contexto é exibido evitando qualquer vazamento das respostas dos clozes.
-  - Fase de resposta: o contexto permanece; o cloze revelado é indicado por um sublinhado azul com destaque azul‑claro, para facilitar a comparação.
+  - Funciona com **todos os tipos de cartão**, não só clozes: um Rem do tipo Conceito/Descritor/Pergunta mostra o seu **verso** na árvore, ligado à frente por uma seta que indica a direção do cartão (`⇒` direta, `⇐` inversa, `⇔` ambas).
+  - Fase de pergunta: o contexto é exibido evitando qualquer vazamento da resposta — seja o cloze em teste, seja o lado inteiro que o cartão está pedindo.
+  - Fase de resposta: o contexto permanece; a resposta revelada é indicada por um sublinhado azul com destaque azul‑claro, para facilitar a comparação.
 - Context Hide Others (`contextHideAllTestOne`) — aplica‑se a **um único Rem**, não a uma subárvore.
-  - Por padrão, a árvore de contexto esconde apenas a lacuna que está sendo testada; toda *outra* linha com cloze aparece com a resposta revelada. Marque um cartão de cloze com este power‑up quando não quiser que a revisão **daquele cartão** seja estragada pelos irmãos — enquanto ele estiver em revisão, todas as demais respostas de cloze ficam escondidas (exibidas como `…`).
-  - Aplique‑o ao Rem do cartão de cloze que receberia o spoiler (a folha), e **não** à âncora nem ao pai. Veja [Context Hide Others](#context-hide-others--protegendo-um-cloze-de-seus-irmãos) abaixo.
+  - Por padrão, a árvore de contexto esconde apenas a resposta que está sendo testada; toda *outra* resposta da árvore — outras linhas com cloze e o verso de todos os demais cartões — aparece revelada. Marque um cartão com este power‑up quando não quiser que a revisão **daquele cartão** seja estragada pelos vizinhos: enquanto ele estiver em revisão, todas as demais respostas ficam escondidas (exibidas como `…`).
+  - Aplique‑o ao Rem do cartão que receberia o spoiler (a folha), e **não** à âncora nem ao pai. Veja [Context Hide Others](#context-hide-others--protegendo-um-cloze-de-seus-irmãos) abaixo.
 - Como adicionar power‑ups aos Rems
   - Comandos:
     - Add Context for Cloze (código rápido `cfc`)
@@ -39,6 +40,21 @@ Marcados no cartão, mas com efeito sobre um ancestral (Incremental Everything):
 
 A linha do próprio cartão atual é sempre exibida, independentemente de qualquer uma dessas marcações.
 
+## Versos e setas de direção
+Um Rem que é um cartão guarda a resposta no seu **verso** (`backText`) — é o que um Rem do tipo Conceito, Descritor ou Pergunta armazena. A árvore de contexto mostra os dois lados, unidos por uma seta que diz em que direção o cartão é perguntado:
+
+| Seta | Direção de prática | Lê‑se como |
+| --- | --- | --- |
+| `⇒` | Direta (forward) | a frente pergunta, o verso responde |
+| `⇐` | Inversa (backward) | o verso pergunta, a frente responde |
+| `⇔` | Ambas (both) | qualquer lado pode perguntar |
+
+É a mesma notação usada pelo plugin *Incremental Everything*, então um cartão se lê da mesma forma nos dois.
+
+- Quando o Rem em revisão é ele próprio um cartão frente/verso, o lado perguntado aparece como um **?** azul na fase de pergunta e é revelado com sublinhado + destaque depois do “Show Answer” — exatamente o que já acontecia com um cloze.
+- Todos os *outros* cartões da árvore mostram os dois lados revelados por padrão, e escondem o lado da resposta atrás de um único `…` clicável quando a árvore está no modo escondido (veja o botão de olho abaixo).
+- Um Rem sem verso é desenhado exatamente como antes.
+
 ## Recolhida por padrão — expanda o que precisar
 A árvore de contexto começa **recolhida**. Apenas o ramo que leva até o cartão em revisão fica aberto, de modo que a linha testada está sempre visível enquanto os descendentes mais profundos — que muitas vezes entregam a resposta ou dão pistas demais — permanecem escondidos.
 
@@ -47,16 +63,16 @@ A árvore de contexto começa **recolhida**. Apenas o ramo que leva até o cart�
 - A expansão é por cartão: ela se reinicia quando você passa para o próximo.
 - Prefere a árvore sempre expandida de antes? Desative **Start Collapsed** nas configurações.
 
-## Os botões de olho e de etiqueta — alternar o modo de cloze durante a revisão
-A árvore exibe os clozes das outras linhas em um de dois modos: **revelado** (sublinhado azul, o padrão) ou **escondido** (`…`, o padrão para um cartão marcado com `Context Hide Others`). Um **botão 👁 no canto superior direito da área de contexto** alterna entre os dois para o cartão à sua frente.
+## Os botões de olho e de etiqueta — alternar o modo das respostas durante a revisão
+A árvore exibe as respostas das outras linhas em um de dois modos: **revelado** (sublinhado azul, o padrão) ou **escondido** (`…`, o padrão para um cartão marcado com `Context Hide Others`). “Resposta” cobre os dois casos: um cloze dentro de uma linha e o verso de uma linha que é cartão. Um **botão 👁 no canto superior direito da área de contexto** alterna entre os dois para o cartão à sua frente.
 
 - Olho **aberto** = as outras respostas estão reveladas. Clique para escondê‑las.
 - Olho **cortado** = as outras respostas estão escondidas como `…`. Clique para revelá‑las.
 - Use‑o *antes* de ler a árvore quando as respostas reveladas acabarem entregando uma pista que você preferia conquistar — sem precisar marcar o Rem antes.
 - Use‑o *depois* do “Show Answer” quando a árvore escondida ficar críptica demais.
 - Por si só, ele não altera nada na sua base de conhecimento: a marcação continua decidindo o ponto de partida, e o modo se reinicia no próximo cartão.
-- O botão só aparece quando alguma outra linha realmente contém um cloze — caso contrário, não há o que alternar.
-- No modo escondido, cada `…` continua clicável individualmente, então você também pode descobrir uma resposta de cada vez.
+- O botão só aparece quando alguma outra linha realmente contém uma resposta própria — um cloze ou um verso — caso contrário, não há o que alternar.
+- No modo escondido, cada `…` continua clicável individualmente, então você também pode descobrir uma resposta de cada vez. Um verso escondido é um único `…` para o lado inteiro; um cloze é um `…` por lacuna.
 
 **Torne isso permanente — o botão 🏷 de etiqueta.** Assim que o olho deixa a árvore em um modo que discorda da marcação do cartão, um segundo botão aparece **à esquerda do olho**. Ao clicá‑lo, a escolha é gravada no próprio Rem, de modo que toda revisão futura comece assim:
 
@@ -67,27 +83,25 @@ A árvore exibe os clozes das outras linhas em um de dois modos: **revelado** (s
 
 ## Configurações (Settings → Plugins → este plugin)
 - Start Collapsed (padrão: ligado)
-  - Desenha a árvore recolhida, com apenas o caminho até o cartão atual aberto; os demais ramos ficam atrás de uma seta ▸ clicável. Como o conteúdo profundo fica escondido até você pedir, dá para aumentar o Max Depth com tranquilidade com essa opção ligada.
-- Max Depth (padrão: 8)
-  - Limita a profundidade máxima da árvore de contexto. Reduza em hierarquias profundas para melhorar a legibilidade.
+  - Desenha a árvore recolhida, com apenas o caminho até o cartão atual aberto; os demais ramos ficam atrás de uma seta ▸ clicável. A profundidade não é mais limitada — é o recolhimento que mantém uma árvore profunda legível, então você vê toda a hierarquia e abre só o que quiser.
 - Max Nodes (padrão: 200)
-  - Limita o número máximo de nós exibidos. Reduza em árvores muito ramificadas para evitar sobrecarga.
+  - Um limite de segurança para quantos Rems a árvore **percorre** antes de parar. Ramos recolhidos também são percorridos, então é isso — e não o recolhimento — que evita que um cartão sob uma âncora enorme trave a fila. Aumente se uma árvore vier truncada; reduza se um documento muito grande deixar os cartões lentos para aparecer.
 - Debug Mode (padrão: desligado)
   - Acrescenta dicas extras na interface e no console para diagnóstico (a maioria dos usuários pode deixar desligado).
 
 ## Como usar
 1. Escolha um Rem como “âncora de contexto” e adicione a ele o power‑up “Context for Cloze” (`contextForCloze`).
 2. Comece a revisar: sempre que qualquer descendente virar um cartão, uma árvore de contexto enraizada na âncora aparece abaixo dele.
-3. Opcional: se um cartão de cloze fosse ser estragado pelas respostas reveladas dos irmãos, adicione “Context Hide Others” **àquele cartão** — execute **Context: Hide Other Answers for This Rem** (`cfchide`). Veja a seção dedicada abaixo.
+3. Opcional: se um cartão fosse ser estragado pelas respostas reveladas dos vizinhos, adicione “Context Hide Others” **àquele cartão** — execute **Context: Hide Other Answers for This Rem** (`cfchide`). Veja a seção dedicada abaixo.
 4. Clique nas setas ▸ durante a revisão para abrir o ramo que quiser ver; o resto fica fora do caminho.
-5. Use o botão 👁 no canto superior direito da área de contexto para revelar ou esconder as respostas de cloze das outras linhas sempre que o modo atual não servir para o cartão — e o botão 🏷 ao lado se quiser fixar essa escolha no Rem.
-6. Ajuste Max Depth / Max Nodes nas configurações para equilibrar densidade de informação e legibilidade.
+5. Use o botão 👁 no canto superior direito da área de contexto para revelar ou esconder as respostas das outras linhas sempre que o modo atual não servir para o cartão — e o botão 🏷 ao lado se quiser fixar essa escolha no Rem.
+6. Deixe o Max Nodes como está, a menos que uma árvore venha truncada (aumente) ou que um documento muito grande deixe os cartões lentos para aparecer (reduza).
 
 ## Context Hide Others — protegendo um cloze de seus irmãos
 
-**O que faz.** Por padrão, este plugin esconde apenas a lacuna que está de fato sendo testada. Todo *outro* cloze da árvore de contexto — irmãos e qualquer outra linha com cloze — aparece com a resposta **revelada** (sublinhado azul), de modo que as respostas ao redor funcionam como contexto visível.
+**O que faz.** Por padrão, este plugin esconde apenas a resposta que está de fato sendo testada. Toda *outra* resposta da árvore de contexto — outros clozes e o verso de todos os demais cartões — aparece **revelada** (sublinhado azul), de modo que as respostas ao redor funcionam como contexto visível.
 
-`Context Hide Others` inverte isso para o cartão em que é aplicado: enquanto aquele cartão está em revisão, as respostas de **todas as outras** linhas com cloze da árvore ficam **escondidas** (exibidas como `…`) em vez de reveladas. Note a diferença de alcance em relação à marcação da âncora: `Context for Cloze` é colocado na **raiz** de uma subárvore e afeta todos os descendentes, enquanto esta é colocada em **um único Rem** e afeta apenas as revisões desse Rem.
+`Context Hide Others` inverte isso para o cartão em que é aplicado: enquanto aquele cartão está em revisão, **todas as outras** respostas da árvore ficam **escondidas** (exibidas como `…`) em vez de reveladas. Note a diferença de alcance em relação à marcação da âncora: `Context for Cloze` é colocado na **raiz** de uma subárvore e afeta todos os descendentes, enquanto esta é colocada em **um único Rem** e afeta apenas as revisões desse Rem.
 
 A marcação define somente o modo **inicial** — o botão 👁 descrito acima o inverte nos dois sentidos para o cartão à sua frente, sem alterar a marcação.
 

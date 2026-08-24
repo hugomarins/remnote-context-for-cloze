@@ -1,21 +1,34 @@
 // Shared context-tree traversal for the question/answer widgets: find the anchor,
 // skip metadata/search-portal rems, and collect the masked tree rooted at the anchor.
 import { BuiltInPowerupCodes, PORTAL_TYPE } from '@remnote/plugin-sdk';
-import { richToHTMLWithClozeMask, richHasCloze, addClozeRevealHighlight } from './clozeMask';
+import {
+  addClozeRevealHighlight,
+  applyDelimiter,
+  ARROW_BY_DIRECTION,
+  arrowHTML,
+  DEFAULT_ARROW,
+  hasDelimToken,
+  maskWholeSideHTML,
+  QUESTION_HTML,
+  richHasCloze,
+  richToHTMLWithClozeMask,
+  wrapRevealedAnswer,
+} from './clozeMask';
 import { isPowerupSlotChild } from './powerupSlotFilter';
 
 export interface Ctx { remId?: string; cardId?: string; revealed?: boolean }
 export interface QueueAdaptOpts { hideSet: Set<string>; removeSet: Set<string>; applyHideInQueue: boolean }
-// `html` is the revealed rendering of the line; `maskedHtml` is the same line with its OTHER
-// clozes masked as clickable "…", and is present only where the two actually differ (a line with
-// no cloze of its own renders identically either way). Both are produced in one pass so the
-// widget's reveal/hide toggle is a pure re-render — no second walk of the knowledge base.
+// `html` is the revealed rendering of the line — front side, direction arrow, back side; and
+// `maskedHtml` is the same line with the OTHER answers in it masked as clickable "…" (each cloze
+// on its own, a flashcard's answer side as a whole). It is present only where the two actually
+// differ — a line that answers nothing renders identically either way. Both are produced in one
+// pass so the widget's reveal/hide toggle is a pure re-render — no second walk of the knowledge base.
 //
 // `parentId` / `hasChildren` drive the collapsible rendering in the widgets: `parentId` is the
 // EFFECTIVE parent inside the collected tree (a "Remove from Queue" node is dropped and its
 // children are re-attached to its own parent), and `hasChildren` is true only when at least one
-// child actually made it into the list (so a chevron never promises content that maxDepth /
-// maxNodes / metadata-skipping already cut).
+// child actually made it into the list (so a chevron never promises content that the Max Nodes
+// budget or metadata-skipping already cut).
 export interface TreeItem { id: string; depth: number; html: string; maskedHtml?: string; isCurrent?: boolean; hasCloze?: boolean; parentId?: string; hasChildren?: boolean }
 export interface QueueDisplaySets { hideSet: Set<string>; removeSet: Set<string>; noHierarchySet: Set<string> }
 
@@ -150,58 +163,177 @@ export async function getCurrentCardRemId(plugin: any, ctx: Ctx | undefined) {
   return ctx?.remId;
 }
 
-// Depth-first collect the tree rooted at `root`, masking cloze content per policy.
-//  - The current card's line: masked as "?" on the question stage, or revealed (highlighted) on the
-//    answer stage. It is never affected by the reveal/hide toggle — it is the line being tested.
-//  - Other lines: rendered BOTH ways (`html` revealed, `maskedHtml` as clickable "…"), so the widget
-//    can switch between the two modes without re-collecting.
+// Which side of a Rem the card under review is actually asking for.
+//  - 'back'  : a forward card — the front is the prompt, the back is the answer.
+//  - 'front' : a backward card — the back is the prompt, the front is the answer.
+//  - 'cloze' : a cloze card — the answer lives inside the front text, and a back side (if the Rem
+//              has one) belongs to a DIFFERENT card of the same Rem.
+export type TestedSide = 'front' | 'back' | 'cloze';
+
+// Read the card type of the card under review. 'cloze' is the fallback whenever the type cannot be
+// read, because that is the rendering this plugin used before it knew about card sides at all.
+export async function getTestedSide(plugin: any, ctx: Ctx | undefined): Promise<TestedSide> {
+  try {
+    if (ctx?.cardId) {
+      const card = await plugin.card.findOne(ctx.cardId);
+      const type = card ? await card.getType() : undefined;
+      if (type === 'forward') return 'back';
+      if (type === 'backward') return 'front';
+    }
+  } catch (e) {
+    console.error('[CFC] getTestedSide error:', e);
+  }
+  return 'cloze';
+}
+
+// One side of a Rem, rendered for both cloze modes. `masked` is present only where hiding actually
+// changes the line — everywhere else the widget reuses `html` for both modes.
+interface SideHTML { html: string; masked?: string }
+const EMPTY_SIDE: SideHTML = { html: '' };
+
+// A side the current card is NOT asking for — every side of every other Rem, plus the prompt side
+// of the current one. `hideWhole` marks it as somebody's flashcard answer: those are hidden as a
+// unit, the rest only cloze by cloze.
+async function renderContextSide(plugin: any, rich: any[], hideWhole: boolean, tag: string): Promise<SideHTML> {
+  if (!Array.isArray(rich) || !rich.length) return EMPTY_SIDE;
+  const html = await richToHTMLWithClozeMask(plugin, rich, 'none', tag);
+  if (hideWhole) return { html, masked: maskWholeSideHTML(html) };
+  // Only a line that owns a cloze can look different when masked, so skip the second render
+  // everywhere else — that is most of the tree.
+  if (richHasCloze(rich)) return { html, masked: await richToHTMLWithClozeMask(plugin, rich, 'ellipsis', tag) };
+  return { html };
+}
+
+// The side being tested by the card in front of us. It is never affected by the reveal/hide
+// toggle — it is the line under review, not an "other answer".
+//  - `whole` (a front/back card): the entire side is the answer — "?" on the question stage,
+//    underlined and highlighted on the answer stage.
+//  - otherwise (a cloze card): only the clozes inside the side are masked / revealed.
+async function renderTestedSide(plugin: any, rich: any[], questionStage: boolean, whole: boolean, tag: string): Promise<SideHTML> {
+  if (!Array.isArray(rich) || !rich.length) return EMPTY_SIDE;
+  if (questionStage) {
+    return { html: whole ? QUESTION_HTML : await richToHTMLWithClozeMask(plugin, rich, 'question', tag) };
+  }
+  const html = await richToHTMLWithClozeMask(plugin, rich, 'none', tag);
+  return { html: whole ? wrapRevealedAnswer(html) : addClozeRevealHighlight(html) };
+}
+
+// Join the two sides with the arrow that spells out the card's direction. When the front already
+// carries RemNote's own card delimiter, THAT is what becomes the arrow — adding a second one would
+// print "front ⇒ ⇒ back".
+function joinSides(front: string, back: string, arrow: string): string {
+  const f = applyDelimiter(front, arrow);
+  if (!back) return f;
+  if (!f) return back;
+  return hasDelimToken(front) ? `${f}${back}` : `${f}${arrowHTML(arrow)}${back}`;
+}
+
+function combineSides(front: SideHTML, back: SideHTML, arrow: string): { html: string; maskedHtml?: string } {
+  const html = joinSides(front.html, back.html, arrow);
+  if (front.masked === undefined && back.masked === undefined) return { html };
+  return { html, maskedHtml: joinSides(front.masked ?? front.html, back.masked ?? back.html, arrow) };
+}
+
+export interface NodeRender { html: string; maskedHtml?: string; hasCloze: boolean }
+
+// Render one Rem — both of its sides — into the two variants the widget switches between.
+//
+// The back side is what makes this plugin work for plain flashcards and not only for clozes: a
+// Concept/Descriptor/Question Rem carries its answer in `backText`, so a tree that showed only
+// `text` was showing half of every card in it.
+export async function renderTreeNode(
+  plugin: any,
+  rem: any,
+  isCurrent: boolean,
+  currentIsQuestionStage: boolean,
+  testedSide: TestedSide,
+  tag = '[CFC]'
+): Promise<NodeRender> {
+  const front: any[] = Array.isArray(rem?.text) ? rem.text : [];
+  const back: any[] = Array.isArray(rem?.backText) ? rem.backText : [];
+  const hasBack = back.length > 0;
+
+  // The direction decides both the arrow and which side is this Rem's own answer. Only Rems that
+  // actually have a back side are asked — that keeps the extra lookup off most of the tree.
+  let direction = 'none';
+  if (hasBack) {
+    try { direction = (await rem.getPracticeDirection()) || 'none'; } catch {}
+  }
+  const arrow = ARROW_BY_DIRECTION[direction] || DEFAULT_ARROW;
+  const frontIsAnswer = direction === 'backward';
+  const backIsAnswer = direction === 'forward' || direction === 'both';
+
+  // Without a back side there is nothing a forward/backward card could be testing, so fall back to
+  // cloze rendering however the card type read.
+  const tested: TestedSide = hasBack ? testedSide : 'cloze';
+
+  let frontSide: SideHTML;
+  let backSide: SideHTML;
+  if (!isCurrent) {
+    frontSide = await renderContextSide(plugin, front, frontIsAnswer, tag);
+    backSide = await renderContextSide(plugin, back, backIsAnswer, tag);
+  } else if (tested === 'back') {
+    frontSide = await renderContextSide(plugin, front, false, tag); // the prompt: always visible
+    backSide = await renderTestedSide(plugin, back, currentIsQuestionStage, true, tag);
+  } else if (tested === 'front') {
+    frontSide = await renderTestedSide(plugin, front, currentIsQuestionStage, true, tag);
+    backSide = await renderContextSide(plugin, back, false, tag); // the prompt: always visible
+  } else {
+    frontSide = await renderTestedSide(plugin, front, currentIsQuestionStage, false, tag);
+    // A back side on a cloze card answers a different card, so it is an "other answer" like any
+    // other — hidden when the tree is masked.
+    backSide = await renderContextSide(plugin, back, backIsAnswer, tag);
+  }
+
+  return { ...combineSides(frontSide, backSide, arrow), hasCloze: richHasCloze(front) || richHasCloze(back) };
+}
+
+// The single-line tree used when the card carries "No Hierarchy": the current Rem only, rendered
+// by exactly the same rules as it would be inside a full tree.
+export async function collectCurrentOnly(
+  plugin: any,
+  rem: any,
+  currentIsQuestionStage: boolean,
+  testedSide: TestedSide,
+  tag = '[CFC]'
+): Promise<TreeItem[]> {
+  const rendered = await renderTreeNode(plugin, rem, true, currentIsQuestionStage, testedSide, tag);
+  return [{ id: rem._id, depth: 0, ...rendered, isCurrent: true }];
+}
+
+// Depth-first collect the tree rooted at `root`, masking answers per policy.
+//  - The current card's line: its tested side masked as "?" on the question stage, or revealed
+//    (highlighted) on the answer stage. It is never affected by the reveal/hide toggle — it is the
+//    line being tested.
+//  - Other lines: rendered BOTH ways (`html` revealed, `maskedHtml` with their clozes and their
+//    flashcard answers as clickable "…"), so the widget can switch between the two modes without
+//    re-collecting.
 // `currentIsQuestionStage` selects the current-line rendering; official Hide/Remove marks are honoured via `opts`.
 export async function collectFullTree(
   plugin: any,
   root: any,
   currentRemId: string,
-  maxDepth: number,
   maxNodes: number,
   currentIsQuestionStage: boolean,
+  testedSide: TestedSide,
   opts?: QueueAdaptOpts,
   tag = '[CFC]'
 ): Promise<TreeItem[]> {
   const items: TreeItem[] = [];
   let count = 0;
   async function dfs(rem: any, depth: number, parentId?: string) {
-    if (depth > maxDepth || count >= maxNodes) return;
+    if (count >= maxNodes) return;
     const id = rem._id;
-    let html = '';
-    let maskedHtml: string | undefined;
-    let isCurrent = false;
-    let hasCloze = false;
-    let removed = false;
-    if (id === currentRemId) {
-      isCurrent = true;
-      const rich = rem.text || [];
-      hasCloze = richHasCloze(rich);
-      if (currentIsQuestionStage) {
-        html = await richToHTMLWithClozeMask(plugin, rich, 'question', tag);
+    const isCurrent = id === currentRemId;
+    const removed = !isCurrent && !!opts?.removeSet?.has(id);
+    if (!removed) {
+      if (!isCurrent && opts?.applyHideInQueue && opts?.hideSet?.has(id)) {
+        items.push({ id, depth, html: HIDDEN_IN_QUEUE_HTML, isCurrent: false, hasCloze: false, parentId, hasChildren: false });
       } else {
-        html = await richToHTMLWithClozeMask(plugin, rich, 'none', tag);
-        html = addClozeRevealHighlight(html);
-      }
-    } else {
-      const rich = rem.text || [];
-      hasCloze = richHasCloze(rich);
-      removed = !!opts?.removeSet?.has(id);
-      if (!removed) {
-        if (opts?.applyHideInQueue && opts?.hideSet?.has(id)) {
-          html = HIDDEN_IN_QUEUE_HTML;
-        } else {
-          html = await richToHTMLWithClozeMask(plugin, rich, 'none', tag);
-          // Only a line that owns a cloze can look different when masked, so skip the second
-          // render everywhere else — that is most of the tree.
-          if (hasCloze) maskedHtml = await richToHTMLWithClozeMask(plugin, rich, 'ellipsis', tag);
-        }
+        const rendered = await renderTreeNode(plugin, rem, isCurrent, currentIsQuestionStage, testedSide, tag);
+        items.push({ id, depth, ...rendered, isCurrent, parentId, hasChildren: false });
       }
     }
-    if (!removed) items.push({ id, depth, html, maskedHtml, isCurrent, hasCloze, parentId, hasChildren: false });
     count++;
     if (count >= maxNodes) return;
     const children = (await rem.getChildrenRem()) || [];

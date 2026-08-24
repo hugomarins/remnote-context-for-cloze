@@ -15,15 +15,43 @@ export const QUESTION_HTML = '<span class="cfc-question" style="display:inline-b
 export const PIN_HTML = '<span class="cfc-pin" style="display:inline-block;opacity:.7;vertical-align:baseline" title="Pinned reference (hidden in context)">📌</span>';
 export const isPinRef = (el: any) => el != null && typeof el === 'object' && el.i === 'q' && !!el.pin;
 
+// RemNote stores the "front >> back" separator as a card-delimiter element (i:'s') at the end of
+// `rem.text`, with the back side in `rem.backText`. It has to render as the card's direction
+// arrow, but only the caller knows the Rem's practice direction — so it becomes a token here and
+// the caller resolves it through `applyDelimiter`.
+const DELIM_TOKEN = '[[[CFC_DELIM]]]';
+export const isDelimiterEl = (el: any) => el != null && typeof el === 'object' && el.i === 's';
+
+// Arrow notation borrowed from incremental-everything (its Opt+Z command and the reference
+// finder), so a card reads the same way in both plugins: the arrow points the way the card is asked.
+export const ARROW_BY_DIRECTION: Record<string, string> = { forward: '⇒', backward: '⇐', both: '⇔', none: '⇔' };
+export const DEFAULT_ARROW = '⇔';
+export const arrowHTML = (arrow: string) =>
+  `<span class="cfc-arrow" style="opacity:.55;margin:0 5px;color:var(--rn-clr-content-secondary, #57606a)">${arrow}</span>`;
+export const hasDelimToken = (html: string) => html.includes(DELIM_TOKEN);
+export const applyDelimiter = (html: string, arrow: string) => html.replaceAll(DELIM_TOKEN, arrowHTML(arrow));
+
 // Click-to-reveal support for masked sibling clozes (used with Hide Other Answers):
 // each masked "…" carries its own revealed text (base64 in data-cfc-reveal) so it can be
 // toggled open/closed independently, letting you self-evaluate hidden clozes one at a time.
-const REVEAL_UNDERLINE_OPEN = '<span class="cfc-revealed-cloze" style="text-decoration:underline;text-decoration-color:var(--rn-clr-accent, #0969da);text-decoration-thickness:2px;text-underline-offset:2px">';
+const REVEAL_STYLE = 'text-decoration:underline;text-decoration-color:var(--rn-clr-accent, #0969da);text-decoration-thickness:2px;text-underline-offset:2px';
+const REVEAL_UNDERLINE_OPEN = `<span class="cfc-revealed-cloze" style="${REVEAL_STYLE}">`;
+
+// A whole card SIDE revealed on the answer stage. A cloze answer gets its underline from
+// revealClozeInHTML and its highlight from addClozeRevealHighlight; a front/back answer has no
+// {{...}} to key off, so the same two marks are applied to the side as a unit.
+export const wrapRevealedAnswer = (html: string) =>
+  `<span class="cfc-revealed-cloze" style="${REVEAL_STYLE};background:var(--rn-clr-accent-muted, rgba(56,139,253,0.15));border-radius:3px">${html}</span>`;
 const escapeHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 export const encodeReveal = (html: string) => { try { return btoa(unescape(encodeURIComponent(html))); } catch { return ''; } };
 export const decodeReveal = (b64: string) => { try { return decodeURIComponent(escape(atob(b64))); } catch { return ''; } };
 const clickableOmissionHTML = (revealHtml: string) =>
   `<span class="cfc-omission cfc-reveal" role="button" tabindex="0" data-cfc-reveal="${encodeReveal(revealHtml)}" title="Click to reveal / hide" style="display:inline-block;padding:0 10px;border-radius:6px;line-height:1.2;background:var(--rn-clr-warning-muted, rgba(255,212,0,0.15));color:var(--rn-clr-warning, #b58900);border:0;cursor:pointer">…</span>`;
+
+// The answer SIDE of a front/back card, masked as a single clickable "…". A cloze is masked span
+// by span because each span is a separate answer; a card side has no smaller unit than itself, so
+// it is hidden — and revealed — in one piece.
+export const maskWholeSideHTML = (revealedHtml: string) => clickableOmissionHTML(revealedHtml);
 
 // Cloze HINTS are rich-text elements carrying a `cloze-hint` (or card-hint-*) key and NO cId.
 // They are meant to be visible on the question side — RemNote itself shows them next to the "?" —
@@ -61,6 +89,7 @@ const emptyBag = (): TokenBag => ({ hints: [], refs: [] });
 // those and should be passed through untouched.
 async function tokenize(plugin: any, el: any, bag: TokenBag): Promise<string | null> {
   if (isPinRef(el)) return PIN_TOKEN;
+  if (isDelimiterEl(el)) return DELIM_TOKEN;
   if (isHintEl(el)) {
     bag.hints.push(el.text || '');
     return `${HINT_TOKEN_PREFIX}${bag.hints.length - 1}]]]`;

@@ -1,17 +1,17 @@
 // Collapsible rendering of the collected context tree, shared by the question / answer widgets.
 //
-// Why collapse at all: the tree used to render fully expanded down to Max Depth, so a deep
-// descendant of the tested line could spoil (or heavily hint at) the answer before you recalled
-// it. Now every branch starts closed except the path that leads to the card under review — the
+// Why collapse at all: the tree used to render fully expanded, so a deep descendant of the tested
+// line could spoil (or heavily hint at) the answer before you recalled it. Now every branch starts closed except the path that leads to the card under review — the
 // card itself is always visible, its own children are not — and each branch that hides something
 // carries an arrow you can click to open it (same affordance as incremental-everything's
 // Rem History rows).
 //
-// The tree also renders in one of two cloze modes — every OTHER cloze in the tree revealed, or all
-// of them masked as "…". Which one you start in is decided by the card (the "Context Hide All Test
-// One" power-up); the eye button in the top-right switches between them for the card in front of
-// you, so you can hide answers that turn out to leak a hint, or reveal them when the masked tree
-// stops making sense.
+// The tree also renders in one of two modes — every OTHER answer in it revealed, or all of them
+// masked as "…". "Answer" means both kinds: a cloze inside a line, and the back side of a
+// flashcard line (front ⇒ back). Which mode you start in is decided by the card (the "Context Hide
+// Others" power-up); the eye button in the top-right switches between them for the card in front
+// of you, so you can hide answers that turn out to leak a hint, or reveal them when the masked
+// tree stops making sense.
 //
 import { usePlugin, useRunAsync } from '@remnote/plugin-sdk';
 import * as React from 'react';
@@ -203,13 +203,13 @@ export interface ContextTreeViewProps {
   items: TreeItem[];
   /** Start with every branch closed except the path down to the card under review. */
   startCollapsed: boolean;
-  /** Are the other lines' clozes currently masked as "…"? */
+  /** Are the other lines' answers — their clozes and their back sides — currently masked as "…"? */
   masked: boolean;
-  /** Flip that mode. Omit to hide the button — e.g. when no other line carries a cloze. */
+  /** Flip that mode. Omit to hide the button — e.g. when no other line holds an answer. */
   onToggleMasked?: () => void;
   /**
-   * Write the current mode into the card itself, by adding or removing the "Context Hide All Test
-   * One" tag. Provided only while the mode on screen differs from what the tag says, so the button
+   * Write the current mode into the card itself, by adding or removing the "Context Hide Others"
+   * tag. Provided only while the mode on screen differs from what the tag says, so the button
    * appears exactly when there is a divergence worth keeping.
    */
   onPersistMask?: () => void | Promise<void>;
@@ -267,7 +267,7 @@ export function ContextTreeView({ items, startCollapsed, masked, onToggleMasked,
   const [persisting, setPersisting] = React.useState(false);
   React.useEffect(() => { setHint(null); setPersisting(false); }, [items]);
 
-  const eyeLabel = masked ? 'Reveal the other cloze answers' : 'Hide the other cloze answers';
+  const eyeLabel = masked ? 'Reveal the other answers' : 'Hide the other answers';
   const persistLabel = masked
     ? `${ACTION_HIDE_OTHER_ANSWERS} — adds the "${LABEL_HIDE_OTHER_ANSWERS}" tag`
     : `${ACTION_SHOW_OTHER_ANSWERS} — removes the "${LABEL_HIDE_OTHER_ANSWERS}" tag`;

@@ -1,17 +1,17 @@
 {
   "manifestVersion": 1,
   "id": "context_for_cloze_enhanced",
-  "name": "Context for Cloze - Enhanced",
+  "name": "Context Tree for Outline Cards",
   "author": "hugomarins (fork), baobao700508 (original)",
   "repoUrl": "https://github.com/hugomarins/remnote-context-for-cloze",
   "version": {
     "major": 0,
-    "minor": 1,
-    "patch": 9
+    "minor": 2,
+    "patch": 0
   },
   "theme": [],
   "enableOnMobile": true,
-  "description": "Show a context tree under cloze cards in the queue (rooted at the nearest Power-Up ancestor; display-only).",
+  "description": "Show a context tree under any flashcard in the queue \u2014 clozes and front/back cards alike, with back sides and their direction arrows (rooted at the nearest Power-Up ancestor; display-only).",
   "requestNative": false,
   "requiredScopes": [
     {

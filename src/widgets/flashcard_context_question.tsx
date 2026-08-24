@@ -1,13 +1,22 @@
 import { renderWidget, usePlugin, useRunAsync } from '@remnote/plugin-sdk';
 import * as React from 'react';
-import { richHasCloze, richToHTMLWithClozeMask } from '../lib/clozeMask';
 import { useRevealDelegation } from '../lib/revealInteraction';
 import { useRevealedAnswer } from '../lib/useRevealedAnswer';
-import { collectFullTree, collectQueueDisplaySets, getCurrentCardRemId, getNearestAnchor, TreeItem } from '../lib/contextTree';
+import {
+  collectCurrentOnly,
+  collectFullTree,
+  collectQueueDisplaySets,
+  getCurrentCardRemId,
+  getNearestAnchor,
+  getTestedSide,
+  TreeItem,
+} from '../lib/contextTree';
 import { ContextTreeView } from '../lib/contextTreeView';
 import { LABEL_HIDE_OTHER_ANSWERS, POW_CONTEXT_FOR_CLOZE as POW_CODE, POW_HIDE_OTHER_ANSWERS } from '../lib/powerups';
 
 const LOG = '[CFC][Q]';
+// This widget renders the question stage of the card.
+const QUESTION_STAGE = true;
 
 function Widget() {
   const rootRef = React.useRef<HTMLDivElement>(null);
@@ -57,49 +66,17 @@ function Widget() {
       }
       setErrorCount(0);
 
-      const rawDepth = await plugin.settings.getSetting('maxDepth');
       const rawNodes = await plugin.settings.getSetting('maxNodes');
-      let md = Number(rawDepth); if (!Number.isFinite(md) || md < 0) md = 999;
       let mn = Number(rawNodes); if (!Number.isFinite(mn) || mn < 0) mn = 10000;
-      const maxDepth = md;
       const maxNodes = mn;
-
-      // If the current card is deeper than maxDepth below the anchor, show no context.
-      const depthToCurrent = await (async () => {
-        try {
-          let d = 0;
-          let cur = await plugin.rem.findOne(maskId || ctx.remId);
-          while (cur && cur._id !== anchor._id && cur.parent) {
-            cur = await plugin.rem.findOne(cur.parent);
-            d++;
-            if (d > 2048) break;
-          }
-          return cur && cur._id === anchor._id ? d : Number.POSITIVE_INFINITY;
-        } catch {
-          return Number.POSITIVE_INFINITY;
-        }
-      })();
-      if (depthToCurrent > maxDepth) {
-        if (isDebug) console.log(`${LOG} over maxDepth`, { depthToCurrent, maxDepth });
-        return { items: [], enabled: false } as any;
-      }
 
       // Queue-display tag sets (Hide/Remove in Queue, No Hierarchy, and the parent/grandparent variants).
       const { hideSet, removeSet, noHierarchySet } = await collectQueueDisplaySets(plugin);
 
-      // No Hierarchy on the current card: show only the current line (matches native).
-      if (noHierarchySet.has(maskId || ctx.remId)) {
-        const cur = await plugin.rem.findOne(maskId || ctx.remId);
-        const rich = cur?.text || [];
-        const hasCloze = richHasCloze(rich);
-        const html = await richToHTMLWithClozeMask(plugin, rich, 'question', LOG);
-        const only: TreeItem[] = [{ id: cur?._id || (maskId || ctx.remId), depth: 0, html, isCurrent: true, hasCloze }];
-        return { items: only, defaultMasked: false, enabled: true } as any;
-      }
-
-      // Hide Other Answers on the current card → START with the other lines' clozes masked as
-      // clickable "…". From here on it is only a default: the eye button in the widget flips the
-      // mode for this card without touching the tag.
+      // Hide Other Answers on the current card → START with the other answers in the tree masked as
+      // clickable "…": every other line's clozes, and the answer side of every flashcard in it.
+      // From here on it is only a default: the eye button in the widget flips the mode for this
+      // card without touching the tag.
       const defaultMasked = await (async () => {
         try {
           const power = await plugin.powerup.getPowerupByCode(POW_HIDE_OTHER_ANSWERS);
@@ -111,7 +88,19 @@ function Widget() {
         }
       })();
 
-      const items = await collectFullTree(plugin, anchor, maskId || ctx.remId, maxDepth, maxNodes, true, { hideSet, removeSet, applyHideInQueue: true }, LOG);
+      // Which side of the Rem this card asks for (forward / backward / cloze) — it decides what is
+      // masked as the answer and which way the direction arrow points.
+      const testedSide = await getTestedSide(plugin, ctx);
+
+      // No Hierarchy on the current card: show only the current line (matches native).
+      if (noHierarchySet.has(maskId || ctx.remId)) {
+        const cur = await plugin.rem.findOne(maskId || ctx.remId);
+        if (!cur) return { items: [], enabled: false } as any;
+        const only = await collectCurrentOnly(plugin, cur, QUESTION_STAGE, testedSide, LOG);
+        return { items: only, defaultMasked, enabled: true } as any;
+      }
+
+      const items = await collectFullTree(plugin, anchor, maskId || ctx.remId, maxNodes, QUESTION_STAGE, testedSide, { hideSet, removeSet, applyHideInQueue: true }, LOG);
       if (isDebug) console.log(`${LOG} generated`, items.length, 'items');
       return { items, defaultMasked, enabled: true };
     } catch (e) {
@@ -132,7 +121,8 @@ function Widget() {
   const tagged = taggedOverride ?? !!defaultMasked;
   const masked = maskOverride ?? tagged;
 
-  // Nothing to switch between unless some OTHER line carries a cloze of its own.
+  // Nothing to switch between unless some OTHER line holds an answer of its own — a cloze, or the
+  // back side of a flashcard.
   const canToggleMask = React.useMemo(
     () => (items as TreeItem[]).some((it) => !!it.maskedHtml),
     [items]
@@ -164,7 +154,7 @@ function Widget() {
     }
   }, [plugin, currentRemId, masked]);
 
-  // Wire up click-to-reveal for masked sibling clozes.
+  // Wire up click-to-reveal for the masked answers (sibling clozes and hidden back sides).
   useRevealDelegation(rootRef, items);
 
   // Gating (after all hooks):
