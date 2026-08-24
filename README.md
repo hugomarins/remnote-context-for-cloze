@@ -172,8 +172,15 @@ To reproduce them: put the cursor on the document's title Rem, run **Add Context
 
 2) **A cloze inside its list — question stage** *(use case 1)*
 
-   Reviewing the two‑blank line under **9. Avoid sets**. In the tree, that line shows **both** of its blanks as **?** — RemNote's own card area above is already rendering the line under test in full, so the tree does not compete with it. What the tree adds is the rest of rule 9 standing around it: *A set is a collection of objects*, the EU‑membership example, and the two sibling flashcards 
-with their answers in plain view. That is the cheap alternative to a set card — one blank at a time, but never out of its list.
+   Reviewing *“2. `{{Learn}}` before you `{{memorize}}`”*. The card asks for one blank; the tree puts that line back into the list it belongs to, with the rest of the twenty rules around it.
+
+   This is the cheap alternative to a set card, and the document proves the point on itself: a card asking *“list Woźniak's twenty rules”* is exactly the item rules 9 and 10 tell you not to build — graded all‑or‑nothing, and a leech in waiting. Cloze keywords of each rule is much faster to review, costs a single lapse when it slips instead of failing the whole list, and because the tree keeps the other titles in view you can rehearse the shape of the enumeration every time one of its members comes up.
+
+   Two rendering details are visible in this shot:
+
+   - **The line under review shows *both* of its blanks as `?`**, even though only one of them is being tested. RemNote's card area above is already rendering that line properly — *Learn* revealed, the tested blank masked — so the tree stays out of its way and puts the whole line out of play.
+   - **Other lines show their answers.** Rule 8 reads *“`Graphic` deletion is as good as `cloze` deletion”* with both of its blanks filled in and underlined. That is the default: everything except the line under review is answered, as context. Shot 4 flips it.
+
    ![Cloze in context, question stage](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/02-cloze-question.png)
 
 3) **Same card, answer stage**
@@ -184,7 +191,7 @@ with their answers in plain view. That is the cheap alternative to a set card �
 
 4) **`Context Hide Others` — when the neighbours give it away**
 
-   Look at what shot 2 hands you for free: *“…due to ⇒ **the high cost of retaining memories based on sets**”* and *“…you should always try to ⇒ **convert them into Enumerations**”*. Those are two sibling flashcards volunteering their answers while you are still trying to recall this one. Tag the Rem under review with `Context Hide Others` (`cfchide`) and every *other* answer in the tree — those back sides included — collapses to a clickable `…`. Click them one at a time to check yourself on the rest of rule 9 once you have answered.
+   Sometimes the neighbours say too much. Reviewing the two‑blank line under **9. Avoid sets**, the tree hands you two sibling flashcards with their answers in plain text — *“…due to ⇒ **the high cost of retaining memories based on sets**”* and *“…you should always try to ⇒ **convert them into Enumerations**”* — while you are still trying to recall this one. Tag the Rem under review with `Context Hide Others` (`cfchide`) and every *other* answer in the tree, those back sides included, collapses to a clickable `…`. Click them one at a time to check yourself on the rest of rule 9 once you have answered.
 
    ![Hide Other Answers, with click-to-reveal](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others.png)
 

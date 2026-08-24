@@ -170,7 +170,14 @@ Para reproducirlas: pon el cursor en el Rem del título del documento, ejecuta *
 
 2) **Un cloze dentro de su lista — fase de pregunta** *(caso de uso 1)*
 
-   Repasando la línea de dos huecos bajo **9. Avoid sets**. En el árbol esa línea muestra **ambos** huecos como **?** — el propio área de tarjeta de RemNote, arriba, ya renderiza por completo la línea bajo examen, así que el árbol no compite con ella. Lo que el árbol añade es el resto de la regla 9 a su alrededor: *A set is a collection of objects*, el ejemplo de los miembros de la UE y las dos tarjetas hermanas con sus respuestas a la vista. Esta es la alternativa barata a la tarjeta de conjunto — un hueco cada vez, pero nunca fuera de su lista.
+   Repasando *“2. `{{Learn}}` before you `{{memorize}}`”*. La tarjeta pide un hueco; el árbol devuelve esa línea a la lista a la que pertenece, con el resto de las veinte reglas a su alrededor.
+
+   Esta es la alternativa barata a la tarjeta de conjunto, y el documento demuestra el argumento sobre sí mismo: una tarjeta que pregunte *“enumera las veinte reglas de Woźniak”* es justo el elemento que las reglas 9 y 10 te dicen que no construyas — calificado todo‑o‑nada y leech en potencia. Un cloze por regla cuesta un solo lapso cuando se escapa, en lugar de tumbar la lista entera, y, como el árbol mantiene los demás títulos a la vista, repasas la forma de la enumeración cada vez que aparece uno de sus miembros.
+
+   En esta captura se ven dos detalles de renderizado:
+
+   - **La línea en repaso muestra *ambos* huecos como `?`**, aunque solo se esté preguntando uno. El área de tarjeta de RemNote, arriba, ya renderiza esa línea correctamente — *Learn* revelado, el hueco preguntado oculto — así que el árbol se aparta y deja la línea entera fuera de juego.
+   - **Las demás líneas muestran sus respuestas.** La regla 8 aparece como *“`Graphic` deletion is as good as `cloze` deletion”*, con sus dos huecos rellenos y subrayados. Ese es el comportamiento por defecto: todo salvo la línea en repaso se muestra contestado, como contexto. La captura 4 le da la vuelta.
 
    ![Cloze en contexto, fase de pregunta](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/02-cloze-question.png)
 
@@ -182,7 +189,7 @@ Para reproducirlas: pon el cursor en el Rem del título del documento, ejecuta *
 
 4) **`Context Hide Others` — cuando los vecinos lo delatan**
 
-   Fíjate en lo que la captura 2 te regala: *“…due to ⇒ **the high cost of retaining memories based on sets**”* y *“…you should always try to ⇒ **convert them into Enumerations**”*. Son dos tarjetas hermanas ofreciéndote sus respuestas mientras todavía intentas recordar esta. Etiqueta el Rem en repaso con `Context Hide Others` (`cfchide`) y toda *otra* respuesta del árbol — esos reversos incluidos — se reduce a un `…` clicable. Púlsalos de uno en uno para autoevaluarte con el resto de la regla 9 una vez hayas respondido.
+   A veces los vecinos hablan de más. Al repasar la línea de dos huecos bajo **9. Avoid sets**, el árbol te entrega dos tarjetas hermanas con sus respuestas en texto plano — *“…due to ⇒ **the high cost of retaining memories based on sets**”* y *“…you should always try to ⇒ **convert them into Enumerations**”* — mientras todavía intentas recordar esta. Etiqueta el Rem en repaso con `Context Hide Others` (`cfchide`) y toda *otra* respuesta del árbol, esos reversos incluidos, se reduce a un `…` clicable. Púlsalos de uno en uno para autoevaluarte con el resto de la regla 9 una vez hayas respondido.
 
    ![Hide Other Answers, con clic para revelar](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others.png)
 

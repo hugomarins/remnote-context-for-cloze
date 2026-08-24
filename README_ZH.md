@@ -168,7 +168,14 @@ RemNote 在这里有[一个特例](https://help.remnote.com/en/articles/6751778-
 
 2) **列表之中的一个 cloze——题面阶段**（用例 1）
 
-   复习 **9. Avoid sets** 之下那条带两个填空的行。在树里，这一行的**两个**填空都显示为 **?**——上方 RemNote 自己的卡片区域已经把受测行完整渲染出来了，树不去跟它争。树补上的，是围绕它的规则 9 其余部分：*A set is a collection of objects*、欧盟成员的例子，以及两张把答案摊在明面上的兄弟卡片。这就是集合卡的廉价替代品——一次只考一个填空，但从不脱离它的列表。
+   复习 *“2. `{{Learn}}` before you `{{memorize}}`”*。这张卡只问一个填空；而树把这一行放回它所属的列表中，二十条规则的其余部分环绕在旁。
+
+   这就是集合卡的廉价替代品，而这份文档在自己身上印证了这个论点：一张问 *“列出 Woźniak 的二十条规则”* 的卡片，正是第 9、10 条叫你不要做的那种——全对全错评分，且是潜在的 leech。每条规则做一个 cloze，失手时只损失一次 lapse，而不是整份列表全军覆没；又因为树把其余标题一直摆在眼前，每当其中一个成员出现，你都会重新演练一遍这份枚举的整体形状。
+
+   这张截图里能看到两处渲染细节：
+
+   - **正在复习的那一行，两个填空都显示为 `?`**，尽管被考的只有其中一个。上方 RemNote 的卡片区域已经把那一行渲染妥当了——*Learn* 揭示，受测的填空遮起——所以树让开位置，把整行排除在外。
+   - **其他行则显示各自的答案。** 第 8 条显示为 *“`Graphic` deletion is as good as `cloze` deletion”*，两个填空都已填上并带下划线。这就是默认行为：除正在复习的那一行之外，一切都以已答状态作为上下文呈现。截图 4 会把它反转过来。
 
    ![上下文中的 cloze，题面阶段](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/02-cloze-question.png)
 
@@ -180,7 +187,7 @@ RemNote 在这里有[一个特例](https://help.remnote.com/en/articles/6751778-
 
 4) **`Context Hide Others`——当邻居把答案泄露出去时**
 
-   看看截图 2 白送给你的东西：*“…due to ⇒ **the high cost of retaining memories based on sets**”* 和 *“…you should always try to ⇒ **convert them into Enumerations**”*。这是两张兄弟卡片，在你还在努力回忆当前这张时就把自己的答案奉上了。给正在复习的 Rem 加上 `Context Hide Others`（`cfchide`），树中所有*其他*答案——包括这些背面——都会收缩成一个可点击的 `…`。答完之后再逐个点开，对规则 9 的其余部分做自我检测。
+   有时候邻居说得太多了。复习 **9. Avoid sets** 之下那条带两个填空的行时，树会把两张兄弟卡片的答案以明文摆在你面前——*“…due to ⇒ **the high cost of retaining memories based on sets**”* 和 *“…you should always try to ⇒ **convert them into Enumerations**”*——而你还在努力回忆当前这张。给正在复习的 Rem 加上 `Context Hide Others`（`cfchide`），树中所有*其他*答案（包括这些背面）都会收缩成一个可点击的 `…`。答完之后再逐个点开，对规则 9 的其余部分做自我检测。
 
    ![Hide Other Answers 与点击揭示](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others.png)
 

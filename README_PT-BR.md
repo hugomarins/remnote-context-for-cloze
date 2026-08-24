@@ -170,7 +170,14 @@ Para reproduzi‑las: ponha o cursor no Rem do título do documento, execute **A
 
 2) **Um cloze dentro da sua lista — fase de pergunta** *(caso de uso 1)*
 
-   Revisando a linha de duas lacunas sob **9. Avoid sets**. Na árvore, essa linha mostra as **duas** lacunas como **?** — a própria área de cartão do RemNote, acima, já renderiza por inteiro a linha em teste, então a árvore não disputa com ela. O que a árvore acrescenta é o resto da regra 9 em volta: *A set is a collection of objects*, o exemplo dos membros da UE e os dois cartões irmãos com as respostas à mostra. Esta é a alternativa barata ao cartão de conjunto — uma lacuna por vez, mas nunca fora da sua lista.
+   Revisando *“2. `{{Learn}}` before you `{{memorize}}`”*. O cartão pede uma lacuna; a árvore devolve essa linha à lista a que ela pertence, com o restante das vinte regras em volta.
+
+   Esta é a alternativa barata ao cartão de conjunto, e o documento prova o argumento sobre si mesmo: um cartão que pergunte *“liste as vinte regras de Woźniak”* é exatamente o item que as regras 9 e 10 mandam não construir — avaliado em tudo‑ou‑nada e leech em potencial. Um cloze por regra custa um único lapso quando escapa, em vez de derrubar a lista inteira, e, como a árvore mantém os outros títulos à vista, você reensaia a forma da enumeração toda vez que um de seus membros aparece.
+
+   Dois detalhes de renderização aparecem nesta captura:
+
+   - **A linha em revisão mostra as *duas* lacunas como `?`**, embora só uma esteja sendo testada. A área de cartão do RemNote, acima, já renderiza aquela linha corretamente — *Learn* revelada, a lacuna testada mascarada — então a árvore sai da frente e tira a linha inteira de jogo.
+   - **As outras linhas mostram as suas respostas.** A regra 8 aparece como *“`Graphic` deletion is as good as `cloze` deletion”*, com as duas lacunas preenchidas e sublinhadas. Esse é o padrão: tudo, exceto a linha em revisão, aparece respondido, como contexto. A captura 4 inverte isso.
 
    ![Cloze em contexto, fase de pergunta](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/02-cloze-question.png)
 
@@ -182,7 +189,7 @@ Para reproduzi‑las: ponha o cursor no Rem do título do documento, execute **A
 
 4) **`Context Hide Others` — quando os vizinhos entregam a resposta**
 
-   Repare no que a captura 2 lhe entrega de graça: *“…due to ⇒ **the high cost of retaining memories based on sets**”* e *“…you should always try to ⇒ **convert them into Enumerations**”*. São dois cartões irmãos oferecendo as próprias respostas enquanto você ainda tenta recordar esta. Marque o Rem em revisão com `Context Hide Others` (`cfchide`) e toda *outra* resposta da árvore — esses versos inclusive — encolhe para um `…` clicável. Clique nelas uma a uma para se autoavaliar no resto da regra 9 depois de ter respondido.
+   Às vezes os vizinhos falam demais. Ao revisar a linha de duas lacunas sob **9. Avoid sets**, a árvore lhe entrega dois cartões irmãos com as respostas em texto puro — *“…due to ⇒ **the high cost of retaining memories based on sets**”* e *“…you should always try to ⇒ **convert them into Enumerations**”* — enquanto você ainda tenta recordar esta. Marque o Rem em revisão com `Context Hide Others` (`cfchide`) e toda *outra* resposta da árvore, esses versos inclusive, encolhe para um `…` clicável. Clique nelas uma a uma para se autoavaliar no resto da regra 9 depois de ter respondido.
 
    ![Hide Other Answers, com clique para revelar](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others.png)
 
