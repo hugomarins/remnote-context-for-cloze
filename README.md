@@ -6,6 +6,16 @@ Make your reviews clearer by showing where the current card sits in your knowled
 
 > **Renamed in 0.2.0.** The plugin used to be called *Context for Cloze*, and its anchor power‑up used to read *Context for Cloze* too. Both now say **Context Tree**, because the tree is no longer about clozes only — it works for every card type. Nothing you tagged is affected: the stored power‑up code is still `contextForCloze`, and the tag Rem in your knowledge base is renamed in place the first time this version loads. If you had renamed that tag yourself, your name is kept. The command that adds it is now **Add Context Tree to the Cards in This Outline**, quick code `cont` (was `cfc`).
 
+## Why you would want this — two ways of studying it fits
+
+**1) Study lists as clozes in context, instead of as list cards.**
+A set or an enumeration is the most expensive thing you can put in a review queue. It is graded all‑or‑nothing, it is prime leech material, and most of the time you do not actually need to *produce* the whole list on demand — you need to have grasped what is in it. Writing the list as an outline and clozing the load‑bearing words is far cheaper: each blank becomes its own small card, so a slip on one item costs one lapse instead of failing the whole list. What that normally loses is the list itself — a lone blank with no siblings around it is hard to place. The context tree gives it back: every blank is shown **inside its own list**, with the neighbouring items visible, so you keep the shape of the whole while recalling one piece of it. When the neighbours give too much away, `Context Hide Others` masks them and you uncover them one at a time.
+
+**2) Outline‑style note‑taking.**
+If you take notes as an outline, a good part of the meaning lives in the indentation — a line means what it means *because* of the line above it. Pulled into the queue on its own, that line is often ambiguous, or answerable only by guessing which chapter it came from. The usual fixes are to write the context into every card (verbose, and it drifts out of date) or to add labels by hand (rule 16 in Wozniak's list). The context tree does it for free: tag the top of the outline once, and every card below it is reviewed with its own branch drawn underneath — ancestors, siblings and all — while the answer you owe stays masked.
+
+Both cases work for **any card type**: clozes, Concept/Descriptor cards, Question cards, or a mix of them in the same tree.
+
 ## Features
 - Context Tree (Core)
   - Add the power‑up “Context Tree” (code: `contextForCloze`) to a Rem. All its descendants, when reviewed as cards, will show a context tree rooted at that Rem under the card.
@@ -150,31 +160,54 @@ The current card’s own line is always masked as `?` regardless of this power�
 
 ## Example Screenshots
 
-> The following screenshots help you see how the plugin looks during real reviews.
+All of the shots below come from one real document — Piotr Woźniak's [*Effective learning: Twenty rules of formulating knowledge*](https://supermemo.guru/wiki/20_rules_of_formulating_knowledge), taken as outline notes. It is a convenient subject for this plugin because it is the argument for it: rules **9 (Avoid sets)** and **10 (Avoid enumerations)** are exactly why you would cloze a list in context rather than card the list itself, and rule **16 (Context cues simplify wording)** is what the tree automates.
 
-1) Test structure (context tree blueprint)
+To reproduce them: put the cursor on the document's title Rem, run **Add Context Tree to the Cards in This Outline** (`cont`), and review.
 
-![Test structure](https://remnote-user-data.s3.amazonaws.com/zaFqKpkiElkV2UIcTnEPlt0mr09fwkG0FV52yBVdzCJR6nTH0Lb6tEEgRIFht-oEINkdrK8wJF1K3G_VjYmWu-vohCE6RwAez_wvjvR6h-WtUPvVPYpyL0V6XdaGRRlJ.jpeg?loading=false)
+1) **The anchor — what you tag, and what the tree is made of**
 
-2) Review example A (Question stage, clue‑safe)
+   The document in the editor, with `Context Tree` on its title Rem. Everything below it now reviews with a tree; the numbered rules are the branches.
 
-![Review A](https://remnote-user-data.s3.amazonaws.com/GT9Ausv726feJf22kII7MJhnGCbfhVYFCh5GMtf2mUweNpSQUHn6dtmL0GWSTHzLVnyEJtZjCthc5Rda7aIJ-0eFMO2xhOO6dLqRrvm8SfEzl3FFF3zRx9qR8c0czX5g.jpeg)
+   ![Anchor](img/01-anchor.png)
 
-3) Review example B (Answer stage, cloze highlight)
+2) **A cloze inside its list — question stage** *(use case 1)*
 
-![Review B](https://remnote-user-data.s3.amazonaws.com/bXoC-aeiey70Hl_jrjmS0MCUzN82TMPYUJF8KGy9iErqMqAQ-5dGy3UdqW4xbW2ezXFZg1uCgDnM4brRKA8Y0Doz87_VLLUZRS4C7i2t4qmCwVvvi8UZHp9MOaXhutc0.jpeg?loading=false)
+   Reviewing *“…it is nearly impossible to memorize sets containing more than `{{five}}` members without `{{mnemonic techniques, enumeration, grouping…}}`”* under **9. Avoid sets**. The blank being tested shows as a blue **?**; the *other* blank on the same line is revealed, and the sibling lines of rule 9 are there as context. This is the cheap alternative to a set card: one blank at a time, but never out of its list.
 
-- Note: demonstration of the “No Hierarchy” power‑up working together with this plugin.
+   ![Cloze in context, question stage](img/02-cloze-question.png)
 
-4) Review example C (Branches / levels at a glance)
+3) **Same card, answer stage**
 
-![Review C](https://remnote-user-data.s3.amazonaws.com/niJfC_INpPkpidUzOw6ZbY4r7e2bIXbK9zuVoCItDPPv3wv8qVl1b25OpTY8fWGC5JRr2jUHNN9TjOaQzuQwSc2qPqRFzBZRZHEY9vCmDJs-Lux3XYfBZapnr52ZEcyV.jpeg?loading=false)
+   After *Show Answer*: the recovered blank is underlined and highlighted in blue, so it is immediately clear which part of the sentence you were on the hook for.
 
-5) Review example D (Mixed rich‑text content)
+   ![Cloze in context, answer stage](img/03-cloze-answer.png)
 
-![Review D](https://remnote-user-data.s3.amazonaws.com/j_FQj9RxuQnRqFO4X3Qo64siZY_3nHxoU4vQv-Hy1Op5OcAva_IuBPFlVA1EHAsjeywgP-wBHGrBUfjv82I2V-wJ409_IdO6AOJi8w8xHdIc8DfKH9zF9pjiskwoMlyf.jpeg?loading=false)
+4) **`Context Hide Others` — when the neighbours give it away**
 
-6) Review example E (Overall look & feel)
+   The same line has two blanks that hint at each other. Tag that Rem with `Context Hide Others` (`cfchide`) and every *other* answer in the tree becomes a clickable `…`. Click them one at a time to self‑evaluate the rest of the list after answering.
 
-![Review E](https://remnote-user-data.s3.amazonaws.com/rSRm6AeAIG7bsA1K74po0wdLr-cfbW9mGaA_Rkdp20qY2A54-2_W8kUy2Y4mkHls_K1CLnhR57677cGcIeBPdBSz_cmpDiTDlTN91M4r184lrhjKT4_f85OUoQ7qLG4h.jpeg?loading=false)
+   ![Hide Other Answers, with click-to-reveal](img/04-hide-others.png)
 
+5) **A front/back card and its direction arrow, with a Rem reference**
+
+   Reviewing *“if sets are absolutely necessary, you should always try to ⇒ convert them into \[Enumerations\]”*. The back side is the answer, so it is masked as **?** and the `⇒` says the card is asked front‑to‑back. Note the *Enumerations* reference inside the tree: hover it for a preview, click it for the confirmation prompt before it leaves the queue.
+
+   ![Front/back card with direction arrow](img/05-arrow-and-reference.png)
+
+6) **A Descriptor read together with its Concept**
+
+   Reviewing the descriptor *“great advantage over sets ⇒ is that they are ordered…”*, which hangs under the Concept **Enumerations―ordered lists of members**, which hangs under **10. Avoid enumerations**. On its own that descriptor barely parses; the tree supplies the concept it is about. *(This is use case 2 in one screenshot.)*
+
+   ![Descriptor under its concept](img/06-descriptor-under-concept.png)
+
+7) **A backward Descriptor card — the Concept is masked, not the label**
+
+   Reviewing *“example ⇐ the alphabetical list of the members of the EU”* — a backward Descriptor under the Concept **Enumerations―ordered lists of members**, under **10. Avoid enumerations**. The **?** lands on the *Concept*, which is what you are actually asked to recall, and not on the descriptor's label *example*. The Concept's own back side is dropped too, so that line reads as a bare **?**. This mirrors RemNote's own rendering — see [Backward Descriptor cards test the Concept, not the Descriptor](#backward-descriptor-cards-test-the-concept-not-the-descriptor).
+
+   ![Backward descriptor card](img/07-backward-descriptor.png)
+
+8) **Collapsed by default — open only what you want**
+
+   Reviewing any card deep in the document while the other nineteen rules sit collapsed behind ▸ arrows. Click one to open that branch for this card only.
+
+   ![Collapsed tree, expanding a branch](img/08-collapsed-expand.png)

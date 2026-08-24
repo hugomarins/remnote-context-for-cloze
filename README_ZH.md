@@ -6,6 +6,16 @@
 
 > **0.2.0 更名。** 本插件原名 *Context for Cloze*，其锚点 Power‑Up 也叫 *Context for Cloze*。现在两者都改为 **Context Tree**，因为这棵树已不再只服务于 cloze——它适用于所有卡片类型。你已经打过的标记不受影响：Power‑Up 存储的 code 仍是 `contextForCloze`，而知识库中的标记 Rem 会在本版本首次加载时就地改名。若你自己改过该标记的名字，则保留你的命名。添加它的命令现在是 **Add Context Tree to the Cards in This Outline**，快速码 `cont`（原为 `cfc`）。
 
+## 你为什么会需要它——它适配的两种学习方式
+
+**1）把列表当作“带上下文的 cloze”来学，而不是做成列表卡。**
+集合或枚举是你能放进复习队列里最昂贵的东西：它按全对全错评分，是天然的 leech 候选，而且大多数时候你其实并不需要按需*背出*整份列表——你需要的是掌握里面有什么。把列表写成大纲，再对承载含义的词做 cloze，代价要低得多：每个填空都成为一张自己的小卡，某一项卡壳只损失一次 lapse，而不是整份列表全军覆没。这样做通常会丢掉的，恰恰是列表本身——一个孤零零的填空，周围没有兄弟项，很难定位。上下文树把它还回来：每个填空都显示在**自己所属的列表之中**，相邻条目一并可见，于是你在回忆其中一块的同时仍保有整体的形状。当邻居泄露太多时，用 `Context Hide Others` 把它们遮起来，再一个一个揭开。
+
+**2）大纲式笔记。**
+如果你用大纲记笔记，相当一部分含义就住在缩进里——一行之所以是那个意思，正是*因为*它上面那一行。单独拎进队列后，这一行往往变得含混，或者只能靠猜它出自哪一章才答得上来。常见的补救办法要么是把上下文写进每张卡（啰嗦，而且会过时），要么是手工加标签（Wozniak 二十条里的第 16 条）。上下文树免费替你做了这件事：给大纲顶端打一次标记，其下的每张卡片复习时都会在下方画出自己那一支——祖先、兄弟，一应俱全——而你该给出的答案仍然被遮着。
+
+两种场景都适用于**所有卡片类型**：cloze、概念/描述卡、问答卡，或者同一棵树里的混合。
+
 ## 功能介绍
 - Context Tree（核心功能）
   - 在某个 Rem 上添加 Power‑Up“Context Tree”后（code：`contextForCloze`），该 Rem 的所有子代在复习成为题卡时，卡片下方会显示以该 Rem 为根的“上下文树”。
@@ -146,31 +156,54 @@ RemNote 在这里有[一个特例](https://help.remnote.com/en/articles/6751778-
 
 ## 示例截图
 
-> 以下截图帮助你直观感受插件在实际复习中的呈现效果。
+下面所有截图都来自同一份真实文档——Piotr Woźniak 的 [*Effective learning: Twenty rules of formulating knowledge*](https://supermemo.guru/wiki/20_rules_of_formulating_knowledge)，以大纲方式做的笔记。选它很合适，因为它本身就是支持本插件的论证：第 **9 条（Avoid sets）** 和第 **10 条（Avoid enumerations）** 正是“为什么应当在上下文中对列表做 cloze，而不是把整份列表做成一张卡”的理由；而第 **16 条（Context cues simplify wording）** 正是这棵树帮你自动完成的事。
 
-1) 测试用整体结构（上下文树示意）
+复现方法：把光标放在文档标题 Rem 上，运行 **Add Context Tree to the Cards in This Outline**（`cont`），然后开始复习。
 
-![测试时使用的整体结构](https://remnote-user-data.s3.amazonaws.com/zaFqKpkiElkV2UIcTnEPlt0mr09fwkG0FV52yBVdzCJR6nTH0Lb6tEEgRIFht-oEINkdrK8wJF1K3G_VjYmWu-vohCE6RwAez_wvjvR6h-WtUPvVPYpyL0V6XdaGRRlJ.jpeg?loading=false)
+1) **锚点——你打标记的地方，以及树的素材来源**
 
-2) 复习队列显示示例 A（题面阶段，防止线索泄露）
+   编辑器中的该文档，标题 Rem 上带着 `Context Tree`。其下的一切从此都会带树复习；编号的各条规则就是分支。
 
-![复习队列显示示例 A](https://remnote-user-data.s3.amazonaws.com/GT9Ausv726feJf22kII7MJhnGCbfhVYFCh5GMtf2mUweNpSQUHn6dtmL0GWSTHzLVnyEJtZjCthc5Rda7aIJ-0eFMO2xhOO6dLqRrvm8SfEzl3FFF3zRx9qR8c0czX5g.jpeg)
+   ![锚点](img/01-anchor.png)
 
-3) 复习队列显示示例 B（答案阶段，cloze 高亮）
+2) **列表之中的一个 cloze——题面阶段**（用例 1）
 
-![复习队列显示示例 B](https://remnote-user-data.s3.amazonaws.com/bXoC-aeiey70Hl_jrjmS0MCUzN82TMPYUJF8KGy9iErqMqAQ-5dGy3UdqW4xbW2ezXFZg1uCgDnM4brRKA8Y0Doz87_VLLUZRS4C7i2t4qmCwVvvi8UZHp9MOaXhutc0.jpeg?loading=false)
+   复习 **9. Avoid sets** 之下的 *“……要记住成员超过 `{{五个}}` 的集合几乎是不可能的，除非借助 `{{记忆术、枚举、分组……}}”*。被考的填空显示为蓝色 **?**；同一行上的*另一个*填空则是揭示状态，规则 9 的兄弟行也都在，充当上下文。这就是集合卡的廉价替代品：一次只考一个填空，但从不脱离它的列表。
 
-- 说明： no hierarchy power up tag 和本插件的适配的演示
+   ![上下文中的 cloze，题面阶段](img/02-cloze-question.png)
 
-4) 复习队列显示示例 C（分支/层级对比）
+3) **同一张卡，答案阶段**
 
-![复习队列显示示例 C](https://remnote-user-data.s3.amazonaws.com/niJfC_INpPkpidUzOw6ZbY4r7e2bIXbK9zuVoCItDPPv3wv8qVl1b25OpTY8fWGC5JRr2jUHNN9TjOaQzuQwSc2qPqRFzBZRZHEY9vCmDJs-Lux3XYfBZapnr52ZEcyV.jpeg?loading=false)
+   点击 *Show Answer* 之后：找回的填空带蓝色下划线与高亮，一眼就能看清你刚才要负责的是句子的哪一部分。
 
-5) 复习队列显示示例 D（不同内容类型的混排）
+   ![上下文中的 cloze，答案阶段](img/03-cloze-answer.png)
 
-![复习队列显示示例 D](https://remnote-user-data.s3.amazonaws.com/j_FQj9RxuQnRqFO4X3Qo64siZY_3nHxoU4vQv-Hy1Op5OcAva_IuBPFlVA1EHAsjeywgP-wBHGrBUfjv82I2V-wJ409_IdO6AOJi8w8xHdIc8DfKH9zF9pjiskwoMlyf.jpeg?loading=false)
+4) **`Context Hide Others`——当邻居把答案泄露出去时**
 
-6) 复习队列显示示例 E（整体视感）
+   这同一行上有两个互相提示的填空。给那个 Rem 加上 `Context Hide Others`（`cfchide`），树中所有*其他*答案都会变成可点击的 `…`。答完之后再逐个点开，对列表其余部分做自我检测。
 
-![复习队列显示示例 E](https://remnote-user-data.s3.amazonaws.com/rSRm6AeAIG7bsA1K74po0wdLr-cfbW9mGaA_Rkdp20qY2A54-2_W8kUy2Y4mkHls_K1CLnhR57677cGcIeBPdBSz_cmpDiTDlTN91M4r184lrhjKT4_f85OUoQ7qLG4h.jpeg?loading=false)
+   ![Hide Other Answers 与点击揭示](img/04-hide-others.png)
 
+5) **一张正/背面卡及其方向箭头，外加一个 Rem 引用**
+
+   复习 *“if sets are absolutely necessary, you should always try to ⇒ convert them into \[Enumerations\]”*。背面是答案，因此被遮为 **?**，而 `⇒` 说明这张卡是从正面问向背面的。注意树中的 *Enumerations* 引用：悬停可看预览，点击会先弹出确认，然后才离开队列。
+
+   ![带方向箭头的正/背面卡](img/05-arrow-and-reference.png)
+
+6) **与概念一起阅读的描述**
+
+   复习描述 *“great advantage over sets ⇒ is that they are ordered…”*，它挂在概念 **Enumerations―ordered lists of members** 之下，而后者又挂在 **10. Avoid enumerations** 之下。单看这条描述几乎读不通；树把它所谈论的那个概念补了回来。*（一张图说明用例 2。）*
+
+   ![概念之下的描述](img/06-descriptor-under-concept.png)
+
+7) **描述的反向卡——被遮的是概念，而不是标签**
+
+   复习 *“example ⇐ the alphabetical list of the members of the EU”*——这是概念 **Enumerations―ordered lists of members**（位于 **10. Avoid enumerations** 之下）下的一条反向描述。**?** 落在那个*概念*上，因为它才是真正要你回忆的东西，而不是落在描述的标签 *example* 上。该概念自己的背面也一并去掉，所以那一行只剩一个 **?**。这与 RemNote 的原生渲染一致——参见[描述（Descriptor）的反向卡考的是概念（Concept），而不是描述本身](#描述descriptor的反向卡考的是概念concept而不是描述本身)。
+
+   ![描述反向卡](img/07-backward-descriptor.png)
+
+8) **默认折叠——只展开你想看的**
+
+   在文档深处复习任意一张卡，而其余十九条规则都折叠在 ▸ 箭头之后。点开其中一条，就只为这张卡展开那一支。
+
+   ![折叠的树与展开分支](img/08-collapsed-expand.png)

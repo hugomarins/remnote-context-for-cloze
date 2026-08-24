@@ -6,6 +6,16 @@ Deixe suas revisões mais claras mostrando onde o cartão atual se encaixa na su
 
 > **Renomeado na 0.2.0.** O plugin se chamava *Context for Cloze*, e seu power‑up de âncora também se chamava *Context for Cloze*. Agora ambos dizem **Context Tree**, porque a árvore não é mais só sobre clozes — ela funciona com todos os tipos de cartão. Nada do que você já marcou é afetado: o código armazenado do power‑up continua sendo `contextForCloze`, e o Rem da marcação é renomeado no lugar na primeira vez que esta versão carrega. Se você mesmo tinha renomeado essa marcação, o seu nome é preservado. O comando que a adiciona agora é **Add Context Tree to the Cards in This Outline**, código rápido `cont` (antes `cfc`).
 
+## Por que você iria querer isso — dois modos de estudo em que ele se encaixa
+
+**1) Estudar listas como clozes em contexto, em vez de como cartões de lista.**
+Um conjunto ou uma enumeração é a coisa mais cara que você pode colocar numa fila de revisão. É avaliado em tudo‑ou‑nada, é candidato natural a leech e, na maior parte das vezes, você não precisa de fato *produzir* a lista inteira sob demanda — você precisa ter compreendido o que há nela. Escrever a lista como um outline e clozar as palavras que sustentam o sentido sai muito mais barato: cada lacuna vira um cartão pequeno, então um tropeço em um item custa um lapso em vez de derrubar a lista toda. O que normalmente se perde nisso é a própria lista — uma lacuna solta, sem os irmãos ao redor, é difícil de situar. A árvore de contexto devolve isso: toda lacuna é exibida **dentro da sua própria lista**, com os itens vizinhos visíveis, então você mantém a forma do conjunto enquanto recorda uma peça dele. Quando os vizinhos entregam demais, o `Context Hide Others` os esconde e você os descobre um a um.
+
+**2) Anotações em estilo outline.**
+Se você toma notas em outline, boa parte do significado mora na indentação — uma linha significa o que significa *por causa* da linha acima dela. Puxada sozinha para a fila, essa linha muitas vezes fica ambígua, ou só é respondível se você adivinhar de que capítulo veio. As saídas usuais são escrever o contexto dentro de cada cartão (verboso, e desatualiza) ou acrescentar rótulos à mão (a regra 16 da lista de Wozniak). A árvore de contexto faz isso de graça: marque o topo do outline uma vez e todo cartão abaixo dele passa a ser revisado com o seu próprio ramo desenhado embaixo — ancestrais, irmãos e tudo mais — enquanto a resposta que você deve continua mascarada.
+
+Os dois casos funcionam com **qualquer tipo de cartão**: clozes, cartões Conceito/Descritor, cartões de Pergunta, ou uma mistura deles na mesma árvore.
+
 ## Funcionalidades
 - Context Tree (núcleo)
   - Adicione o power‑up “Context Tree” (código: `contextForCloze`) a um Rem. Todos os seus descendentes, quando revisados como cartões, exibirão abaixo uma árvore de contexto enraizada nesse Rem.
@@ -148,30 +158,54 @@ A linha do próprio cartão atual é sempre escondida como `?`, independentement
 
 ## Capturas de exemplo
 
-> As capturas a seguir ajudam a ver como o plugin se comporta em revisões reais.
+Todas as capturas abaixo vêm de um único documento real — [*Effective learning: Twenty rules of formulating knowledge*](https://supermemo.guru/wiki/20_rules_of_formulating_knowledge), de Piotr Woźniak, anotado em estilo outline. É um assunto conveniente para este plugin porque é o próprio argumento a favor dele: as regras **9 (Avoid sets)** e **10 (Avoid enumerations)** são exatamente o motivo pelo qual você clozaria uma lista em contexto em vez de fazer um cartão da lista inteira, e a regra **16 (Context cues simplify wording)** é o que a árvore automatiza.
 
-1) Estrutura de teste (planta da árvore de contexto)
+Para reproduzi‑las: ponha o cursor no Rem do título do documento, execute **Add Context Tree to the Cards in This Outline** (`cont`) e comece a revisar.
 
-![Estrutura de teste](https://remnote-user-data.s3.amazonaws.com/zaFqKpkiElkV2UIcTnEPlt0mr09fwkG0FV52yBVdzCJR6nTH0Lb6tEEgRIFht-oEINkdrK8wJF1K3G_VjYmWu-vohCE6RwAez_wvjvR6h-WtUPvVPYpyL0V6XdaGRRlJ.jpeg?loading=false)
+1) **A âncora — o que você marca e do que a árvore é feita**
 
-2) Exemplo de revisão A (fase de pergunta, sem vazar pistas)
+   O documento no editor, com `Context Tree` no Rem do título. Tudo abaixo dele passa a ser revisado com árvore; as regras numeradas são os ramos.
 
-![Revisão A](https://remnote-user-data.s3.amazonaws.com/GT9Ausv726feJf22kII7MJhnGCbfhVYFCh5GMtf2mUweNpSQUHn6dtmL0GWSTHzLVnyEJtZjCthc5Rda7aIJ-0eFMO2xhOO6dLqRrvm8SfEzl3FFF3zRx9qR8c0czX5g.jpeg)
+   ![Âncora](img/01-anchor.png)
 
-3) Exemplo de revisão B (fase de resposta, destaque do cloze)
+2) **Um cloze dentro da sua lista — fase de pergunta** *(caso de uso 1)*
 
-![Revisão B](https://remnote-user-data.s3.amazonaws.com/bXoC-aeiey70Hl_jrjmS0MCUzN82TMPYUJF8KGy9iErqMqAQ-5dGy3UdqW4xbW2ezXFZg1uCgDnM4brRKA8Y0Doz87_VLLUZRS4C7i2t4qmCwVvvi8UZHp9MOaXhutc0.jpeg?loading=false)
+   Revisando *“…é praticamente impossível memorizar conjuntos com mais de `{{cinco}}` membros sem `{{técnicas mnemônicas, enumeração, agrupamento…}}”* sob **9. Avoid sets**. A lacuna testada aparece como um **?** azul; a *outra* lacuna da mesma linha aparece revelada, e as linhas irmãs da regra 9 estão lá como contexto. Esta é a alternativa barata ao cartão de conjunto: uma lacuna por vez, mas nunca fora da sua lista.
 
-- Observação: demonstração do power‑up “No Hierarchy” funcionando junto com este plugin.
+   ![Cloze em contexto, fase de pergunta](img/02-cloze-question.png)
 
-4) Exemplo de revisão C (ramos / níveis num relance)
+3) **O mesmo cartão, fase de resposta**
 
-![Revisão C](https://remnote-user-data.s3.amazonaws.com/niJfC_INpPkpidUzOw6ZbY4r7e2bIXbK9zuVoCItDPPv3wv8qVl1b25OpTY8fWGC5JRr2jUHNN9TjOaQzuQwSc2qPqRFzBZRZHEY9vCmDJs-Lux3XYfBZapnr52ZEcyV.jpeg?loading=false)
+   Depois do *Show Answer*: a lacuna recuperada aparece sublinhada e destacada em azul, deixando imediatamente claro por qual parte da frase você era responsável.
 
-5) Exemplo de revisão D (conteúdo com texto rico misto)
+   ![Cloze em contexto, fase de resposta](img/03-cloze-answer.png)
 
-![Revisão D](https://remnote-user-data.s3.amazonaws.com/j_FQj9RxuQnRqFO4X3Qo64siZY_3nHxoU4vQv-Hy1Op5OcAva_IuBPFlVA1EHAsjeywgP-wBHGrBUfjv82I2V-wJ409_IdO6AOJi8w8xHdIc8DfKH9zF9pjiskwoMlyf.jpeg?loading=false)
+4) **`Context Hide Others` — quando os vizinhos entregam a resposta**
 
-6) Exemplo de revisão E (aparência geral)
+   Essa mesma linha tem duas lacunas que se dão pistas mutuamente. Marque aquele Rem com `Context Hide Others` (`cfchide`) e toda *outra* resposta da árvore vira um `…` clicável. Clique nelas uma a uma para se autoavaliar no resto da lista depois de responder.
 
-![Revisão E](https://remnote-user-data.s3.amazonaws.com/rSRm6AeAIG7bsA1K74po0wdLr-cfbW9mGaA_Rkdp20qY2A54-2_W8kUy2Y4mkHls_K1CLnhR57677cGcIeBPdBSz_cmpDiTDlTN91M4r184lrhjKT4_f85OUoQ7qLG4h.jpeg?loading=false)
+   ![Hide Other Answers, com clique para revelar](img/04-hide-others.png)
+
+5) **Um cartão frente/verso e sua seta de direção, com uma referência de Rem**
+
+   Revisando *“if sets are absolutely necessary, you should always try to ⇒ convert them into \[Enumerations\]”*. O verso é a resposta, então é mascarado como **?**, e o `⇒` diz que o cartão é perguntado da frente para o verso. Repare na referência *Enumerations* dentro da árvore: passe o mouse para ver a prévia, clique para receber a confirmação antes de sair da fila.
+
+   ![Cartão frente/verso com seta de direção](img/05-arrow-and-reference.png)
+
+6) **Um Descritor lido junto com o seu Conceito**
+
+   Revisando o descritor *“great advantage over sets ⇒ is that they are ordered…”*, que fica sob o Conceito **Enumerations―ordered lists of members**, que por sua vez fica sob **10. Avoid enumerations**. Sozinho, esse descritor mal se sustenta; a árvore fornece o conceito de que ele fala. *(É o caso de uso 2 em uma única captura.)*
+
+   ![Descritor sob o seu conceito](img/06-descriptor-under-concept.png)
+
+7) **Um cartão inverso de Descritor — quem é mascarado é o Conceito, não o rótulo**
+
+   Revisando *“example ⇐ the alphabetical list of the members of the EU”* — um Descritor inverso sob o Conceito **Enumerations―ordered lists of members**, sob **10. Avoid enumerations**. O **?** cai no *Conceito*, que é o que de fato se pede que você recorde, e não no rótulo *example* do descritor. O verso do próprio Conceito também é removido, então aquela linha fica só com o **?**. Isso espelha o comportamento nativo do RemNote — veja [Cartões inversos de Descritor testam o Conceito, não o Descritor](#cartões-inversos-de-descritor-testam-o-conceito-não-o-descritor).
+
+   ![Cartão inverso de descritor](img/07-backward-descriptor.png)
+
+8) **Recolhida por padrão — abra só o que você quiser**
+
+   Revisando um cartão qualquer no fundo do documento enquanto as outras dezenove regras ficam recolhidas atrás de setas ▸. Clique em uma para abrir aquele ramo só para este cartão.
+
+   ![Árvore recolhida, expandindo um ramo](img/08-collapsed-expand.png)
