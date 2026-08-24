@@ -124,7 +124,7 @@ A árvore exibe as respostas das outras linhas em um de dois modos: **revelado**
 
 ## Context Hide Others — protegendo um cloze de seus irmãos
 
-**O que faz.** Por padrão, este plugin esconde apenas a resposta que está de fato sendo testada. Toda *outra* resposta da árvore de contexto — outros clozes e o verso de todos os demais cartões — aparece **revelada** (sublinhado azul), de modo que as respostas ao redor funcionam como contexto visível.
+**O que faz.** Por padrão, a árvore de contexto mascara a linha em revisão e revela todo o resto. Toda resposta que esteja em *outra* linha — os clozes dela e o verso de todos os demais cartões — aparece **revelada** (sublinhado azul), de modo que as respostas ao redor funcionam como contexto visível.
 
 `Context Hide Others` inverte isso para o cartão em que é aplicado: enquanto aquele cartão está em revisão, **todas as outras** respostas da árvore ficam **escondidas** (exibidas como `…`) em vez de reveladas. Note a diferença de alcance em relação à marcação da âncora: `Context Tree` é colocado na **raiz** de um outline e afeta todos os descendentes, enquanto esta é colocada em **um único Rem** e afeta apenas as revisões desse Rem.
 
@@ -166,46 +166,46 @@ Para reproduzi‑las: ponha o cursor no Rem do título do documento, execute **A
 
    O documento no editor, com `Context Tree` no Rem do título. Tudo abaixo dele passa a ser revisado com árvore; as regras numeradas são os ramos.
 
-   ![Âncora](img/01-anchor.png)
+   ![Âncora](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/01-anchor.png)
 
 2) **Um cloze dentro da sua lista — fase de pergunta** *(caso de uso 1)*
 
-   Revisando *“…é praticamente impossível memorizar conjuntos com mais de `{{cinco}}` membros sem `{{técnicas mnemônicas, enumeração, agrupamento…}}”* sob **9. Avoid sets**. A lacuna testada aparece como um **?** azul; a *outra* lacuna da mesma linha aparece revelada, e as linhas irmãs da regra 9 estão lá como contexto. Esta é a alternativa barata ao cartão de conjunto: uma lacuna por vez, mas nunca fora da sua lista.
+   Revisando a linha de duas lacunas sob **9. Avoid sets**. Na árvore, essa linha mostra as **duas** lacunas como **?** — a própria área de cartão do RemNote, acima, já renderiza por inteiro a linha em teste, então a árvore não disputa com ela. O que a árvore acrescenta é o resto da regra 9 em volta: *A set is a collection of objects*, o exemplo dos membros da UE e os dois cartões irmãos com as respostas à mostra. Esta é a alternativa barata ao cartão de conjunto — uma lacuna por vez, mas nunca fora da sua lista.
 
-   ![Cloze em contexto, fase de pergunta](img/02-cloze-question.png)
+   ![Cloze em contexto, fase de pergunta](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/02-cloze-question.png)
 
 3) **O mesmo cartão, fase de resposta**
 
    Depois do *Show Answer*: a lacuna recuperada aparece sublinhada e destacada em azul, deixando imediatamente claro por qual parte da frase você era responsável.
 
-   ![Cloze em contexto, fase de resposta](img/03-cloze-answer.png)
+   ![Cloze em contexto, fase de resposta](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/03-cloze-answer.png)
 
 4) **`Context Hide Others` — quando os vizinhos entregam a resposta**
 
-   Essa mesma linha tem duas lacunas que se dão pistas mutuamente. Marque aquele Rem com `Context Hide Others` (`cfchide`) e toda *outra* resposta da árvore vira um `…` clicável. Clique nelas uma a uma para se autoavaliar no resto da lista depois de responder.
+   Repare no que a captura 2 lhe entrega de graça: *“…due to ⇒ **the high cost of retaining memories based on sets**”* e *“…you should always try to ⇒ **convert them into Enumerations**”*. São dois cartões irmãos oferecendo as próprias respostas enquanto você ainda tenta recordar esta. Marque o Rem em revisão com `Context Hide Others` (`cfchide`) e toda *outra* resposta da árvore — esses versos inclusive — encolhe para um `…` clicável. Clique nelas uma a uma para se autoavaliar no resto da regra 9 depois de ter respondido.
 
-   ![Hide Other Answers, com clique para revelar](img/04-hide-others.png)
+   ![Hide Other Answers, com clique para revelar](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others.png)
 
 5) **Um cartão frente/verso e sua seta de direção, com uma referência de Rem**
 
    Revisando *“if sets are absolutely necessary, you should always try to ⇒ convert them into \[Enumerations\]”*. O verso é a resposta, então é mascarado como **?**, e o `⇒` diz que o cartão é perguntado da frente para o verso. Repare na referência *Enumerations* dentro da árvore: passe o mouse para ver a prévia, clique para receber a confirmação antes de sair da fila.
 
-   ![Cartão frente/verso com seta de direção](img/05-arrow-and-reference.png)
+   ![Cartão frente/verso com seta de direção](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/05-arrow-and-reference.png)
 
 6) **Os irmãos — o que o RemNote não lhe mostra** *(caso de uso 2)*
 
    Revisando o descritor *“great advantage over sets ⇒ is that they are ordered…”* sob o Conceito **Enumerations―ordered lists of members**. A área nativa do cartão, acima, já lhe dá a linhagem até esta linha; o que só a árvore acrescenta é o resto do que as notas dizem sobre Enumerations — as linhas irmãs ao lado desta, cada uma com a sua própria resposta, revelada ou mascarada conforme você preferir.
 
-   ![Descritor sob o seu conceito](img/06-descriptor-under-concept.png)
+   ![Descritor sob o seu conceito](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/06-descriptor-under-concept.png)
 
 7) **Um cartão inverso de Descritor — quem é mascarado é o Conceito, não o rótulo**
 
    Revisando *“example ⇐ the alphabetical list of the members of the EU”* — um Descritor inverso sob o Conceito **Enumerations―ordered lists of members**, sob **10. Avoid enumerations**. O **?** cai no *Conceito*, que é o que de fato se pede que você recorde, e não no rótulo *example* do descritor. O verso do próprio Conceito também é removido, então aquela linha fica só com o **?**. Isso espelha o comportamento nativo do RemNote — veja [Cartões inversos de Descritor testam o Conceito, não o Descritor](#cartões-inversos-de-descritor-testam-o-conceito-não-o-descritor).
 
-   ![Cartão inverso de descritor](img/07-backward-descriptor.png)
+   ![Cartão inverso de descritor](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/07-backward-descriptor.png)
 
 8) **Recolhida por padrão — abra só o que você quiser**
 
    Revisando um cartão qualquer no fundo do documento enquanto as outras dezenove regras ficam recolhidas atrás de setas ▸. Clique em uma para abrir aquele ramo só para este cartão.
 
-   ![Árvore recolhida, expandindo um ramo](img/08-collapsed-expand.png)
+   ![Árvore recolhida, expandindo um ramo](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/08-collapsed-expand.png)

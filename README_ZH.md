@@ -124,7 +124,7 @@ RemNote 在这里有[一个特例](https://help.remnote.com/en/articles/6751778-
 
 ## Context Hide Others——保护会被兄弟节点剧透的 cloze 卡片
 
-**功能说明。** 默认情况下，本插件只隐藏你当前正在被测的那个答案。上下文树中其他每一个答案——其他 cloze，以及其他每张卡片的背面——都会显示揭示后的内容（蓝色下划线），让周围的答案充当可见的上下文。
+**功能说明。** 默认情况下，上下文树遮住正在复习的那一行，并揭示其余的一切。位于*其他*行上的每一个答案——那些行里的 cloze，以及其他每张卡片的背面——都会显示揭示后的内容（蓝色下划线），让周围的答案充当可见的上下文。
 
 `Context Hide Others` 会为它所应用的那张卡片反转这一行为：当该卡片被复习时，树中**其他所有**答案改为被**遮挡**（显示为 `…`），而不再揭示。注意它与锚点标记的作用范围不同：`Context Tree` 加在大纲的**根**上并影响全部子代，而本标记加在**单个 Rem** 上，只影响该 Rem 的复习；它也只决定**初始**模式，👁 按钮可随时为当前卡片切换。
 
@@ -164,46 +164,46 @@ RemNote 在这里有[一个特例](https://help.remnote.com/en/articles/6751778-
 
    编辑器中的该文档，标题 Rem 上带着 `Context Tree`。其下的一切从此都会带树复习；编号的各条规则就是分支。
 
-   ![锚点](img/01-anchor.png)
+   ![锚点](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/01-anchor.png)
 
 2) **列表之中的一个 cloze——题面阶段**（用例 1）
 
-   复习 **9. Avoid sets** 之下的 *“……要记住成员超过 `{{五个}}` 的集合几乎是不可能的，除非借助 `{{记忆术、枚举、分组……}}”*。被考的填空显示为蓝色 **?**；同一行上的*另一个*填空则是揭示状态，规则 9 的兄弟行也都在，充当上下文。这就是集合卡的廉价替代品：一次只考一个填空，但从不脱离它的列表。
+   复习 **9. Avoid sets** 之下那条带两个填空的行。在树里，这一行的**两个**填空都显示为 **?**——上方 RemNote 自己的卡片区域已经把受测行完整渲染出来了，树不去跟它争。树补上的，是围绕它的规则 9 其余部分：*A set is a collection of objects*、欧盟成员的例子，以及两张把答案摊在明面上的兄弟卡片。这就是集合卡的廉价替代品——一次只考一个填空，但从不脱离它的列表。
 
-   ![上下文中的 cloze，题面阶段](img/02-cloze-question.png)
+   ![上下文中的 cloze，题面阶段](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/02-cloze-question.png)
 
 3) **同一张卡，答案阶段**
 
    点击 *Show Answer* 之后：找回的填空带蓝色下划线与高亮，一眼就能看清你刚才要负责的是句子的哪一部分。
 
-   ![上下文中的 cloze，答案阶段](img/03-cloze-answer.png)
+   ![上下文中的 cloze，答案阶段](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/03-cloze-answer.png)
 
 4) **`Context Hide Others`——当邻居把答案泄露出去时**
 
-   这同一行上有两个互相提示的填空。给那个 Rem 加上 `Context Hide Others`（`cfchide`），树中所有*其他*答案都会变成可点击的 `…`。答完之后再逐个点开，对列表其余部分做自我检测。
+   看看截图 2 白送给你的东西：*“…due to ⇒ **the high cost of retaining memories based on sets**”* 和 *“…you should always try to ⇒ **convert them into Enumerations**”*。这是两张兄弟卡片，在你还在努力回忆当前这张时就把自己的答案奉上了。给正在复习的 Rem 加上 `Context Hide Others`（`cfchide`），树中所有*其他*答案——包括这些背面——都会收缩成一个可点击的 `…`。答完之后再逐个点开，对规则 9 的其余部分做自我检测。
 
-   ![Hide Other Answers 与点击揭示](img/04-hide-others.png)
+   ![Hide Other Answers 与点击揭示](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others.png)
 
 5) **一张正/背面卡及其方向箭头，外加一个 Rem 引用**
 
    复习 *“if sets are absolutely necessary, you should always try to ⇒ convert them into \[Enumerations\]”*。背面是答案，因此被遮为 **?**，而 `⇒` 说明这张卡是从正面问向背面的。注意树中的 *Enumerations* 引用：悬停可看预览，点击会先弹出确认，然后才离开队列。
 
-   ![带方向箭头的正/背面卡](img/05-arrow-and-reference.png)
+   ![带方向箭头的正/背面卡](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/05-arrow-and-reference.png)
 
 6) **兄弟节点——RemNote 不会给你看的那部分**（用例 2）
 
    复习概念 **Enumerations―ordered lists of members** 之下的描述 *“great advantage over sets ⇒ is that they are ordered…”*。上方的原生卡片区域本来就给出了通往这一行的血统；只有树才补上的，是笔记中关于 Enumerations 所说的其余内容——与这一行并排的那些兄弟行，每一行都带着自己的答案，可以揭示，也可以按你的选择遮起来。
 
-   ![概念之下的描述](img/06-descriptor-under-concept.png)
+   ![概念之下的描述](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/06-descriptor-under-concept.png)
 
 7) **描述的反向卡——被遮的是概念，而不是标签**
 
    复习 *“example ⇐ the alphabetical list of the members of the EU”*——这是概念 **Enumerations―ordered lists of members**（位于 **10. Avoid enumerations** 之下）下的一条反向描述。**?** 落在那个*概念*上，因为它才是真正要你回忆的东西，而不是落在描述的标签 *example* 上。该概念自己的背面也一并去掉，所以那一行只剩一个 **?**。这与 RemNote 的原生渲染一致——参见[描述（Descriptor）的反向卡考的是概念（Concept），而不是描述本身](#描述descriptor的反向卡考的是概念concept而不是描述本身)。
 
-   ![描述反向卡](img/07-backward-descriptor.png)
+   ![描述反向卡](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/07-backward-descriptor.png)
 
 8) **默认折叠——只展开你想看的**
 
    在文档深处复习任意一张卡，而其余十九条规则都折叠在 ▸ 箭头之后。点开其中一条，就只为这张卡展开那一支。
 
-   ![折叠的树与展开分支](img/08-collapsed-expand.png)
+   ![折叠的树与展开分支](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/08-collapsed-expand.png)

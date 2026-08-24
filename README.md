@@ -126,7 +126,7 @@ The tree renders the other lines' answers in one of two modes: **revealed** (blu
 
 ## Context Hide Others — protecting a cloze from its siblings
 
-**What it does.** By default this plugin hides only the answer you are actually being tested on. Every *other* answer in the context tree — other clozes, and the back side of every other flashcard — is shown **revealed** (blue underline), so the surrounding answers act as visible context.
+**What it does.** By default the context tree masks the line under review and reveals everything else. Every answer on *another* line — its clozes, and the back side of every other flashcard — is shown **revealed** (blue underline), so the surrounding answers act as visible context.
 
 `Context Hide Others` reverses that for the card it is applied to: while that card is under review, **all other** answers in the tree are **masked** (shown as `…`) instead of revealed. Note the scope difference from the anchor tag: `Context Tree` is placed on the **root** of an outline and affects every descendant, while this one is placed on **a single Rem** and affects only that Rem’s reviews.
 
@@ -151,7 +151,7 @@ The current card’s own line is always masked as `?` regardless of this power�
 
 **When to use it.** Use it when a parent groups several sibling clozes that would spoil each other if shown together — e.g. an enumerated list where each item is its own cloze card, or a set of parallel facts you want to recall independently. Keep the default (don’t tag) when the neighboring answers are legitimate context you *want* to see while recalling the current one.
 
-**Reveal hidden clozes one at a time (click to reveal).** When a card is protected this way, each masked `…` is a button. Click it (or focus it and press Enter/Space) to reveal just that cloze’s answer in place; click again to hide it back to `…`. This lets you self‑evaluate the surrounding hidden clozes gradually — one by one — even though they are not the card being tested. Each `…` toggles independently, the tested blank itself stays hidden (it never becomes clickable), and every reveal resets automatically when you move to the next card.
+**Reveal hidden clozes one at a time (click to reveal).** When a card is protected this way, each masked `…` is a button. Click it (or focus it and press Enter/Space) to reveal just that cloze’s answer in place; click again to hide it back to `…`. This lets you self‑evaluate the surrounding hidden clozes gradually — one by one — even though they are not the card being tested. Each `…` toggles independently, the blanks on the line under review stay hidden (they never become clickable), and every reveal resets automatically when you move to the next card.
 
 ## Tips
 - The plugin only renders in the review queue; the editor view is not affected.
@@ -168,46 +168,46 @@ To reproduce them: put the cursor on the document's title Rem, run **Add Context
 
    The document in the editor, with `Context Tree` on its title Rem. Everything below it now reviews with a tree; the numbered rules are the branches.
 
-   ![Anchor](img/01-anchor.png)
+   ![Anchor](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/01-anchor.png)
 
 2) **A cloze inside its list — question stage** *(use case 1)*
 
-   Reviewing *“…it is nearly impossible to memorize sets containing more than `{{five}}` members without `{{mnemonic techniques, enumeration, grouping…}}`”* under **9. Avoid sets**. The blank being tested shows as a blue **?**; the *other* blank on the same line is revealed, and the sibling lines of rule 9 are there as context. This is the cheap alternative to a set card: one blank at a time, but never out of its list.
-
-   ![Cloze in context, question stage](img/02-cloze-question.png)
+   Reviewing the two‑blank line under **9. Avoid sets**. In the tree, that line shows **both** of its blanks as **?** — RemNote's own card area above is already rendering the line under test in full, so the tree does not compete with it. What the tree adds is the rest of rule 9 standing around it: *A set is a collection of objects*, the EU‑membership example, and the two sibling flashcards 
+with their answers in plain view. That is the cheap alternative to a set card — one blank at a time, but never out of its list.
+   ![Cloze in context, question stage](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/02-cloze-question.png)
 
 3) **Same card, answer stage**
 
    After *Show Answer*: the recovered blank is underlined and highlighted in blue, so it is immediately clear which part of the sentence you were on the hook for.
 
-   ![Cloze in context, answer stage](img/03-cloze-answer.png)
+   ![Cloze in context, answer stage](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/03-cloze-answer.png)
 
 4) **`Context Hide Others` — when the neighbours give it away**
 
-   The same line has two blanks that hint at each other. Tag that Rem with `Context Hide Others` (`cfchide`) and every *other* answer in the tree becomes a clickable `…`. Click them one at a time to self‑evaluate the rest of the list after answering.
+   Look at what shot 2 hands you for free: *“…due to ⇒ **the high cost of retaining memories based on sets**”* and *“…you should always try to ⇒ **convert them into Enumerations**”*. Those are two sibling flashcards volunteering their answers while you are still trying to recall this one. Tag the Rem under review with `Context Hide Others` (`cfchide`) and every *other* answer in the tree — those back sides included — collapses to a clickable `…`. Click them one at a time to check yourself on the rest of rule 9 once you have answered.
 
-   ![Hide Other Answers, with click-to-reveal](img/04-hide-others.png)
+   ![Hide Other Answers, with click-to-reveal](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others.png)
 
 5) **A front/back card and its direction arrow, with a Rem reference**
 
    Reviewing *“if sets are absolutely necessary, you should always try to ⇒ convert them into \[Enumerations\]”*. The back side is the answer, so it is masked as **?** and the `⇒` says the card is asked front‑to‑back. Note the *Enumerations* reference inside the tree: hover it for a preview, click it for the confirmation prompt before it leaves the queue.
 
-   ![Front/back card with direction arrow](img/05-arrow-and-reference.png)
+   ![Front/back card with direction arrow](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/05-arrow-and-reference.png)
 
 6) **The siblings — what RemNote does not show you** *(use case 2)*
 
    Reviewing the descriptor *“great advantage over sets ⇒ is that they are ordered…”* under the Concept **Enumerations―ordered lists of members**. The native card area above already gives you the lineage down to this line; what only the tree adds is the rest of what the notes say about Enumerations — the sibling lines beside this one, each carrying its own answer, shown or masked as you choose.
 
-   ![Descriptor under its concept](img/06-descriptor-under-concept.png)
+   ![Descriptor under its concept](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/06-descriptor-under-concept.png)
 
 7) **A backward Descriptor card — the Concept is masked, not the label**
 
    Reviewing *“example ⇐ the alphabetical list of the members of the EU”* — a backward Descriptor under the Concept **Enumerations―ordered lists of members**, under **10. Avoid enumerations**. The **?** lands on the *Concept*, which is what you are actually asked to recall, and not on the descriptor's label *example*. The Concept's own back side is dropped too, so that line reads as a bare **?**. This mirrors RemNote's own rendering — see [Backward Descriptor cards test the Concept, not the Descriptor](#backward-descriptor-cards-test-the-concept-not-the-descriptor).
 
-   ![Backward descriptor card](img/07-backward-descriptor.png)
+   ![Backward descriptor card](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/07-backward-descriptor.png)
 
 8) **Collapsed by default — open only what you want**
 
    Reviewing any card deep in the document while the other nineteen rules sit collapsed behind ▸ arrows. Click one to open that branch for this card only.
 
-   ![Collapsed tree, expanding a branch](img/08-collapsed-expand.png)
+   ![Collapsed tree, expanding a branch](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/08-collapsed-expand.png)
