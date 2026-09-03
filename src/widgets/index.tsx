@@ -133,6 +133,44 @@ async function onActivate(plugin: ReactRNPlugin) {
   // the tree's own widget iframe (which is only as tall as its content).
   await plugin.app.registerWidget('rem_preview', WidgetLocation.FloatingWidget, { dimensions: { width: 460, height: 'auto' } });
 
+  // Tag pill in the editor: show the plugin's node-tree mark instead of the power-up's name, so a
+  // tagged outline root reads as an icon rather than a wide text chip. Goes through registerCSS
+  // because it targets the host editor — the block below is injected locally instead, since it
+  // styles content this plugin renders inside its own widgets.
+  //
+  // The pill element itself carries nothing that names the tag; the identity lives on the Rem
+  // container that wraps the tag bar, as data-rem-tags="<slugified label>". That is per-Rem rather
+  // than per-pill, so a Rem tagged with this power-up AND something else shows the mark on both
+  // pills — accepted, since the DOM offers no way to tell one pill from another.
+  //
+  // The slug follows the label, so the selector is built from every label this plugin has shipped:
+  // a KB still on an older name is covered, and a name the user chose themselves keeps its text
+  // (we never renamed it either — see syncPowerupLabel above).
+  const CONTEXT_TREE_ICON =
+    'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22%3E' +
+    '%3Cg stroke=%22%234F5BEA%22 stroke-width=%221.9%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E' +
+    '%3Cpath d=%22M6.2 7.4V18.3%22/%3E%3Cpath d=%22M6.2 12.2H12.4%22/%3E%3Cpath d=%22M6.2 18.3H11.2%22/%3E%3C/g%3E' +
+    '%3Ccircle cx=%226.2%22 cy=%224.6%22 r=%222.9%22 fill=%22%234F5BEA%22/%3E' +
+    '%3Ccircle cx=%2215.3%22 cy=%2212.2%22 r=%222.6%22 fill=%22%234F5BEA%22/%3E' +
+    '%3Crect x=%2211.2%22 y=%2215.6%22 width=%229.4%22 height=%225.4%22 rx=%222.7%22 fill=%22%234F5BEA%22/%3E%3C/svg%3E';
+  const tagSlug = (label: string) => label.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const contextTreePill = (label: string) =>
+    `[data-rem-tags~="${tagSlug(label)}"] .hierarchy-editor__tag-bar__tag`;
+  const contextTreeLabels = [LABEL_CONTEXT_TREE, ...PREVIOUS_LABELS_CONTEXT_TREE];
+  await plugin.app.registerCSS('cfc-context-tree-pill-icon', `
+    ${contextTreeLabels.map(contextTreePill).join(',\n    ')} {
+      font-size: 0px;
+    }
+    ${contextTreeLabels.map((label) => `${contextTreePill(label)}:before`).join(',\n    ')} {
+      content: "";
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      vertical-align: -3px;
+      background: center / contain no-repeat url("${CONTEXT_TREE_ICON}");
+    }
+  `);
+
   // CSS: queue-only styling that stays close to the native look and hides in the editor.
   const CFC_CSS = `
     /* Show only inside the review queue. */
