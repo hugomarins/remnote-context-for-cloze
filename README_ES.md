@@ -30,8 +30,10 @@ Ambos casos funcionan con **cualquier tipo de tarjeta**: clozes, tarjetas Concep
 - Cómo añadir power‑ups a los Rems
   - Comandos:
     - Add Context Tree to the Cards in This Outline (código rápido `cont`)
-    - Context: Hide Other Answers for This Rem (código rápido `cfchide`)
+    - Context: Hide Other Answers for This Rem (código rápido `conthide`, antes `cfchide`)
   - Funcionan con selección múltiple.
+- Iconos de etiqueta en el editor
+  - Ambos power‑ups muestran una pequeña marca en la etiqueta del Rem en lugar de su nombre: un árbol de nodos azul para “Context Tree”, y el mismo árbol con sus respuestas sustituidas por `…` — en el ámbar que la cola usa para una respuesta oculta — para “Context Hide Others”. Si tú renombraste la etiqueta, conserva su propio texto.
 
 ## Compatibilidad con los power‑ups de visualización en la cola (plugin oficial “Hide in Queue” y plugin “Incremental Everything”)
 El árbol de contexto refleja los power‑ups de visualización en la cola del plugin oficial “Hide in Queue” de RemNote **y** del plugin Incremental Everything. Este plugin no registra ninguno de ellos — solo lee sus etiquetas cuando existen, de modo que nada se ve afectado si un power‑up no está instalado.
@@ -119,7 +121,7 @@ El árbol muestra las respuestas de las demás líneas en uno de dos modos: **re
 ## Cómo usarlo
 1. Elige un Rem como “ancla de contexto” — la cima del esquema que quieres que vean las tarjetas — y añádele el power‑up “Context Tree” (`contextForCloze`), con el comando **Add Context Tree to the Cards in This Outline** (`cont`).
 2. Empieza a repasar: siempre que cualquier descendiente se convierta en tarjeta, aparecerá debajo un árbol de contexto con raíz en el ancla.
-3. Opcional: si una tarjeta fuera a arruinarse por las respuestas reveladas de sus vecinas, añade “Context Hide Others” a **esa tarjeta** — ejecuta **Context: Hide Other Answers for This Rem** (`cfchide`). Consulta la sección dedicada más abajo.
+3. Opcional: si una tarjeta fuera a arruinarse por las respuestas reveladas de sus vecinas, añade “Context Hide Others” a **esa tarjeta** — ejecuta **Context: Hide Other Answers for This Rem** (`conthide`). Consulta la sección dedicada más abajo.
 4. Haz clic en las flechas ▸ durante el repaso para abrir la rama que quieras ver; el resto se mantiene apartado.
 5. Usa el botón 👁 de la esquina superior derecha del área de contexto para revelar u ocultar las respuestas de las demás líneas siempre que el modo actual no encaje con la tarjeta — y el botón 🏷 contiguo si quieres que esa elección quede fijada en el Rem.
 6. Deja Max Nodes como está, salvo que un árbol salga truncado (súbelo) o que un documento muy grande haga que las tarjetas tarden en aparecer (bájalo).
@@ -147,7 +149,7 @@ La línea de la propia tarjeta actual siempre aparece oculta como `?`, independi
 - Aplícalo **al Rem de la tarjeta de cloze que recibiría el spoiler no deseado de sus hermanos** — es decir, la hoja cuyo repaso quieres mantener limpio. No es un marcador de grupo: protege la tarjeta concreta en la que está.
 - **No** lo apliques al ancla ni al padre que lleva `Context Tree`. El efecto está ligado al Rem de la tarjeta que se está repasando y no se hereda hacia abajo en el árbol, así que una etiqueta en el padre no hace nada.
 - La protección es por tarjeta y unidireccional: etiquetar la tarjeta A solo limpia **el repaso de A**; no influye en lo que muestren B o C cuando les toque. Por eso, cuando varios hermanos se arruinarían mutuamente, etiqueta **cada** tarjeta que quieras proteger — cualquier hermano sin etiquetar seguirá revelando todas las respuestas durante su propio repaso.
-- Consejo: selecciona las tarjetas de cloze que quieras proteger y ejecuta **Context: Hide Other Answers for This Rem** (`cfchide`) — el comando admite selección múltiple, así que puedes etiquetarlas de una vez.
+- Consejo: selecciona las tarjetas de cloze que quieras proteger y ejecuta **Context: Hide Other Answers for This Rem** (`conthide`) — el comando admite selección múltiple, así que puedes etiquetarlas de una vez.
 
 **Cuándo usarlo.** Úsalo cuando un padre agrupe varios clozes hermanos que se arruinarían entre sí al mostrarse juntos — por ejemplo, una lista enumerada donde cada ítem es su propia tarjeta de cloze, o un conjunto de hechos paralelos que quieres recordar de forma independiente. Mantén el comportamiento por defecto (no etiquetar) cuando las respuestas vecinas sean contexto legítimo que *quieres* ver mientras recuerdas la actual.
 
@@ -197,7 +199,7 @@ Para reproducirlas: pon el cursor en el Rem del título del documento, ejecuta *
 
    ![Por defecto: las respuestas vecinas aparecen reveladas](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others.png)
 
-   **Con `Context Hide Others` (`cfchide`) — recomendado para una tarjeta así.** Toda *otra* respuesta del árbol se reduce a un `…`: los reversos de los hermanos y los clozes de las reglas 2 y 8. Cada `…` es un botón, así que una vez contestada tu propia tarjeta puedes pulsarlos de uno en uno y autoevaluarte con el resto. El ojo de la esquina superior derecha aparece ahora tachado, que es como distingues de un vistazo en qué modo estás.
+   **Con `Context Hide Others` (`conthide`) — recomendado para una tarjeta así.** Toda *otra* respuesta del árbol se reduce a un `…`: los reversos de los hermanos y los clozes de las reglas 2 y 8. Cada `…` es un botón, así que una vez contestada tu propia tarjeta puedes pulsarlos de uno en uno y autoevaluarte con el resto. El ojo de la esquina superior derecha aparece ahora tachado, que es como distingues de un vistazo en qué modo estás.
 
    ![Recomendado: las respuestas vecinas quedan ocultas](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others-recomended.png)
 
@@ -228,3 +230,11 @@ Para reproducirlas: pon el cursor en el Rem del título del documento, ejecuta *
    Repasando cualquier tarjeta del fondo del documento mientras las otras diecinueve reglas siguen plegadas tras flechas ▸. Pulsa una para abrir esa rama solo para esta tarjeta.
 
    ![Árbol plegado, desplegando una rama](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/07-collapsed-expand.gif)
+
+## Registro de cambios
+
+Lo más reciente primero. Se mantiene desde la 0.2.1 en adelante; lo anterior está en el [registro de commits](https://github.com/hugomarins/remnote-context-for-cloze/commits/main).
+
+### 0.2.1
+- **Las etiquetas muestran un icono en lugar del nombre del power‑up.** “Context Tree” es un árbol de nodos azul tomado del logo del plugin; “Context Hide Others” es el mismo árbol con sus dos respuestas sustituidas por `…`, en el ámbar que la cola usa para una respuesta oculta. Si tú renombraste la etiqueta, conserva su texto. La marca se aplica por Rem, así que un Rem que lleve uno de estos power‑ups *y* otra etiqueta la mostrará en ambas.
+- **El código rápido de “Context: Hide Other Answers for This Rem” ahora es `conthide`** (antes `cfchide`), de modo que los dos comandos del plugin empiezan por `cont`.

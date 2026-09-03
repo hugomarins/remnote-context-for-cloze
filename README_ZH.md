@@ -30,8 +30,10 @@ RemNote 本来就会显示一张卡片的*血统*——从文档一路到当前�
 - 为 Rem 添加 Power‑Up 的方式
   - 命令：
     - Add Context Tree to the Cards in This Outline（快速码 `cont`）
-    - Context: Hide Other Answers for This Rem（快速码 `cfchide`）
+    - Context: Hide Other Answers for This Rem（快速码 `conthide`，原为 `cfchide`）
   - 支持对多选 Rem 一次性添加。
+- 编辑器中的标记图标
+  - 两个 Power‑Up 都会在 Rem 的标记上显示一个小图标，而不是名称：“Context Tree” 是蓝色的节点树，“Context Hide Others” 是同一棵树、但答案被替换为 `…`，采用队列中遮挡答案所用的琥珀色。若你自己改过标记的名字，则保留你的文本。
 
 ## 与队列显示 power‑up 的兼容性
 上下文树会与 RemNote 官方“Hide in Queue”插件**以及** Incremental Everything 插件的队列显示 power‑up 保持一致。本插件不注册其中任何一个——只在它们存在时读取其标记，因此某个 power‑up 未安装也不会有任何影响。
@@ -119,7 +121,7 @@ RemNote 在这里有[一个特例](https://help.remnote.com/en/articles/6751778-
 ## 使用方法
 1. 选择一个 Rem 作为“上下文锚点”——你希望卡片能看到的那段大纲的顶端——并通过命令 **Add Context Tree to the Cards in This Outline**（`cont`）为其添加 Power‑Up“Context Tree”（`contextForCloze`）。
 2. 开始复习：当该锚点的任意子代成为题卡时，卡片下方会显示以锚点为根的“上下文树”。
-3. 可选：如果某张卡片会被邻近节点揭示的答案剧透，就给**这张卡片**添加“Context Hide Others”——运行 **Context: Hide Other Answers for This Rem**（`cfchide`）。详见下文专门章节。
+3. 可选：如果某张卡片会被邻近节点揭示的答案剧透，就给**这张卡片**添加“Context Hide Others”——运行 **Context: Hide Other Answers for This Rem**（`conthide`）。详见下文专门章节。
 4. 复习时点击 ▸ 箭头即可展开想看的分支，其余分支不会干扰回忆。
 5. 当前模式不合适时，点击上下文区域右上角的 👁 按钮，即可揭示或隐藏其他行的答案；若希望该选择长期生效，再点击它左侧的 🏷 按钮写入该 Rem。
 6. Max Nodes 一般保持默认即可：树被截断时调大，超大文档导致卡片出现变慢时调小。
@@ -136,7 +138,7 @@ RemNote 在这里有[一个特例](https://help.remnote.com/en/articles/6751778-
 - 应把它加在**会被兄弟节点剧透的那张 cloze 卡片 Rem（叶子节点）**上，也就是你希望保持“干净复习”的那张卡片。它不是分组标记：它只保护自己所在的这张卡片。
 - **不要**把它加在承载 `Context Tree` 的锚点/父级上。该效果以“当前正在复习的卡片 Rem”为准，且不会沿树向下继承，因此加在父级上不会有任何作用。
 - 保护是按卡片、单向生效的：给卡片 A 添加，只会让 **A 自己的**复习变干净，对 B、C 轮到时的显示毫无影响。所以当多张兄弟节点会互相剧透时，需要给**每一张**你想保护的卡片都添加——任何未添加的兄弟节点，在它自己复习时仍会揭示全部答案。
-- 小技巧：选中所有你想保护的 cloze 卡片，再运行 **Context: Hide Other Answers for This Rem**（`cfchide`）——该命令支持多选，可一次性添加。
+- 小技巧：选中所有你想保护的 cloze 卡片，再运行 **Context: Hide Other Answers for This Rem**（`conthide`）——该命令支持多选，可一次性添加。
 
 **何时使用。** 当某个父级下有多张兄弟 cloze 会在同时显示时互相剧透时使用——例如每一项都是独立 cloze 卡片的编号列表，或一组你想独立回忆的并列事实。如果周围的答案是你*希望*在回忆当前项时看到的合理上下文，则保持默认（不添加）。
 
@@ -195,7 +197,7 @@ RemNote 在这里有[一个特例](https://help.remnote.com/en/articles/6751778-
 
    ![默认：相邻答案处于揭示状态](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others.png)
 
-   **加上 `Context Hide Others`（`cfchide`）——这类卡片推荐这样做。** 树中所有*其他*答案都收缩成一个 `…`：兄弟节点的背面，以及第 2、8 条里的 cloze。每个 `…` 都是一个按钮，所以答完自己这张卡之后，可以逐个点开，对其余内容做自我检测。右上角的眼睛现在带上了斜线，你一眼就能看出当前处于哪种模式。
+   **加上 `Context Hide Others`（`conthide`）——这类卡片推荐这样做。** 树中所有*其他*答案都收缩成一个 `…`：兄弟节点的背面，以及第 2、8 条里的 cloze。每个 `…` 都是一个按钮，所以答完自己这张卡之后，可以逐个点开，对其余内容做自我检测。右上角的眼睛现在带上了斜线，你一眼就能看出当前处于哪种模式。
 
    ![推荐：相邻答案被遮起来](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others-recomended.png)
 
@@ -226,3 +228,11 @@ RemNote 在这里有[一个特例](https://help.remnote.com/en/articles/6751778-
    在文档深处复习任意一张卡，而其余十九条规则都折叠在 ▸ 箭头之后。点开其中一条，就只为这张卡展开那一支。
 
    ![折叠的树与展开分支](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/07-collapsed-expand.gif)
+
+## 更新日志
+
+由新到旧。自 0.2.1 起记录；更早的内容见 [提交历史](https://github.com/hugomarins/remnote-context-for-cloze/commits/main)。
+
+### 0.2.1
+- **标记上显示图标，而不是 Power‑Up 的名称。** “Context Tree” 是取自插件 logo 的蓝色节点树；“Context Hide Others” 是同一棵树，但两个答案被替换为 `…`，颜色为队列中遮挡答案所用的琥珀色。若你自己改过标记的名字，则保留该文本。图标按 Rem 生效，因此同时带有本插件 Power‑Up 和其他标记的 Rem，两个标记上都会显示该图标。
+- **“Context: Hide Other Answers for This Rem” 的快速码现在是 `conthide`**（原为 `cfchide`），这样插件的两个命令都以 `cont` 开头。

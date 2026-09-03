@@ -30,8 +30,10 @@ Both cases work for **any card type**: clozes, Concept/Descriptor cards, Questio
 - How to add power‑ups to Rems
   - Commands:
     - Add Context Tree to the Cards in This Outline (quick code `cont`)
-    - Context: Hide Other Answers for This Rem (quick code `cfchide`)
+    - Context: Hide Other Answers for This Rem (quick code `conthide`, was `cfchide`)
   - Works on multi‑selection.
+- Tag icons in the editor
+  - Both power‑ups show a small mark on the Rem's tag pill instead of their name: a blue node tree for “Context Tree”, and the same tree with its answers replaced by `…` — in the amber the queue uses for a masked answer — for “Context Hide Others”. A tag you renamed yourself keeps its own text.
 
 ## Compatibility with queue‑display power‑ups (“Hide in Queue” official plugin and "Incremental Everything" plugin)
 The context tree mirrors the queue‑display power‑ups from RemNote’s official “Hide in Queue” plugin **and** from the Incremental Everything plugin. This plugin does not register any of them — it only reads their tags when they exist, so nothing is affected if a power‑up isn’t installed.
@@ -119,7 +121,7 @@ The tree renders the other lines' answers in one of two modes: **revealed** (blu
 ## How to Use
 1. Pick a Rem as the “context anchor” — the top of the outline you want cards to see — and add the power‑up “Context Tree” (`contextForCloze`), via the command **Add Context Tree to the Cards in This Outline** (`cont`).
 2. Start reviewing: whenever any descendant becomes a card, a context tree rooted at the anchor appears under the card.
-3. Optional: if a card would be spoiled by its neighbours’ revealed answers, add “Context Hide Others” to **that card** — run **Context: Hide Other Answers for This Rem** (`cfchide`). See the dedicated section below.
+3. Optional: if a card would be spoiled by its neighbours’ revealed answers, add “Context Hide Others” to **that card** — run **Context: Hide Other Answers for This Rem** (`conthide`). See the dedicated section below.
 4. Click the ▸ arrows during review to open any branch you want to see; the rest stays out of the way.
 5. Use the 👁 button in the top‑right of the context area to reveal or hide the other lines' answers whenever the current mode does not suit the card — and the 🏷 button next to it if you want that choice to stick to the Rem.
 6. Leave Max Nodes alone unless a tree comes out truncated (raise it) or a very large document makes cards slow to appear (lower it).
@@ -147,7 +149,7 @@ The current card’s own line is always masked as `?` regardless of this power�
 - Apply it to **the cloze card Rem that would receive the unwanted spoiler from its siblings** — i.e. the leaf whose own review you want to keep clean. It is not a group marker: it protects the specific card it sits on.
 - Do **not** apply it to the anchor/parent that carries `Context Tree`. The effect is keyed to the Rem of the card currently under review, and there is no inheritance down the tree, so a tag on the parent does nothing.
 - The protection is per‑card and one‑directional: tagging card A only cleans up **A’s own** review; it has no effect on what B or C show when their turn comes. So when several siblings would each be spoiled by the others, tag **each** card you want protected — any sibling you leave untagged will still reveal all the answers during its own review.
-- Tip: select the cloze cards you want to protect and run **Context: Hide Other Answers for This Rem** (`cfchide`) — the command applies to a multi‑selection, so you can tag them in one step.
+- Tip: select the cloze cards you want to protect and run **Context: Hide Other Answers for This Rem** (`conthide`) — the command applies to a multi‑selection, so you can tag them in one step.
 
 **When to use it.** Use it when a parent groups several sibling clozes that would spoil each other if shown together — e.g. an enumerated list where each item is its own cloze card, or a set of parallel facts you want to recall independently. Keep the default (don’t tag) when the neighboring answers are legitimate context you *want* to see while recalling the current one.
 
@@ -197,7 +199,7 @@ To reproduce them: put the cursor on the document's title Rem, run **Add Context
 
    ![Default: the neighbouring answers are revealed](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others.png)
 
-   **With `Context Hide Others` (`cfchide`) — recommended for a card like this.** Every *other* answer in the tree collapses to a `…`: the siblings' back sides, and the clozes on rules 2 and 8. Each `…` is a button, so once you have answered your own card you can click them one at a time and check yourself on the rest. The eye in the top‑right is now struck through, which is how you tell at a glance which mode you are in.
+   **With `Context Hide Others` (`conthide`) — recommended for a card like this.** Every *other* answer in the tree collapses to a `…`: the siblings' back sides, and the clozes on rules 2 and 8. Each `…` is a button, so once you have answered your own card you can click them one at a time and check yourself on the rest. The eye in the top‑right is now struck through, which is how you tell at a glance which mode you are in.
 
    ![Recommended: the neighbouring answers are masked](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/04-hide-others-recomended.png)
 
@@ -228,3 +230,11 @@ To reproduce them: put the cursor on the document's title Rem, run **Add Context
    Reviewing any card deep in the document while the other nineteen rules sit collapsed behind ▸ arrows. Click one to open that branch for this card only.
 
    ![Collapsed tree, expanding a branch](https://raw.githubusercontent.com/hugomarins/remnote-context-for-cloze/main/img/07-collapsed-expand.gif)
+
+## Changelog
+
+Newest first. Kept from 0.2.1 onward; anything earlier is in the [commit log](https://github.com/hugomarins/remnote-context-for-cloze/commits/main).
+
+### 0.2.1
+- **Tag pills show an icon instead of the power‑up's name.** “Context Tree” is a blue node tree taken from the plugin's logo; “Context Hide Others” is the same tree with its two answers replaced by `…`, in the amber the queue uses for a masked answer. A tag you renamed yourself keeps its text. The mark is applied per Rem, so a Rem carrying one of these power‑ups *and* another tag shows it on both pills.
+- **Quick code for “Context: Hide Other Answers for This Rem” is now `conthide`** (was `cfchide`), so both of the plugin's commands start with `cont`.

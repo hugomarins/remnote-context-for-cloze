@@ -88,42 +88,44 @@ async function onActivate(plugin: ReactRNPlugin) {
   // The id is the STORED identity of a command (keybindings and the recent-commands list are keyed
   // by it), so it keeps its original spelling even though the name and quick code moved on.
   await plugin.app.registerCommand({ id: 'add-context-for-cloze', name: ACTION_ADD_CONTEXT_TREE, quickCode: 'cont', action: async () => runAddPowerupCommand(POW_CODE, LABEL_CONTEXT_TREE) });
-  await plugin.app.registerCommand({ id: 'add-context-hide-all-test-one', name: ACTION_HIDE_OTHER_ANSWERS, quickCode: 'cfchide', action: runHideOtherAnswersCommand });
+  await plugin.app.registerCommand({ id: 'add-context-hide-all-test-one', name: ACTION_HIDE_OTHER_ANSWERS, quickCode: 'conthide', action: runHideOtherAnswersCommand });
 
-  await plugin.app.registerCommand({ id: 'cfc-debug', name: 'CFC: Debug Probe', quickCode: 'cfcdbg', action: async () => {
-    try {
-      const sel = await plugin.editor.getSelection();
-      const remId = sel?.type === SelectionType.Rem ? sel.remIds?.[0] : sel?.remId;
-      let msg = '[CFC][Debug]';
-      msg += ` remId=${remId || 'none'}`;
-      if (remId) {
-        const power = await plugin.powerup.getPowerupByCode(POW_CODE);
-        const anchors = power ? await power.taggedRem() : [];
-        const set = new Set((anchors||[]).map((r:any)=>r._id));
-        let cur = await plugin.rem.findOne(remId);
-        let anchor:any = null;
-        while (cur?.parent) {
-          const p = await plugin.rem.findOne(cur.parent);
-          if (!p) break;
-          if (set.has(p._id)) { anchor = p; break; }
-          cur = p;
+  await plugin.app.registerCommand({
+    id: 'cfc-debug', name: 'CFC: Debug Probe', quickCode: 'cfcdbg', action: async () => {
+      try {
+        const sel = await plugin.editor.getSelection();
+        const remId = sel?.type === SelectionType.Rem ? sel.remIds?.[0] : sel?.remId;
+        let msg = '[CFC][Debug]';
+        msg += ` remId=${remId || 'none'}`;
+        if (remId) {
+          const power = await plugin.powerup.getPowerupByCode(POW_CODE);
+          const anchors = power ? await power.taggedRem() : [];
+          const set = new Set((anchors || []).map((r: any) => r._id));
+          let cur = await plugin.rem.findOne(remId);
+          let anchor: any = null;
+          while (cur?.parent) {
+            const p = await plugin.rem.findOne(cur.parent);
+            if (!p) break;
+            if (set.has(p._id)) { anchor = p; break; }
+            cur = p;
+          }
+          msg += ` anchor=${anchor?._id || 'none'}`;
         }
-        msg += ` anchor=${anchor?._id || 'none'}`;
+        const debug = await plugin.settings.getSetting('debug');
+        msg += ` debug=${!!debug}`;
+        await plugin.app.toast(msg);
+        console.log(msg);
+      } catch (e) {
+        console.error('[CFC][Debug] error', e);
+        await plugin.app.toast('CFC Debug Error - see console');
       }
-      const debug = await plugin.settings.getSetting('debug');
-      msg += ` debug=${!!debug}`;
-      await plugin.app.toast(msg);
-      console.log(msg);
-    } catch (e) {
-      console.error('[CFC][Debug] error', e);
-      await plugin.app.toast('CFC Debug Error - see console');
     }
-  }});
+  });
 
   // Question / answer widgets. Both mount at FlashcardUnder so the native card area is left
   // untouched; each component gates itself on the current stage.
   await plugin.app.registerWidget('flashcard_context_question', WidgetLocation.FlashcardUnder, { dimensions: { height: 'auto', width: '100%' } });
-  await plugin.app.registerWidget('flashcard_context_answer',   WidgetLocation.FlashcardUnder, { dimensions: { height: 'auto', width: '100%' } });
+  await plugin.app.registerWidget('flashcard_context_answer', WidgetLocation.FlashcardUnder, { dimensions: { height: 'auto', width: '100%' } });
 
   // Confirmation popup for the command above, shown only when the anchor is missing.
   await plugin.app.registerWidget('context_anchor_prompt', WidgetLocation.Popup, { dimensions: { width: 520, height: 'auto' } });
