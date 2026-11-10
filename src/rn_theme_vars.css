@@ -3,10 +3,15 @@
  * font that RemNote's own stylesheet gives <body>.
  *
  * A widget iframe gets RemNote's stylesheets only because the host sends their URLs on
- * activation (styleSheetHREFs) and the SDK links them in. On desktop that works. On iOS they do
- * not arrive, so every var(--rn-clr-*) resolves to nothing: the context tree turned black, in
- * the browser's default serif, on the dark card. The SDK still puts `dark` or `light` on <body>
- * (setDarkMode), which is what the dark block below keys on.
+ * activation (styleSheetHREFs) and the SDK links them in. On desktop that works. On iOS they did
+ * not arrive at all: every var(--rn-clr-*) resolved to nothing, and the context tree turned
+ * black, in the browser's default serif, on the dark card. The SDK still puts `dark` or `light`
+ * on <body> (setDarkMode), which is what the dark block below keys on.
+ *
+ * Since RemNote's fix (1.28.51, tested on iOS 2026-11-10) the --rn-clr-* variables DO arrive on
+ * iOS, with the right dark values, but RemNote's base `body` rule still does not: text inside the
+ * iframe stays black and serif. So the `body` rule at the bottom is the part that matters today;
+ * the variables are kept for iOS builds older than the fix.
  *
  * Same approach as Incremental Everything's src/rn_theme_vars.css. Values are RemNote's own,
  * read from the 1.30 desktop bundle (`:root,.light` / `:where(.dark)` for the scales, and
