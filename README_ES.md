@@ -32,8 +32,9 @@ Ambos casos funcionan con **cualquier tipo de tarjeta**: clozes, tarjetas Concep
     - Add Context Tree to the Cards in This Outline (código rápido `cont`)
     - Context: Hide Other Answers for This Rem (código rápido `conthide`, antes `cfchide`)
   - Funcionan con selección múltiple.
-- Iconos de etiqueta en el editor
-  - Ambos power‑ups muestran una pequeña marca en la etiqueta del Rem en lugar de su nombre: un árbol de nodos azul para “Context Tree”, y el mismo árbol con sus respuestas sustituidas por `…` — en el ámbar que la cola usa para una respuesta oculta — para “Context Hide Others”. Si tú renombraste la etiqueta, conserva su propio texto.
+- Marcas en el editor
+  - Ambos power‑ups muestran una pequeña marca en lugar de su nombre: un árbol de nodos azul para “Context Tree”, y el mismo árbol con sus respuestas sustituidas por `…` — en el ámbar que la cola usa para una respuesta oculta — para “Context Hide Others”. Si tú renombraste la etiqueta, conserva su propio texto.
+  - La marca se dibuja **en la viñeta del Rem** además de en su etiqueta. RemNote solo muestra las etiquetas por separado mientras el Rem lleva una sola: al añadir una segunda, toda la barra de etiquetas se pliega en una ficha “2 tags”, así que la viñeta es la marca que permanece visible lleve el Rem las etiquetas que lleve. Un Rem que tenga los dos power‑ups muestra las dos marcas, una al lado de la otra, en la viñeta.
 
 ## Compatibilidad con los power‑ups de visualización en la cola (plugin oficial “Hide in Queue” y plugin “Incremental Everything”)
 El árbol de contexto refleja los power‑ups de visualización en la cola del plugin oficial “Hide in Queue” de RemNote **y** del plugin Incremental Everything. Este plugin no registra ninguno de ellos — solo lee sus etiquetas cuando existen, de modo que nada se ve afectado si un power‑up no está instalado.
@@ -234,6 +235,9 @@ Para reproducirlas: pon el cursor en el Rem del título del documento, ejecuta *
 ## Registro de cambios
 
 Lo más reciente primero. Se mantiene desde la 0.2.1 en adelante; lo anterior está en el [registro de commits](https://github.com/hugomarins/remnote-context-for-cloze/commits/main).
+
+### 0.2.2
+- **La marca ahora se dibuja en la viñeta del Rem, no solo en su etiqueta.** RemNote solo muestra las etiquetas por separado mientras el Rem lleva una sola: al añadir una segunda, toda la barra de etiquetas se pliega en una ficha “2 tags” y se lleva la marca consigo. La viñeta siempre se dibuja, así que un Rem con cualquiera de los dos power‑ups se reconoce de un vistazo, lleve las etiquetas que lleve. La viñeta conserva su tamaño y la línea no se desplaza, y el anillo gris que indica una rama plegada se sigue viendo detrás de la marca. Un Rem que tenga los dos power‑ups muestra las dos marcas, una al lado de la otra.
 
 ### 0.2.1
 - **Las etiquetas muestran un icono en lugar del nombre del power‑up.** “Context Tree” es un árbol de nodos azul tomado del logo del plugin; “Context Hide Others” es el mismo árbol con sus dos respuestas sustituidas por `…`, en el ámbar que la cola usa para una respuesta oculta. Si tú renombraste la etiqueta, conserva su texto. La marca se aplica por Rem, así que un Rem que lleve uno de estos power‑ups *y* otra etiqueta la mostrará en ambas.

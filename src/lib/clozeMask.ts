@@ -6,8 +6,8 @@ export type MaskMode = 'ellipsis' | 'question' | 'none';
 const ELLIPSIS_TOKEN = '[[[CFC_EL]]]';
 const PIN_TOKEN = '[[[CFC_PIN]]]';
 
-export const ELLIPSIS_HTML = '<span class="cfc-omission" style="display:inline-block;padding:0 10px;border-radius:6px;line-height:1.2;background:var(--rn-clr-warning-muted, rgba(255,212,0,0.15));color:var(--rn-clr-warning, #b58900);border:0">…</span>';
-export const QUESTION_HTML = '<span class="cfc-question" style="display:inline-block;padding:0 12px;border-radius:6px;line-height:1.2;background:var(--rn-clr-accent-muted, rgba(56,139,253,0.15));color:var(--rn-clr-accent, #0969da);border:0">?</span>';
+export const ELLIPSIS_HTML = '<span class="cfc-omission" style="display:inline-block;padding:0 10px;border-radius:6px;line-height:1.2;background:var(--rn-clr-background-light-warning, rgba(255,212,0,0.15));color:var(--rn-clr-content-warning, #b58900);border:0">…</span>';
+export const QUESTION_HTML = '<span class="cfc-question" style="display:inline-block;padding:0 12px;border-radius:6px;line-height:1.2;background:var(--rn-clr-background-light-accent, rgba(56,139,253,0.15));color:var(--rn-clr-content-accent, #0969da);border:0">?</span>';
 
 // Rem reference "pins" are rich-text elements with i:'q' and pin:true. They must render
 // as a single pin icon, NOT the referenced rem's full text — expanding them clutters the
@@ -34,19 +34,19 @@ export const applyDelimiter = (html: string, arrow: string) => html.replaceAll(D
 // Click-to-reveal support for masked sibling clozes (used with Hide Other Answers):
 // each masked "…" carries its own revealed text (base64 in data-cfc-reveal) so it can be
 // toggled open/closed independently, letting you self-evaluate hidden clozes one at a time.
-const REVEAL_STYLE = 'text-decoration:underline;text-decoration-color:var(--rn-clr-accent, #0969da);text-decoration-thickness:2px;text-underline-offset:2px';
+const REVEAL_STYLE = 'text-decoration:underline;text-decoration-color:var(--rn-clr-content-accent, #0969da);text-decoration-thickness:2px;text-underline-offset:2px';
 const REVEAL_UNDERLINE_OPEN = `<span class="cfc-revealed-cloze" style="${REVEAL_STYLE}">`;
 
 // A whole card SIDE revealed on the answer stage. A cloze answer gets its underline from
 // revealClozeInHTML and its highlight from addClozeRevealHighlight; a front/back answer has no
 // {{...}} to key off, so the same two marks are applied to the side as a unit.
 export const wrapRevealedAnswer = (html: string) =>
-  `<span class="cfc-revealed-cloze" style="${REVEAL_STYLE};background:var(--rn-clr-accent-muted, rgba(56,139,253,0.15));border-radius:3px">${html}</span>`;
+  `<span class="cfc-revealed-cloze" style="${REVEAL_STYLE};background:var(--rn-clr-background-light-accent, rgba(56,139,253,0.15));border-radius:3px">${html}</span>`;
 const escapeHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 export const encodeReveal = (html: string) => { try { return btoa(unescape(encodeURIComponent(html))); } catch { return ''; } };
 export const decodeReveal = (b64: string) => { try { return decodeURIComponent(escape(atob(b64))); } catch { return ''; } };
 const clickableOmissionHTML = (revealHtml: string) =>
-  `<span class="cfc-omission cfc-reveal" role="button" tabindex="0" data-cfc-reveal="${encodeReveal(revealHtml)}" title="Click to reveal / hide" style="display:inline-block;padding:0 10px;border-radius:6px;line-height:1.2;background:var(--rn-clr-warning-muted, rgba(255,212,0,0.15));color:var(--rn-clr-warning, #b58900);border:0;cursor:pointer">…</span>`;
+  `<span class="cfc-omission cfc-reveal" role="button" tabindex="0" data-cfc-reveal="${encodeReveal(revealHtml)}" title="Click to reveal / hide" style="display:inline-block;padding:0 10px;border-radius:6px;line-height:1.2;background:var(--rn-clr-background-light-warning, rgba(255,212,0,0.15));color:var(--rn-clr-content-warning, #b58900);border:0;cursor:pointer">…</span>`;
 
 // The answer SIDE of a front/back card, masked as a single clickable "…". A cloze is masked span
 // by span because each span is a separate answer; a card side has no smaller unit than itself, so
@@ -64,7 +64,7 @@ export const isHintEl = (el: any) =>
 // A hint is shown, but styled so it reads as a prompt rather than as part of the sentence.
 const HINT_TOKEN_PREFIX = '[[[CFC_HINT_';
 const hintHTML = (text: string) =>
-  `<span class="cfc-hint" style="opacity:.75;font-style:italic;color:var(--rn-clr-text-secondary, #57606a)">(${escapeHtml(text.trim())})</span>`;
+  `<span class="cfc-hint" style="opacity:.75;font-style:italic;color:var(--rn-clr-content-secondary, #57606a)">(${escapeHtml(text.trim())})</span>`;
 
 // Rem REFERENCES (i:'q') get our own markup rather than whatever toHTML() emits. The host's
 // rendering carries a real link, and following it inside the widget iframe loads the whole
@@ -155,7 +155,7 @@ export function revealClozeInHTML(html: string): string {
 export function addClozeRevealHighlight(html: string): string {
   try {
     return html.replace(/<span class="cfc-revealed-cloze" style="([^"]*)">/g,
-      (_m, s1) => `<span class="cfc-revealed-cloze" style="${s1};background:var(--rn-clr-accent-muted, rgba(56,139,253,0.15));border-radius:3px">`);
+      (_m, s1) => `<span class="cfc-revealed-cloze" style="${s1};background:var(--rn-clr-background-light-accent, rgba(56,139,253,0.15));border-radius:3px">`);
   } catch {
     return html;
   }

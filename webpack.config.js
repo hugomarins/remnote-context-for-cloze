@@ -5,7 +5,6 @@ var path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { ESBuildMinifyPlugin } = require('esbuild-loader');
 const { ProvidePlugin, BannerPlugin } = require('webpack');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 
@@ -49,7 +48,11 @@ const config = {
       {
         test: /\.css$/i,
         use: [
-          isDevelopment ? 'style-loader' : MiniCssExtractPlugin.loader,
+          // Always style-loader: the CSS is injected as <style> tags by the widget's own bundle.
+          // MiniCssExtractPlugin writes separate [name].css files that the widget iframe never
+          // loads (it loads only its -sandbox.js), so imported CSS — rn_theme_vars.css above all —
+          // would reach no production build.
+          'style-loader',
           { loader: 'css-loader', options: { url: false } },
           'postcss-loader',
         ],
@@ -57,7 +60,6 @@ const config = {
     ],
   },
   plugins: [
-    isDevelopment ? undefined : new MiniCssExtractPlugin({ filename: '[name].css' }),
     new HtmlWebpackPlugin({
       templateContent: `
         <body></body>

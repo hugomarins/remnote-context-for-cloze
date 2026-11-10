@@ -1,5 +1,6 @@
 import { renderWidget, usePlugin, useRunAsync } from '@remnote/plugin-sdk';
 import * as React from 'react';
+import '../rn_theme_vars.css';
 import { useRevealDelegation } from '../lib/revealInteraction';
 import { useRevealedAnswer } from '../lib/useRevealedAnswer';
 import {
@@ -177,7 +178,7 @@ function Widget() {
   if (startCollapsedSetting === undefined) return null; // setting still loading
 
   return (
-    <div ref={rootRef} className="cfc-container" style={{ width: '100%', display: 'block', boxSizing: 'border-box', minWidth: 0, maxWidth: '100%', borderTop: '1px solid var(--rn-clr-border, #e4e8ef)', paddingTop: 6, overflowX: 'hidden', overflowY: 'visible' }}>
+    <div ref={rootRef} className="cfc-container" style={{ width: '100%', display: 'block', boxSizing: 'border-box', minWidth: 0, maxWidth: '100%', borderTop: '1px solid var(--rn-clr-border-opaque, #e4e8ef)', paddingTop: 6, overflowX: 'hidden', overflowY: 'visible' }}>
       <ContextTreeView
         items={items}
         startCollapsed={startCollapsedSetting !== false}

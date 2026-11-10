@@ -135,10 +135,11 @@ async function onActivate(plugin: ReactRNPlugin) {
   // the tree's own widget iframe (which is only as tall as its content).
   await plugin.app.registerWidget('rem_preview', WidgetLocation.FloatingWidget, { dimensions: { width: 460, height: 'auto' } });
 
-  // Tag pills in the editor: show a mark instead of the power-up's name, so a tagged Rem reads as
-  // an icon rather than a wide text chip. Goes through registerCSS because it targets the host
-  // editor — the block below is injected locally instead, since it styles content this plugin
-  // renders inside its own widgets.
+  // Marks in the editor: a tagged Rem reads as an icon rather than a wide text chip. The mark is
+  // drawn twice — on the tag pill in place of the power-up's name, and on the Rem's bullet, which
+  // is the one that survives a Rem carrying several tags (see bulletRule below). Goes through
+  // registerCSS because it targets the host editor — the block further down is injected locally
+  // instead, since it styles content this plugin renders inside its own widgets.
   //
   // The `[data-test="Applied Powerup Pill <Name>"]` form only exists for RemNote's built-in
   // power-ups; a plugin's power-up renders as an ordinary tag, and the pill itself carries nothing
@@ -154,7 +155,7 @@ async function onActivate(plugin: ReactRNPlugin) {
   // The two marks are drawn as one family: the same outline skeleton (root node, stem, two
   // branches) from public/logo.png. Context Tree ends its branches in a node and an answer chip —
   // the outline the reviewer gets to see. Hide Other Answers ends them in "…" instead, in the same
-  // amber the queue uses for a masked answer (--rn-clr-warning), which is precisely what it does.
+  // amber the queue uses for a masked answer (--rn-clr-content-warning), which is precisely what it does.
   const CONTEXT_TREE_ICON =
     'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22%3E' +
     '%3Cg stroke=%22%234F5BEA%22 stroke-width=%221.9%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E' +
@@ -173,8 +174,12 @@ async function onActivate(plugin: ReactRNPlugin) {
     '%3Ccircle cx=%2217.2%22 cy=%2218.3%22 r=%221.35%22/%3E%3Ccircle cx=%2221%22 cy=%2218.3%22 r=%221.35%22/%3E' +
     '%3C/g%3E%3C/svg%3E';
   const tagSlug = (label: string) => label.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const tagged = (label: string) => `[data-rem-tags~="${tagSlug(label)}"]`;
+  const CONTEXT_TREE_LABELS = [LABEL_CONTEXT_TREE, ...PREVIOUS_LABELS_CONTEXT_TREE];
+  const HIDE_OTHER_ANSWERS_LABELS = [LABEL_HIDE_OTHER_ANSWERS, ...PREVIOUS_LABELS_HIDE_OTHER_ANSWERS];
+
   const pillRule = (labels: string[], icon: string) => {
-    const pill = (label: string) => `[data-rem-tags~="${tagSlug(label)}"] .hierarchy-editor__tag-bar__tag`;
+    const pill = (label: string) => `${tagged(label)} .hierarchy-editor__tag-bar__tag`;
     return `
     ${labels.map(pill).join(',\n    ')} {
       font-size: 0px;
@@ -188,16 +193,59 @@ async function onActivate(plugin: ReactRNPlugin) {
       background: center / contain no-repeat url("${icon}");
     }`;
   };
+
+  // Same mark again, this time ON THE BULLET. The tag bar is not a reliable place to read: RemNote
+  // renders individual pills only while the Rem carries ONE tag — add a second and the whole bar
+  // collapses into a "2 tags" chip, taking the mark with it. The bullet is always drawn, so a Rem
+  // tagged here reads at a glance no matter what else it is tagged with.
+  //
+  // `.rem-bullet__container` is the 24x24 box RemNote draws the bullet in (--rem-button-width); it
+  // is a descendant of the same `.rn-editor__rem__body.rem-container` element that carries
+  // data-rem-tags, and the editor is a flat virtualized list — a Rem's children are separate rows,
+  // not descendants — so this cannot leak onto a tagged Rem's subtree. The mark goes on as a
+  // background so the box keeps its size and the row does not shift; `.rem-bullet__core` (the dot
+  // itself) is only made transparent, which leaves `.rem-bullet__ring` — the grey disc marking a
+  // collapsed branch — showing through behind the mark.
+  const bulletRule = (labels: string[], icon: string) => {
+    const bullet = (label: string) => `${tagged(label)} .rem-bullet__container`;
+    return `
+    ${labels.map(bullet).join(',\n    ')} {
+      background: center / 14px 14px no-repeat url("${icon}");
+    }
+    ${labels.map((label) => `${bullet(label)} .rem-bullet__core`).join(',\n    ')} {
+      fill: transparent;
+    }`;
+  };
+
+  // A Rem can legitimately carry both tags — planHideOtherAnswers() treats a Rem that is its own
+  // anchor as covered — and one background would simply hide the other. Draw both instead, side by
+  // side, widening the bullet box just enough to seat them.
+  const bothBulletRule = () => {
+    const selectors = CONTEXT_TREE_LABELS.flatMap((ct) =>
+      HIDE_OTHER_ANSWERS_LABELS.map((hoa) => `${tagged(ct)}${tagged(hoa)} .rem-bullet__container`));
+    return `
+    ${selectors.join(',\n    ')} {
+      width: 30px;
+      min-width: 30px;
+      background:
+        left center / 12px 12px no-repeat url("${CONTEXT_TREE_ICON}"),
+        right center / 12px 12px no-repeat url("${HIDE_OTHER_ANSWERS_ICON}");
+    }`;
+  };
+
   await plugin.app.registerCSS('cfc-powerup-pill-icons', [
-    pillRule([LABEL_CONTEXT_TREE, ...PREVIOUS_LABELS_CONTEXT_TREE], CONTEXT_TREE_ICON),
-    pillRule([LABEL_HIDE_OTHER_ANSWERS, ...PREVIOUS_LABELS_HIDE_OTHER_ANSWERS], HIDE_OTHER_ANSWERS_ICON),
+    pillRule(CONTEXT_TREE_LABELS, CONTEXT_TREE_ICON),
+    pillRule(HIDE_OTHER_ANSWERS_LABELS, HIDE_OTHER_ANSWERS_ICON),
+    bulletRule(CONTEXT_TREE_LABELS, CONTEXT_TREE_ICON),
+    bulletRule(HIDE_OTHER_ANSWERS_LABELS, HIDE_OTHER_ANSWERS_ICON),
+    bothBulletRule(),
   ].join('\n'));
 
   // CSS: queue-only styling that stays close to the native look and hides in the editor.
   const CFC_CSS = `
     /* Show only inside the review queue. */
-    .rn-queue__content .cfc-container { margin: 6px 0 0; padding: 0; font-size: 0.92rem; line-height: 1.45; color: var(--rn-clr-text, #1f2328); }
-    .rn-queue__content .cfc-title { display: none; color: var(--rn-clr-text-secondary, #57606a); font-weight: 600; margin-bottom: 4px; }
+    .rn-queue__content .cfc-container { margin: 6px 0 0; padding: 0; font-size: 0.92rem; line-height: 1.45; color: var(--rn-clr-content-primary, #1f2328); }
+    .rn-queue__content .cfc-title { display: none; color: var(--rn-clr-content-secondary, #57606a); font-weight: 600; margin-bottom: 4px; }
     .rn-queue__content .rn-dialog .cfc-container { display: none !important; }
 
     /* Keep the context block inside the widget iframe so no horizontal scrollbar appears. */
@@ -211,8 +259,8 @@ async function onActivate(plugin: ReactRNPlugin) {
     /* Yellow ellipsis chip (same size / radius / border as the blue question chip). */
     .rn-queue__content .cfc-omission {
       display: inline-block; padding: 0 10px; border-radius: 8px; line-height: 1.45;
-      background: var(--rn-clr-warning-muted, rgba(255,212,0,0.15));
-      color: var(--rn-clr-warning, #b58900);
+      background: var(--rn-clr-background-light-warning, rgba(255,212,0,0.15));
+      color: var(--rn-clr-content-warning, #b58900);
       border: 1px solid rgba(255,212,0,0.3);
     }
 
@@ -222,7 +270,7 @@ async function onActivate(plugin: ReactRNPlugin) {
     /* Underline hint on revealed cloze content (purely visual). */
     .rn-queue__content .cfc-revealed-cloze {
       text-decoration: underline;
-      text-decoration-color: var(--rn-clr-accent, #0969da);
+      text-decoration-color: var(--rn-clr-content-accent, #0969da);
       text-decoration-thickness: 2px;
       text-underline-offset: 2px;
     }
@@ -230,7 +278,7 @@ async function onActivate(plugin: ReactRNPlugin) {
     /* Click-to-reveal masked clozes (Hide Other Answers): the "…" is a button; */
     /* once revealed it drops the chip background so it reads as inline text. */
     .rn-queue__content .cfc-reveal { cursor: pointer; user-select: none; }
-    .rn-queue__content .cfc-reveal:hover { outline: 1px dashed var(--rn-clr-warning, #b58900); outline-offset: 1px; }
+    .rn-queue__content .cfc-reveal:hover { outline: 1px dashed var(--rn-clr-content-warning, #b58900); outline-offset: 1px; }
     .rn-queue__content .cfc-omission.cfc-revealed {
       background: transparent; color: inherit; padding: 0; cursor: pointer; user-select: text;
     }

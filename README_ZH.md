@@ -33,7 +33,8 @@ RemNote 本来就会显示一张卡片的*血统*——从文档一路到当前�
     - Context: Hide Other Answers for This Rem（快速码 `conthide`，原为 `cfchide`）
   - 支持对多选 Rem 一次性添加。
 - 编辑器中的标记图标
-  - 两个 Power‑Up 都会在 Rem 的标记上显示一个小图标，而不是名称：“Context Tree” 是蓝色的节点树，“Context Hide Others” 是同一棵树、但答案被替换为 `…`，采用队列中遮挡答案所用的琥珀色。若你自己改过标记的名字，则保留你的文本。
+  - 两个 Power‑Up 都会显示一个小图标，而不是名称：“Context Tree” 是蓝色的节点树，“Context Hide Others” 是同一棵树、但答案被替换为 `…`，采用队列中遮挡答案所用的琥珀色。若你自己改过标记的名字，则保留你的文本。
+  - 该图标除了显示在标记上，也会画在 **Rem 的项目符号（bullet）上**。RemNote 只在 Rem 仅有一个标记时才单独渲染标记；一旦加上第二个，整条标记栏就会折叠成一个“2 tags”小块——所以项目符号才是始终可见的标识，无论该 Rem 还带着什么别的标记。同时带有两个 Power‑Up 的 Rem，会在项目符号上并排显示两个图标。
 
 ## 与队列显示 power‑up 的兼容性
 上下文树会与 RemNote 官方“Hide in Queue”插件**以及** Incremental Everything 插件的队列显示 power‑up 保持一致。本插件不注册其中任何一个——只在它们存在时读取其标记，因此某个 power‑up 未安装也不会有任何影响。
@@ -232,6 +233,9 @@ RemNote 在这里有[一个特例](https://help.remnote.com/en/articles/6751778-
 ## 更新日志
 
 由新到旧。自 0.2.1 起记录；更早的内容见 [提交历史](https://github.com/hugomarins/remnote-context-for-cloze/commits/main)。
+
+### 0.2.2
+- **图标现在也会画在 Rem 的项目符号（bullet）上，而不只是标记上。** RemNote 只在 Rem 仅有一个标记时才单独渲染标记：一旦加上第二个，整条标记栏就会折叠成一个“2 tags”小块，图标也随之消失。项目符号则始终会被绘制，因此带有任一 Power‑Up 的 Rem 一眼就能认出，无论它还带着什么别的标记。项目符号保持原有尺寸，行内容不会位移，标示折叠分支的灰色圆环仍会透过图标显示。同时带有两个 Power‑Up 的 Rem 会并排显示两个图标。
 
 ### 0.2.1
 - **标记上显示图标，而不是 Power‑Up 的名称。** “Context Tree” 是取自插件 logo 的蓝色节点树；“Context Hide Others” 是同一棵树，但两个答案被替换为 `…`，颜色为队列中遮挡答案所用的琥珀色。若你自己改过标记的名字，则保留该文本。图标按 Rem 生效，因此同时带有本插件 Power‑Up 和其他标记的 Rem，两个标记上都会显示该图标。

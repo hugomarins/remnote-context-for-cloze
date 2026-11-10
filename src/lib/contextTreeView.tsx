@@ -280,19 +280,19 @@ export function ContextTreeView({ items, startCollapsed, masked, onToggleMasked,
       <style>{`
         .cfc-toggle, .cfc-mask-toggle, .cfc-mask-persist { border-radius: 4px; }
         .cfc-toggle:hover, .cfc-mask-toggle:hover, .cfc-mask-persist:hover { background: var(--rn-clr-background--hovered, rgba(148,163,184,0.22)); color: var(--rn-clr-content-primary, inherit); }
-        .cfc-toggle:focus-visible, .cfc-mask-toggle:focus-visible, .cfc-mask-persist:focus-visible { outline: 2px solid var(--rn-clr-accent, #0969da); outline-offset: 1px; }
+        .cfc-toggle:focus-visible, .cfc-mask-toggle:focus-visible, .cfc-mask-persist:focus-visible { outline: 2px solid var(--rn-clr-content-accent, #0969da); outline-offset: 1px; }
         .cfc-mask-toggle, .cfc-mask-persist { opacity: 0.55; transition: opacity 150ms ease; }
         .cfc-mask-toggle:hover, .cfc-mask-toggle:focus-visible, .cfc-mask-persist:hover, .cfc-mask-persist:focus-visible { opacity: 1; }
         /* Rem references. Our own markup, not the host's — see clozeMask/refInteraction — so it is
            styled here to read like a native reference instead of like revealed cloze text. */
         .cfc-ref {
-          color: var(--rn-clr-content-accent, var(--rn-clr-accent, #3b82f6));
+          color: var(--rn-clr-content-accent, #3b82f6);
           text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px;
           border-radius: 3px; padding: 0 1px; cursor: pointer;
         }
         .cfc-ref:hover { background: var(--rn-clr-background--hovered, rgba(59,130,246,0.12)); text-decoration-thickness: 2px; }
-        .cfc-ref:focus-visible { outline: 2px solid var(--rn-clr-accent, #0969da); outline-offset: 1px; }
-        .cfc-confirm-btn { border-radius: 5px; padding: 2px 10px; cursor: pointer; user-select: none; border: 1px solid var(--rn-clr-border, #e4e8ef); }
+        .cfc-ref:focus-visible { outline: 2px solid var(--rn-clr-content-accent, #0969da); outline-offset: 1px; }
+        .cfc-confirm-btn { border-radius: 5px; padding: 2px 10px; cursor: pointer; user-select: none; border: 1px solid var(--rn-clr-border-opaque, #e4e8ef); }
         .cfc-confirm-btn:hover { background: var(--rn-clr-background--hovered, rgba(148,163,184,0.22)); }
       `}</style>
       {onToggleMasked && (

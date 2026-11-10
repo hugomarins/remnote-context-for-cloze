@@ -32,7 +32,7 @@ export interface QueueAdaptOpts { hideSet: Set<string>; removeSet: Set<string>; 
 export interface TreeItem { id: string; depth: number; html: string; maskedHtml?: string; isCurrent?: boolean; hasCloze?: boolean; parentId?: string; hasChildren?: boolean }
 export interface QueueDisplaySets { hideSet: Set<string>; removeSet: Set<string>; noHierarchySet: Set<string> }
 
-const HIDDEN_IN_QUEUE_HTML = '<span style="opacity:.6;color:var(--rn-clr-text-secondary,#57606a);font-style:italic">Hidden in queue</span>';
+const HIDDEN_IN_QUEUE_HTML = '<span style="opacity:.6;color:var(--rn-clr-content-secondary,#57606a);font-style:italic">Hidden in queue</span>';
 
 // Official / incremental-everything queue-display power-up codes. We don't register these
 // (other plugins do) — we only read their tags so the context tree mirrors native behavior.

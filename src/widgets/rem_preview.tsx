@@ -9,6 +9,7 @@
 // with its children exactly as RemNote's native reference popup does.
 import { RemHierarchyEditorTree, renderWidget, useSessionStorageState } from '@remnote/plugin-sdk';
 import * as React from 'react';
+import '../rn_theme_vars.css';
 import { PREVIEW_REM_KEY } from '../lib/refInteraction';
 
 function RemPreview() {

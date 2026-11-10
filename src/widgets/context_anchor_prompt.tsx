@@ -7,6 +7,7 @@
 // rather than buried, because it is the reason the command asks instead of just doing it.
 import { RemViewer, renderWidget, usePlugin, useRunAsync } from '@remnote/plugin-sdk';
 import * as React from 'react';
+import '../rn_theme_vars.css';
 import { addPowerupToRems, OrphanRem } from '../lib/anchorCheck';
 import {
   LABEL_CONTEXT_TREE,
@@ -30,7 +31,7 @@ const BTN_BASE: React.CSSProperties = {
   fontSize: '0.9rem',
   cursor: 'pointer',
   userSelect: 'none',
-  border: '1px solid var(--rn-clr-border, #e4e8ef)',
+  border: '1px solid var(--rn-clr-border-opaque, #e4e8ef)',
   background: 'transparent',
   color: 'var(--rn-clr-content-primary, inherit)',
 };
@@ -237,14 +238,14 @@ function Widget() {
               ...BTN_BASE,
               ...(action.primary
                 ? {
-                    border: '1px solid var(--rn-clr-accent, #0969da)',
-                    background: 'var(--rn-clr-accent, #0969da)',
-                    color: '#fff',
+                    border: '1px solid var(--rn-clr-background-accent, #4b69ff)',
+                    background: 'var(--rn-clr-background-accent, #4b69ff)',
+                    color: 'var(--rn-clr-content-on-color, #fff)',
                   }
                 : null),
               // Drawn from state rather than left to :focus-visible, which does not always paint
               // for focus moved programmatically — the selected button must always be obvious.
-              boxShadow: focusIdx === i ? '0 0 0 2px var(--rn-clr-accent, #0969da)' : undefined,
+              boxShadow: focusIdx === i ? '0 0 0 2px var(--rn-clr-content-accent, #0969da)' : undefined,
             }}
           >
             {action.label}

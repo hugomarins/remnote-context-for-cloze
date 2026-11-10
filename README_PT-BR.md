@@ -32,8 +32,9 @@ Os dois casos funcionam com **qualquer tipo de cartão**: clozes, cartões Conce
     - Add Context Tree to the Cards in This Outline (código rápido `cont`)
     - Context: Hide Other Answers for This Rem (código rápido `conthide`, antes `cfchide`)
   - Funcionam com seleção múltipla.
-- Ícones de marcação no editor
-  - Os dois power‑ups mostram uma pequena marca na etiqueta do Rem no lugar do nome: uma árvore de nós azul para “Context Tree”, e a mesma árvore com as respostas substituídas por `…` — no âmbar que a fila usa para uma resposta escondida — para “Context Hide Others”. Se você renomeou a marcação, o texto dela é preservado.
+- Marcas no editor
+  - Os dois power‑ups mostram uma pequena marca no lugar do nome: uma árvore de nós azul para “Context Tree”, e a mesma árvore com as respostas substituídas por `…` — no âmbar que a fila usa para uma resposta escondida — para “Context Hide Others”. Se você renomeou a marcação, o texto dela é preservado.
+  - A marca é desenhada **no marcador (bullet) do Rem**, além da etiqueta. O RemNote só mostra as etiquetas separadamente enquanto o Rem tem uma só: ao adicionar a segunda, a barra de marcações inteira se recolhe numa ficha “2 tags”, então o marcador é a marca que continua visível, não importa que outras marcações o Rem tenha. Um Rem com os dois power‑ups mostra as duas marcas lado a lado no marcador.
 
 ## Compatibilidade com power‑ups de exibição na fila (plugin oficial “Hide in Queue” e plugin “Incremental Everything”)
 A árvore de contexto espelha os power‑ups de exibição na fila do plugin oficial “Hide in Queue” do RemNote **e** do plugin Incremental Everything. Este plugin não registra nenhum deles — apenas lê suas marcações quando existem, de modo que nada é afetado se um power‑up não estiver instalado.
@@ -234,6 +235,9 @@ Para reproduzi‑las: ponha o cursor no Rem do título do documento, execute **A
 ## Histórico de mudanças
 
 Do mais recente para o mais antigo. Mantido a partir da 0.2.1; o que veio antes está no [histórico de commits](https://github.com/hugomarins/remnote-context-for-cloze/commits/main).
+
+### 0.2.2
+- **A marca agora é desenhada no marcador (bullet) do Rem, não só na etiqueta.** O RemNote só mostra as etiquetas separadamente enquanto o Rem tem uma só: ao adicionar a segunda, a barra de marcações inteira se recolhe numa ficha “2 tags” e leva a marca junto. O marcador é sempre desenhado, então um Rem com qualquer um dos dois power‑ups fica reconhecível de relance, não importa que outras marcações ele tenha. O marcador mantém o tamanho e a linha não se desloca, e o anel cinza que indica um ramo recolhido continua aparecendo atrás da marca. Um Rem com os dois power‑ups mostra as duas marcas lado a lado.
 
 ### 0.2.1
 - **As marcações mostram um ícone no lugar do nome do power‑up.** “Context Tree” é uma árvore de nós azul tirada do logo do plugin; “Context Hide Others” é a mesma árvore com as duas respostas substituídas por `…`, no âmbar que a fila usa para uma resposta escondida. Se você renomeou a marcação, o texto dela é preservado. A marca é aplicada por Rem, então um Rem que tenha um destes power‑ups *e* outra marcação a exibe nas duas etiquetas.

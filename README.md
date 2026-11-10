@@ -32,8 +32,9 @@ Both cases work for **any card type**: clozes, Concept/Descriptor cards, Questio
     - Add Context Tree to the Cards in This Outline (quick code `cont`)
     - Context: Hide Other Answers for This Rem (quick code `conthide`, was `cfchide`)
   - Works on multi‑selection.
-- Tag icons in the editor
-  - Both power‑ups show a small mark on the Rem's tag pill instead of their name: a blue node tree for “Context Tree”, and the same tree with its answers replaced by `…` — in the amber the queue uses for a masked answer — for “Context Hide Others”. A tag you renamed yourself keeps its own text.
+- Marks in the editor
+  - Both power‑ups show a small mark instead of their name: a blue node tree for “Context Tree”, and the same tree with its answers replaced by `…` — in the amber the queue uses for a masked answer — for “Context Hide Others”. A tag you renamed yourself keeps its own text.
+  - The mark is drawn **on the Rem's bullet** as well as on its tag pill. RemNote renders individual tag pills only while a Rem carries a single tag — add a second and the whole tag bar collapses into a “2 tags” chip — so the bullet is the mark that stays visible whatever else the Rem is tagged with. A Rem carrying both power‑ups shows both marks side by side on the bullet.
 
 ## Compatibility with queue‑display power‑ups (“Hide in Queue” official plugin and "Incremental Everything" plugin)
 The context tree mirrors the queue‑display power‑ups from RemNote’s official “Hide in Queue” plugin **and** from the Incremental Everything plugin. This plugin does not register any of them — it only reads their tags when they exist, so nothing is affected if a power‑up isn’t installed.
@@ -234,6 +235,9 @@ To reproduce them: put the cursor on the document's title Rem, run **Add Context
 ## Changelog
 
 Newest first. Kept from 0.2.1 onward; anything earlier is in the [commit log](https://github.com/hugomarins/remnote-context-for-cloze/commits/main).
+
+### 0.2.2
+- **The mark is now drawn on the Rem's bullet, not only on its tag pill.** RemNote renders individual tag pills only while a Rem carries a single tag: add a second and the whole tag bar collapses into a “2 tags” chip, taking the mark with it. The bullet is always drawn, so a Rem tagged with either power‑up is recognisable at a glance no matter what else it is tagged with. The bullet keeps its size and the row does not shift, and the grey ring marking a collapsed branch still shows through behind the mark. A Rem carrying both power‑ups shows both marks side by side.
 
 ### 0.2.1
 - **Tag pills show an icon instead of the power‑up's name.** “Context Tree” is a blue node tree taken from the plugin's logo; “Context Hide Others” is the same tree with its two answers replaced by `…`, in the amber the queue uses for a masked answer. A tag you renamed yourself keeps its text. The mark is applied per Rem, so a Rem carrying one of these power‑ups *and* another tag shows it on both pills.
