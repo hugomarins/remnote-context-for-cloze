@@ -175,6 +175,15 @@ async function onActivate(plugin: ReactRNPlugin) {
     '%3C/g%3E%3C/svg%3E';
   const tagSlug = (label: string) => label.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
   const tagged = (label: string) => `[data-rem-tags~="${tagSlug(label)}"]`;
+  // The same Rem shown in the queue's "Extra details" list (Extra Card Detail Rems under
+  // the card). The item carries no tags itself, but the editor nested in it (for the
+  // Rem's children) holds a container whose data-rem-container-tags name the Rem's tags,
+  // so :has() reaches the item through it (Incremental RemNote's lib/extra_details_css,
+  // saved DOM of 2026-11-13). The item's bullet is its direct `> .rem-bullet__container`.
+  const extraDetails = (...labels: string[]) =>
+    `.extra-card-detail__item:has(> #hierarchy-editor > #hierarchy-editor-inner > ${labels
+      .map((label) => `[data-rem-container-tags~="${tagSlug(label)}"]`)
+      .join('')})`;
   const CONTEXT_TREE_LABELS = [LABEL_CONTEXT_TREE, ...PREVIOUS_LABELS_CONTEXT_TREE];
   const HIDE_OTHER_ANSWERS_LABELS = [LABEL_HIDE_OTHER_ANSWERS, ...PREVIOUS_LABELS_HIDE_OTHER_ANSWERS];
 
@@ -207,12 +216,18 @@ async function onActivate(plugin: ReactRNPlugin) {
   // itself) is only made transparent, which leaves `.rem-bullet__ring` — the grey disc marking a
   // collapsed branch — showing through behind the mark.
   const bulletRule = (labels: string[], icon: string) => {
-    const bullet = (label: string) => `${tagged(label)} .rem-bullet__container`;
+    const bullet = (label: string) =>
+      `${tagged(label)} .rem-bullet__container,\n    ${extraDetails(label)} > .rem-bullet__container`;
     return `
     ${labels.map(bullet).join(',\n    ')} {
       background: center / 14px 14px no-repeat url("${icon}");
     }
-    ${labels.map((label) => `${bullet(label)} .rem-bullet__core`).join(',\n    ')} {
+    ${labels
+      .flatMap((label) => [
+        `${tagged(label)} .rem-bullet__container .rem-bullet__core`,
+        `${extraDetails(label)} > .rem-bullet__container .rem-bullet__core`,
+      ])
+      .join(',\n    ')} {
       fill: transparent;
     }`;
   };
@@ -222,7 +237,10 @@ async function onActivate(plugin: ReactRNPlugin) {
   // side, widening the bullet box just enough to seat them.
   const bothBulletRule = () => {
     const selectors = CONTEXT_TREE_LABELS.flatMap((ct) =>
-      HIDE_OTHER_ANSWERS_LABELS.map((hoa) => `${tagged(ct)}${tagged(hoa)} .rem-bullet__container`));
+      HIDE_OTHER_ANSWERS_LABELS.flatMap((hoa) => [
+        `${tagged(ct)}${tagged(hoa)} .rem-bullet__container`,
+        `${extraDetails(ct, hoa)} > .rem-bullet__container`,
+      ]));
     return `
     ${selectors.join(',\n    ')} {
       width: 30px;
