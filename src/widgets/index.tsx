@@ -187,18 +187,30 @@ async function onActivate(plugin: ReactRNPlugin) {
   const CONTEXT_TREE_LABELS = [LABEL_CONTEXT_TREE, ...PREVIOUS_LABELS_CONTEXT_TREE];
   const HIDE_OTHER_ANSWERS_LABELS = [LABEL_HIDE_OTHER_ANSWERS, ...PREVIOUS_LABELS_HIDE_OTHER_ANSWERS];
 
+  // These powerups have no slots, so RemNote draws them only as a Tag Bar pill whose label is
+  // the ⚡ .rem-powerup-icon plus the name, with nothing naming it (the data-test form above is
+  // for built-ins and powerups with slots; both are covered). Only that pill is restyled, not the
+  // Rem's other pills (Extra Card Detail, the user's tags). The mark is a fixed-size flex item of
+  // the pill itself and the label is hidden: drawn inside the label, the mark would vanish, as
+  // the label clips and may shrink to nothing (Incremental RemNote's pronunciation pill,
+  // 2026-11-13). The ✕ stays.
   const pillRule = (labels: string[], icon: string) => {
-    const pill = (label: string) => `${tagged(label)} .hierarchy-editor__tag-bar__tag`;
+    const pills = (label: string) => [
+      `.hierarchy-editor__tag-bar__tag[data-test="Applied Powerup Pill ${label}"]`,
+      `.rn-editor__rem__body${tagged(label)} [data-test="Tag Bar"] .hierarchy-editor__tag-bar__tag:has(.rem-powerup-icon)`,
+    ];
+    const label = ' > :not(.rn-tag__close):not([data-test$="Close Button"]):not([data-test^="Remove Applied Powerup"])';
     return `
-    ${labels.map(pill).join(',\n    ')} {
-      font-size: 0px;
+    ${labels.flatMap(pills).map((p) => `${p}${label}`).join(',\n    ')} {
+      display: none;
     }
-    ${labels.map((label) => `${pill(label)}:before`).join(',\n    ')} {
+    ${labels.flatMap(pills).map((p) => `${p}:before`).join(',\n    ')} {
       content: "";
-      display: inline-block;
+      flex: 0 0 14px;
+      align-self: center;
       width: 14px;
       height: 14px;
-      vertical-align: -3px;
+      margin: 0 2px 0 3px;
       background: center / contain no-repeat url("${icon}");
     }`;
   };
